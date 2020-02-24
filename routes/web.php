@@ -11,6 +11,6 @@
 |
 */
 Route::name('index.')->group( function(){
-    Route::get('/index','IndexController@index')->name('index1');
-    Route::get('/','IndexController@index')->name('index2');
+    Route::get('/index','Index\IndexController@index')->name('index1');
+    Route::get('/','Index\IndexController@index')->name('index2');
 });
