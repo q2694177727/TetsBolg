@@ -71,7 +71,7 @@
 
                         <div class="media-body">
                             <h3 class="title mb-1"><a href="{{ route("article.info",["id"=>$vo->article_id ])  }}">{{$vo->article_name}}</a></h3>
-                            <div class="meta mb-1"><span class="date">Published 2 days ago</span><span class="time">5 min read</span><span class="comment"><a href="#">{{$vo->article_type_name}}</a></span></div>
+                            <div class="meta mb-1"><span class="date">Published {{ getSortTime(time()-strtotime($vo->created_at)) }} </span><span class="time">ago {{ getSortTime(time()-strtotime($vo->now_read_time)) }} read</span><span class="comment"><a href="#">{{$vo->article_type_name}}</a></span></div>
                             <div class="intro">{{$vo->article_easy}}</div>
                             <a class="more-link" href="{{ route("article.info",["id"=>$vo->article_id ])  }}">Read more &rarr;</a>
                         </div><!--//media-body-->
