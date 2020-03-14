@@ -28,7 +28,7 @@
             ,cols: [[ //表头
                 {field:'article_name', width:240, title: '文章标题'},
                 {field:'created_at', width: 200, title: '创建时间'},
-                {field:'article_type_id', width: 200, title: '文章类型'},
+                {field:'article_type_name', width: 200, title: '文章类型'},
                 {field:'article_easy', minWidth: 200, title: '文章简介'},
                 {width:280,templet: '#switchTpl',title:'操作'}
             ]]

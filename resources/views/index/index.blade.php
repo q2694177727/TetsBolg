@@ -3,48 +3,7 @@
 @include('index.head')
 <body>
 
-<header class="header text-center">
-    <h1 class="blog-name pt-lg-4 mb-0"><a href="index.html">Shovain's  Blog</a></h1>
-
-    <nav class="navbar navbar-expand-lg navbar-dark" >
-
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div id="navigation" class="collapse navbar-collapse flex-column" >
-            <div class="profile-section pt-3 pt-lg-0">
-                <img class="profile-image mb-3 rounded-circle mx-auto" src="/images/profile.png" alt="image" >
-
-                <div class="bio mb-3">仅记录个人心得<br><a href="about.html">关于更多</a></div><!--//bio-->
-                <ul class="social-list list-inline py-3 mx-auto">
-                    <li class="list-inline-item"><a href="#"><i class="fab fa-twitter fa-fw"></i></a></li>
-                    <li class="list-inline-item"><a href="#"><i class="fab fa-linkedin-in fa-fw"></i></a></li>
-                    <li class="list-inline-item"><a href="#"><i class="fab fa-github-alt fa-fw"></i></a></li>
-                    <li class="list-inline-item"><a href="#"><i class="fab fa-stack-overflow fa-fw"></i></a></li>
-                    <li class="list-inline-item"><a href="#"><i class="fab fa-codepen fa-fw"></i></a></li>
-                </ul><!--//social-list-->
-                <hr>
-            </div><!--//profile-section-->
-
-            <ul class="navbar-nav flex-column text-left">
-                <li class="nav-item active">
-                    <a class="nav-link" href="index.html"><i class="fas fa-home fa-fw mr-2"></i>Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="blog-post.html"><i class="fas fa-bookmark fa-fw mr-2"></i>Blog Post</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="about.html"><i class="fas fa-user fa-fw mr-2"></i>About Me</a>
-                </li>
-            </ul>
-
-            <div class="my-2 my-md-3">
-                <a class="btn btn-primary" href="/" target="_blank">Get in Touch</a>
-            </div>
-        </div>
-    </nav>
-</header>
+@include('index.header')
 
 <div class="main-wrapper">
     <section class="cta-section theme-bg-light py-5">
@@ -68,10 +27,9 @@
                         @if( !empty($vo->article_img))
                             <img class="mr-3 img-fluid post-thumb d-none d-md-flex" src="{{$vo->article_img}}" alt="image">
                         @endif
-
                         <div class="media-body">
                             <h3 class="title mb-1"><a href="{{ route("article.info",["id"=>$vo->article_id ])  }}">{{$vo->article_name}}</a></h3>
-                            <div class="meta mb-1"><span class="date">Published {{ getSortTime(time()-strtotime($vo->created_at)) }} </span><span class="time">ago {{ getSortTime(time()-strtotime($vo->now_read_time)) }} read</span><span class="comment"><a href="#">{{$vo->article_type_name}}</a></span></div>
+                            <div class="meta mb-1"><span class="date">Published {{ getSortTime(time()-strtotime($vo->created_at)) }} </span><span class="time">ago {{ getSortTime(time()-strtotime($vo->now_read_time)) }} read</span><span class="comment"><a href="#">{{$vo["article_type"]["article_type_name"]}}</a></span></div>
                             <div class="intro">{{$vo->article_easy}}</div>
                             <a class="more-link" href="{{ route("article.info",["id"=>$vo->article_id ])  }}">Read more &rarr;</a>
                         </div><!--//media-body-->
@@ -80,18 +38,21 @@
             @endforeach
 
             <nav class="blog-nav nav nav-justified my-5">
-                <a class="nav-link-prev nav-item nav-link d-none rounded-left" href="#">Previous<i class="arrow-prev fas fa-long-arrow-alt-left"></i></a>
-                <a class="nav-link-next nav-item nav-link rounded" href="blog-list.html">Next<i class="arrow-next fas fa-long-arrow-alt-right"></i></a>
+                @if($totalPage==1)
+                    @elseif($page==1)
+                    <a class="nav-link-next nav-item nav-link rounded" href="?page={{$page+1}}&limit={{$limit}}">Next<i class="arrow-next fas fa-long-arrow-alt-right"></i></a>
+                    @elseif($totalPage==$page)
+                    <a class="nav-link-prev nav-item nav-link  rounded" href="?page={{$page-1}}&limit={{$limit}}">Previous<i class="arrow-prev fas fa-long-arrow-alt-left"></i></a>
+                    @else
+                    <a class="nav-link-prev nav-item nav-link rounded-left" href="?page={{$page-1}}&limit={{$limit}}">Previous<i class="arrow-prev fas fa-long-arrow-alt-left"></i></a>
+                    <a class="nav-link-next nav-item nav-link rounded-right" href="?page={{$page+1}}&limit={{$limit}}">Next<i class="arrow-next fas fa-long-arrow-alt-right"></i></a>
+                @endif
+
             </nav>
 
         </div>
     </section>
-
-    <footer class="footer text-center py-2 theme-bg-dark">
-
-        <small class="copyright">Designed with <i class="fas fa-heart"></i> by 3rdwavemedia for developers / More Templates <a href="http://www.cssmoban.com/" target="_blank" title="模板之家">模板之家</a> - Collect from <a href="http://www.cssmoban.com/" title="网页模板" target="_blank">网页模板</a></small>
-
-    </footer>
+@include('index.footer')
 
 </div><!--//main-wrapper-->
 
@@ -119,19 +80,13 @@
 
 
 
-<!-- Javascript -->
-<script src="/plugins/jquery-3.3.1.min.js"></script>
-<script src="/plugins/popper.min.js"></script>
-<script src="/plugins/bootstrap/js/bootstrap.min.js"></script>
-
-<!-- Style Switcher (REMOVE ON YOUR PRODUCTION SITE) -->
-<script src="/js/demo/style-switcher.js"></script>
 
 
 
 
 
 
-@include('index.footer')
+
+
 </body>
 </html>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Index;
 
+use App\Models\Article;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
@@ -14,7 +15,26 @@ class IndexController extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
     public function index(){
-       $data    =    DB::select("select * from article JOIN  article_type  on article.article_type_id = article_type.article_type_id");
-       return  view("index.index",["data"=>$data]);
+        $totalNum  =    Article::count();
+        $limit  =   request("limit",15);
+        $page   =   request("page",1);
+        $totalPage  =   ceil($totalNum/$limit);
+
+        if($page<0){
+            $page   =   1;
+        }
+        if($page>$totalPage){
+            $page   =   $totalPage;
+        }
+        if($limit<0){
+            $limit   =   15;
+        }
+        if($limit>100){
+            $limit   =   15;
+        }
+
+       $data   =   Article::offset(($page-1)*$limit)->limit($limit)->get();
+
+       return  view("index.index",["data"=>$data,'page'=>$page,"totalPage"=>$totalPage,"limit"=>$limit]);
     }
 }

@@ -7,7 +7,6 @@
  *  $returnType     true时只显示最大 否则显示至秒
  * */
 function getSortTime($time,$returnType=true){
-
     $result     =   "";
     switch ($time){
         case $time < 60:
@@ -44,6 +43,9 @@ function getSortTime($time,$returnType=true){
             $result     =   $returnType ?
                 ceil($time/60/60/24/30/12) . " years" :
                 ceil($time/60/60/24/30/12) . " years " . ceil(($time/60/60/24/30)%12) . " months " . ceil(($time/60/60/24)%30) . " days " .  ceil(($time/60/60)%24) . " hours " . ceil(($time/60) %60) . " minutes " . ceil($time%60) ." seconds";
+            break;
+        default:
+            $result     =   $time . " seconds";
             break;
     }
     return $result;

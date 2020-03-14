@@ -6,7 +6,7 @@ use Illuminate\Routing\Controller as BaseController;
 class ApiController extends BaseController {
 
     public function articleList(){
-        $data   =   Article::offset((request("page",1)-1)*request("limit",15))->limit(request("limit",15))->get();
+        $data   =   Article::with("article_type")->offset((request("page",1)-1)*request("limit",15))->limit(request("limit",15))->get();
         return ["code"=>0,"count"=>count($data),"data"=>$data];
     }
     public function addArticle(){

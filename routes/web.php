@@ -17,7 +17,6 @@ Route::name('index.')->group( function(){
     Route::get('/index.php','Index\IndexController@index')->name('index4');
 });
 Route::get('/article/{id}', 'Index\ArticleController@info')->name('article.info');
-
 /*
  * 接口
  * */
@@ -38,8 +37,8 @@ Route::name('shovain.')->group( function(){
     Route::get('/shovain/index.php','Home\IndexController@index')->name('admin4');
 });
 Route::get('/shovain/article/list', 'Home\ArticleController@lists');
-Route::get('shovain/article/info', 'Home\ArticleController@info')->name('article.info');
-Route::get('shovain/article/adds', 'Home\ArticleController@adds')->name('article.adds');
+Route::get('shovain/article/info', 'Home\ArticleController@info')->name('shovain.article.info');
+Route::get('shovain/article/adds', 'Home\ArticleController@adds')->name('shovain.article.adds');
 Route::get('/shovain/welcome','Home\IndexController@welcome')->name('welcome');
 
 Auth::routes();

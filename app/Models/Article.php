@@ -8,11 +8,14 @@ class Article extends Model{
     protected $primaryKey   =   'article_id';
     public function article_type()
     {
-        return $this->hasOne('App\ArticleType',"article_type_id","article_type_id");
+        return $this->hasOne('App\Models\ArticleType',"article_type_id","article_type_id");
     }
     public function getArticleTypeIdAttribute($value)
     {
         $name   =   DB::table("article_type")->where("article_type_id",$value)->value("article_type_name");
-        return $name;
+        $this->attributes['article_type_name']   =   $name;
+        return $value;
     }
 }
+
+

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Index;
 
+use App\Models\Article;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
@@ -14,7 +15,16 @@ class ArticleController extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
     public function info($id){
-        $data    =    DB::selectOne("select * from article as a , article_type as types   where  a.article_type_id = types.article_type_id  and `article_id`= ".$id);
-        dump($data);
+        $data   =   Article::with("article_type")->find( $id);
+        /*
+         * 上一页
+         * */
+        $previous   = Article::where("article_id","<",$id)->orderBy("article_id","desc")->value("article_id");
+
+        /*
+         * 下一页
+         * */
+        $next   =   Article::where("article_id",">",$id)->orderBy("article_id","asc")->value("article_id");
+        return view("article.info",["data"=>$data,"previous"=>$previous,"next"=>$next]);
     }
 }
