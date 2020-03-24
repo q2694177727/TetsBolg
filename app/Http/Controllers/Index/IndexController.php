@@ -15,7 +15,9 @@ class IndexController extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
     public function index(){
-        $totalNum  =    Article::count();
+        $search     =   "%".request("search","")."%";
+
+        $totalNum  =    Article::where("article_name","LIKE",$search)->orWhere("article_easy","LIKE",$search)->count();
         $limit  =   request("limit",15);
         $page   =   request("page",1);
         $totalPage  =   ceil($totalNum/$limit);
@@ -33,7 +35,7 @@ class IndexController extends BaseController
             $limit   =   15;
         }
 
-       $data   =   Article::offset(($page-1)*$limit)->limit($limit)->get();
+       $data   =   Article::where("article_name","LIKE",$search)->orWhere("article_easy","LIKE",$search)->offset(($page-1)*$limit)->limit($limit)->get();
 
        return  view("index.index",["data"=>$data,'page'=>$page,"totalPage"=>$totalPage,"limit"=>$limit]);
     }

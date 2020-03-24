@@ -22,8 +22,13 @@ Route::get('/article/{id}', 'Index\ArticleController@info')->name('article.info'
  * */
 
 Route::get('/api/article/list', 'Home\ApiController@articleList')->name('article.list');
+Route::get('/api/article/type', 'Home\ApiController@articleListType')->name('article.type');
 Route::post('/api/article/editArticle', 'Home\ApiController@editArticle')->name('article.editArticle');
 Route::post('/api/article/addArticle', 'Home\ApiController@addArticle')->name('article.addArticle');
+
+Route::post('/api/article/editArticleType', 'Home\ApiController@editArticleType')->name('article.editArticleType');
+Route::post('/api/article/addArticleType', 'Home\ApiController@addArticleType')->name('article.addArticleType');
+
 /*
  * 后台路由
  *
@@ -37,8 +42,12 @@ Route::name('shovain.')->group( function(){
     Route::get('/shovain/index.php','Home\IndexController@index')->name('admin4');
 });
 Route::get('/shovain/article/list', 'Home\ArticleController@lists');
+Route::get('/shovain/article/type', 'Home\ArticleController@types');
 Route::get('shovain/article/info', 'Home\ArticleController@info')->name('shovain.article.info');
 Route::get('shovain/article/adds', 'Home\ArticleController@adds')->name('shovain.article.adds');
+Route::get('shovain/article/typeinfo', 'Home\ArticleController@typeinfo')->name('shovain.article.typeinfo');
+Route::get('shovain/article/typeadds', 'Home\ArticleController@typeadds')->name('shovain.article.typeadds');
+
 Route::get('/shovain/welcome','Home\IndexController@welcome')->name('welcome');
 
 Auth::routes();

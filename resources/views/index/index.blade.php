@@ -38,7 +38,7 @@
             @endforeach
 
             <nav class="blog-nav nav nav-justified my-5">
-                @if($totalPage==1)
+                @if($totalPage==1 || $totalPage==0)
                     @elseif($page==1)
                     <a class="nav-link-next nav-item nav-link rounded" href="?page={{$page+1}}&limit={{$limit}}">Next<i class="arrow-next fas fa-long-arrow-alt-right"></i></a>
                     @elseif($totalPage==$page)
@@ -82,7 +82,31 @@
 
 
 
+<script>
+    // 如果高度不足一个屏幕的话让footer到最底部
+    var nowh    =   $(window).height()
+    var articleh    =  $(".blog-list").height()
+    if((articleh-361) <nowh){
+        $(".blog-list").height($(window).height()-361)
+    }
+    $(window).resize(function () {          //当浏览器大小变化时
+        var nowh    =   $(window).height()
+        var articleh    =  $(".blog-list").height()
+        if((articleh-361) <nowh){
+            $(".blog-list").height($(window).height()-361)
+        }
+    });
+    $(".blog-list").resize(function () {          //当浏览器大小变化时 更改大小 有时会产生BUG  此监听器为处理此BUG
+        var nowh    =   $(window).height()
+        var articleh    =  $(".blog-list").height()
+        if((articleh-361) <nowh){
+            $(".blog-list").height($(window).height()-361)
+        }
+    });
 
+
+
+</script>
 
 
 

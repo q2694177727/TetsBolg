@@ -19,5 +19,14 @@ class ArticleController extends CommonController {
         $data["article_type"]   =   ArticleType::all();
         return view("admin.article.adds",$data);
     }
-
+    public function types(){
+        return view("admin.article.type");
+    }
+    public function typeinfo(){
+        $data   =   ArticleType::find(request("id"));
+        return view("admin.article.typeinfo",["info"=>$data]);
+    }
+    public function typeadds(){
+        return view("admin.article.typeadds");
+    }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Home;
 use App\Models\Article;
+use App\Models\ArticleType;
 use Illuminate\Routing\Controller as BaseController;
 
 class ApiController extends BaseController {
@@ -34,4 +35,39 @@ class ApiController extends BaseController {
             return json_encode(["code"=>-1,"msg"=>"修改失败！"]);
         }
     }
+    public function articleListType(){
+        $data   =   ArticleType::all();
+        return ["code"=>0,"count"=>count($data),"data"=>$data];
+    }
+
+    public function addArticleType(){
+        $model  =   new ArticleType();
+        $model->article_type_name    =   request("article_type_name");
+        $res    =   $model->save();
+        if($res){
+            return json_encode(["code"=>1,"msg"=>"增加成功！"]);
+        }else{
+            return json_encode(["code"=>-1,"msg"=>"增加失败！"]);
+        }
+    }
+    public function editArticleType(){
+        $res  =   ArticleType::where("article_type_id",request("article_type_id"))->update([
+            "article_type_name"    =>   request("article_type_name"),
+        ]);
+        if($res){
+            return json_encode(["code"=>1,"msg"=>"修改成功！"]);
+        }else{
+            return json_encode(["code"=>-1,"msg"=>"修改失败！"]);
+        }
+    }
+
+    public function delArticleType(){
+        $res  =   ArticleType::destroy(request("article_type_id"));
+        if($res){
+            return json_encode(["code"=>1,"msg"=>"删除成功！"]);
+        }else{
+            return json_encode(["code"=>-1,"msg"=>"删除失败！"]);
+        }
+    }
+
 }

@@ -11,7 +11,7 @@
  Target Server Version : 50717
  File Encoding         : 65001
 
- Date: 14/03/2020 16:56:36
+ Date: 24/03/2020 17:02:43
 */
 
 SET NAMES utf8mb4;
@@ -32,7 +32,7 @@ CREATE TABLE `article`  (
   `now_read_time` datetime(0) DEFAULT NULL COMMENT '最后一个人读取时间',
   `updated_at` datetime(0) DEFAULT NULL,
   PRIMARY KEY (`article_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of article
@@ -55,17 +55,19 @@ DROP TABLE IF EXISTS `article_type`;
 CREATE TABLE `article_type`  (
   `article_type_id` int(11) NOT NULL AUTO_INCREMENT,
   `article_type_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '类型名称',
+  `updated_at` datetime(0) DEFAULT NULL,
+  `created_at` datetime(0) DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`article_type_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of article_type
 -- ----------------------------
-INSERT INTO `article_type` VALUES (1, '数据库基础');
-INSERT INTO `article_type` VALUES (2, 'PHP基础');
-INSERT INTO `article_type` VALUES (3, 'Laravel学习');
-INSERT INTO `article_type` VALUES (4, 'layui前端');
-INSERT INTO `article_type` VALUES (5, 'Thinkphp进阶');
+INSERT INTO `article_type` VALUES (1, '数据库基础', NULL, NULL);
+INSERT INTO `article_type` VALUES (2, 'PHP基础', NULL, NULL);
+INSERT INTO `article_type` VALUES (3, 'Laravel学习', NULL, NULL);
+INSERT INTO `article_type` VALUES (4, 'layui前端', NULL, NULL);
+INSERT INTO `article_type` VALUES (5, 'Thinkphp进阶', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for migrations

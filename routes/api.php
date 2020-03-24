@@ -20,3 +20,4 @@ Route::post("/testapi",function(){
     return  123;
 });
 
+Route::post('/article/delArticleType', 'Home\ApiController@delArticleType')->name('article.delArticleType');
