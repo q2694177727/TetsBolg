@@ -1,0 +1,53 @@
+epvo): $mod = ($i % 2 );++$i;?>
+    <a  class="aaaaaaa layui-btn" href="<?php echo url('eventing'); ?>?dep=<?php echo htmlentities($depvo['department_id']); ?>" title="<?php echo htmlentities($depvo['department_name']); ?>"><?php echo htmlentities($depvo['department_name']); ?></a>
+    <?php endforeach; endif; else: echo "" ;endif; ?>
+    <table class="layui-table" id="test" lay-filter="test">
+    </table>
+
+</div>
+<script type="text/html" id="toolbarDemo">
+    <button class="layui-btn layui-btn-sm" lay-event="getCheckData">批量催办</button>
+    <button class="layui-btn layui-btn-sm" lay-event="getCheckLength">批量回退</button>
+    <button class="layui-btn layui-btn-sm" lay-event="isAll">批量延时</button>
+</script>
+<script type="text/html" id="switchTpl">
+    <!-- 这里的 checked 的状态只是演示 -->
+    <bottom class="layui-btn" onclick="parent.x_admin_add_to_tab('查看','<?php echo url('commandcore/edit'); ?>?event_id={{d.event_id}}',true)">查看</bottom>
+    <bottom class="layui-btn" onclick="x_admin_show('办理过程','<?php echo url('commandcore/event_log'); ?>?event_id={{d.event_id}}')">办理过程</bottom>
+    <bottom class="layui-btn layui-btn-danger" onclick="huitui({{d.event_id}})">回退</bottom>
+    <bottom class="layui-btn layui-btn-danger" onclick="cuiban({{d.event_id}})">催办</bottom>
+    <bottom class="layui-btn layui-btn-danger" onclick="x_admin_show('延时','<?php echo url('commandcore/yanshi'); ?>?event_id={{d.event_id}}')">延时</bottom>
+
+</script>
+<script type="text/html" id="shengyushijian">
+    <!-- 这里的 checked 的状态只是演示 -->
+    {{ d.shengshijian.substr(0,1) == "-" ? '<span style="color:red">'+d.shengshijian+'</span>'  : '<span style="color:green">'+d.shengshijian+'</span>' }}
+
+</script>
+<script>
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#start' //指定元素
+        });
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#end' //指定元素
+        });
+
+
+    });
+</script>
+<script>
+    layui.use('table', function(){
+        var table = layui.table;
+
+        //第一个实例
+        table.render({
+
+            elem: '#test'
+            ,height: 550
+            ,url: '/index/commandcore/eventing?start=<?php echo htmlentities(app('request')->get('start')); ?>&end=<?php echo htmlentities(app('request')->get('end')); ?>&event_no=<?php echo htmlentities(app('request')->get('event_no')); ?>&dep=<?p

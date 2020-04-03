@@ -1,0 +1,60 @@
+ion (fnName, args) {
+            var cmdName = args[0].toLowerCase(),
+                cmd, cmdFn;
+            cmd = this.commands[cmdName] || UE.commands[cmdName];
+            cmdFn = cmd && cmd[fnName];
+            //没有querycommandstate或者没有command的都默认返回0
+            if ((!cmd || !cmdFn) && fnName == 'queryCommandState') {
+                return 0;
+            } else if (cmdFn) {
+                return cmdFn.apply(this, args);
+            }
+        },
+
+        /**
+         * 执行编辑命令cmdName，完成富文本编辑效果
+         * @method execCommand
+         * @param { String } cmdName 需要执行的命令
+         * @remind 具体命令的使用请参考<a href="#COMMAND.LIST">命令列表</a>
+         * @return { * } 返回命令函数运行的返回值
+         * @example
+         * ```javascript
+         * editor.execCommand(cmdName);
+         * ```
+         */
+        execCommand: function (cmdName) {
+            cmdName = cmdName.toLowerCase();
+            var me = this,
+                result,
+                cmd = me.commands[cmdName] || UE.commands[cmdName];
+            if (!cmd || !cmd.execCommand) {
+                return null;
+            }
+            if (!cmd.notNeedUndo && !me.__hasEnterExecCommand) {
+                me.__hasEnterExecCommand = true;
+                if (me.queryCommandState.apply(me,arguments) != -1) {
+                    me.fireEvent('saveScene');
+                    me.fireEvent.apply(me, ['beforeexeccommand', cmdName].concat(arguments));
+                    result = this._callCmdFn('execCommand', arguments);
+                    //保存场景时，做了内容对比，再看是否进行contentchange触发，这里多触发了一次，去掉
+//                    (!cmd.ignoreContentChange && !me._ignoreContentChange) && me.fireEvent('contentchange');
+                    me.fireEvent.apply(me, ['afterexeccommand', cmdName].concat(arguments));
+                    me.fireEvent('saveScene');
+                }
+                me.__hasEnterExecCommand = false;
+            } else {
+                result = this._callCmdFn('execCommand', arguments);
+                (!me.__hasEnterExecCommand && !cmd.ignoreContentChange && !me._ignoreContentChange) && me.fireEvent('contentchange')
+            }
+            (!me.__hasEnterExecCommand && !cmd.ignoreContentChange && !me._ignoreContentChange) && me._selectionChange();
+            return result;
+        },
+
+        /**
+         * 根据传入的command命令，查选编辑器当前的选区，返回命令的状态
+         * @method  queryCommandState
+         * @param { String } cmdName 需要查询的命令名称
+         * @remind 具体命令的使用请参考<a href="#COMMAND.LIST">命令列表</a>
+         * @return { Number } number 返回放前命令的状态，返回值三种情况：(-1|0|1)
+         * @example
+         * ```

@@ -1,0 +1,2507 @@
+'){
+                    var tmpNode;
+                    while(tmpNode = n.children.pop()) {
+                        newChildrens.splice(index,0,tmpNode);
+                        tmpNode.parentNode = li;
+                        lastNode = tmpNode;
+                    }
+                    tmpNode = newChildrens[newChildrens.length-1];
+                    if(!tmpNode || tmpNode.type != 'element' || tmpNode.tagName != 'br'){
+                        var br = UE.uNode.createElement('br');
+                        br.parentNode = li;
+                        newChildrens.push(br);
+                    }
+
+                    index = newChildrens.length;
+                }
+            });
+            if(newChildrens.length){
+                li.children = newChildrens;
+            }
+        });
+    });
+    //进入编辑器的li要套p标签
+    me.addInputRule(function(root){
+        utils.each(root.getNodesByTagName('li'),function(li){
+            var tmpP = UE.uNode.createElement('p');
+            for(var i= 0,ci;ci=li.children[i];){
+                if(ci.type == 'text' || dtd.p[ci.tagName]){
+                    tmpP.appendChild(ci);
+                }else{
+                    if(tmpP.firstChild()){
+                        li.insertBefore(tmpP,ci);
+                        tmpP = UE.uNode.createElement('p');
+                        i = i + 2;
+                    }else{
+                        i++;
+                    }
+
+                }
+            }
+            if(tmpP.firstChild() && !tmpP.parentNode || !li.firstChild()){
+                li.appendChild(tmpP);
+            }
+            //trace:3357
+            //p不能为空
+            if (!tmpP.firstChild()) {
+                tmpP.innerHTML(browser.ie ? '&nbsp;' : '<br/>')
+            }
+            //去掉末尾的空白
+            var p = li.firstChild();
+            var lastChild = p.lastChild();
+            if(lastChild && lastChild.type == 'text' && /^\s*$/.test(lastChild.data)){
+                p.removeChild(lastChild)
+            }
+        });
+        if(me.options.autoTransWordToList){
+            var orderlisttype = {
+                    'num1':/^\d+\)/,
+                    'decimal':/^\d+\./,
+                    'lower-alpha':/^[a-z]+\)/,
+                    'upper-alpha':/^[A-Z]+\./,
+                    'cn':/^[\u4E00\u4E8C\u4E09\u56DB\u516d\u4e94\u4e03\u516b\u4e5d]+[\u3001]/,
+                    'cn2':/^\([\u4E00\u4E8C\u4E09\u56DB\u516d\u4e94\u4e03\u516b\u4e5d]+\)/
+                },
+                unorderlisttype = {
+                    'square':'n'
+                };
+            function checkListType(content,container){
+                var span = container.firstChild();
+                if(span &&  span.type == 'element' && span.tagName == 'span' && /Wingdings|Symbol/.test(span.getStyle('font-family'))){
+                    for(var p in unorderlisttype){
+                        if(unorderlisttype[p] == span.data){
+                            return p
+                        }
+                    }
+                    return 'disc'
+                }
+                for(var p in orderlisttype){
+                    if(orderlisttype[p].test(content)){
+                        return p;
+                    }
+                }
+
+            }
+            utils.each(root.getNodesByTagName('p'),function(node){
+                if(node.getAttr('class') != 'MsoListParagraph'){
+                    return
+                }
+
+                //word粘贴过来的会带有margin要去掉,但这样也可能会误命中一些央视
+                node.setStyle('margin','');
+                node.setStyle('margin-left','');
+                node.setAttr('class','');
+
+                function appendLi(list,p,type){
+                    if(list.tagName == 'ol'){
+                        if(browser.ie){
+                            var first = p.firstChild();
+                            if(first.type =='element' && first.tagName == 'span' && orderlisttype[type].test(first.innerText())){
+                                p.removeChild(first);
+                            }
+                        }else{
+                            p.innerHTML(p.innerHTML().replace(orderlisttype[type],''));
+                        }
+                    }else{
+                        p.removeChild(p.firstChild())
+                    }
+
+                    var li = UE.uNode.createElement('li');
+                    li.appendChild(p);
+                    list.appendChild(li);
+                }
+                var tmp = node,type,cacheNode = node;
+
+                if(node.parentNode.tagName != 'li' && (type = checkListType(node.innerText(),node))){
+
+                    var list = UE.uNode.createElement(me.options.insertorderedlist.hasOwnProperty(type) ? 'ol' : 'ul');
+                    if(customStyle[type]){
+                        list.setAttr('class','custom_'+type)
+                    }else{
+                        list.setStyle('list-style-type',type)
+                    }
+                    while(node && node.parentNode.tagName != 'li' && checkListType(node.innerText(),node)){
+                        tmp = node.nextSibling();
+                        if(!tmp){
+                            node.parentNode.insertBefore(list,node)
+                        }
+                        appendLi(list,node,type);
+                        node = tmp;
+                    }
+                    if(!list.parentNode && node && node.parentNode){
+                        node.parentNode.insertBefore(list,node)
+                    }
+                }
+                var span = cacheNode.firstChild();
+                if(span && span.type == 'element' && span.tagName == 'span' && /^\s*(&nbsp;)+\s*$/.test(span.innerText())){
+                    span.parentNode.removeChild(span)
+                }
+            })
+        }
+
+    });
+
+    //调整索引标签
+    me.addListener('contentchange',function(){
+        adjustListStyle(me.document)
+    });
+
+    function adjustListStyle(doc,ignore){
+        utils.each(domUtils.getElementsByTagName(doc,'ol ul'),function(node){
+
+            if(!domUtils.inDoc(node,doc))
+                return;
+
+            var parent = node.parentNode;
+            if(parent.tagName == node.tagName){
+                var nodeStyleType = getStyle(node) || (node.tagName == 'OL' ? 'decimal' : 'disc'),
+                    parentStyleType = getStyle(parent) || (parent.tagName == 'OL' ? 'decimal' : 'disc');
+                if(nodeStyleType == parentStyleType){
+                    var styleIndex = utils.indexOf(listStyle[node.tagName], nodeStyleType);
+                    styleIndex = styleIndex + 1 == listStyle[node.tagName].length ? 0 : styleIndex + 1;
+                    setListStyle(node,listStyle[node.tagName][styleIndex])
+                }
+
+            }
+            var index = 0,type = 2;
+            if( domUtils.hasClass(node,/custom_/)){
+                if(!(/[ou]l/i.test(parent.tagName) && domUtils.hasClass(parent,/custom_/))){
+                    type = 1;
+                }
+            }else{
+                if(/[ou]l/i.test(parent.tagName) && domUtils.hasClass(parent,/custom_/)){
+                    type = 3;
+                }
+            }
+
+            var style = domUtils.getStyle(node, 'list-style-type');
+            style && (node.style.cssText = 'list-style-type:' + style);
+            node.className = utils.trim(node.className.replace(/list-paddingleft-\w+/,'')) + ' list-paddingleft-' + type;
+            utils.each(domUtils.getElementsByTagName(node,'li'),function(li){
+                li.style.cssText && (li.style.cssText = '');
+                if(!li.firstChild){
+                    domUtils.remove(li);
+                    return;
+                }
+                if(li.parentNode !== node){
+                    return;
+                }
+                index++;
+                if(domUtils.hasClass(node,/custom_/) ){
+                    var paddingLeft = 1,currentStyle = getStyle(node);
+                    if(node.tagName == 'OL'){
+                        if(currentStyle){
+                            switch(currentStyle){
+                                case 'cn' :
+                                case 'cn1':
+                                case 'cn2':
+                                    if(index > 10 && (index % 10 == 0 || index > 10 && index < 20)){
+                                        paddingLeft = 2
+                                    }else if(index > 20){
+                                        paddingLeft = 3
+                                    }
+                                    break;
+                                case 'num2' :
+                                    if(index > 9){
+                                        paddingLeft = 2
+                                    }
+                            }
+                        }
+                        li.className = 'list-'+customStyle[currentStyle]+ index + ' ' + 'list-'+currentStyle+'-paddingleft-' + paddingLeft;
+                    }else{
+                        li.className = 'list-'+customStyle[currentStyle]  + ' ' + 'list-'+currentStyle+'-paddingleft';
+                    }
+                }else{
+                    li.className = li.className.replace(/list-[\w\-]+/gi,'');
+                }
+                var className = li.getAttribute('class');
+                if(className !== null && !className.replace(/\s/g,'')){
+                    domUtils.removeAttributes(li,'class')
+                }
+            });
+            !ignore && adjustList(node,node.tagName.toLowerCase(),getStyle(node)||domUtils.getStyle(node, 'list-style-type'),true);
+        })
+    }
+    function adjustList(list, tag, style,ignoreEmpty) {
+        var nextList = list.nextSibling;
+        if (nextList && nextList.nodeType == 1 && nextList.tagName.toLowerCase() == tag && (getStyle(nextList) || domUtils.getStyle(nextList, 'list-style-type') || (tag == 'ol' ? 'decimal' : 'disc')) == style) {
+            domUtils.moveChild(nextList, list);
+            if (nextList.childNodes.length == 0) {
+                domUtils.remove(nextList);
+            }
+        }
+        if(nextList && domUtils.isFillChar(nextList)){
+            domUtils.remove(nextList);
+        }
+        var preList = list.previousSibling;
+        if (preList && preList.nodeType == 1 && preList.tagName.toLowerCase() == tag && (getStyle(preList) || domUtils.getStyle(preList, 'list-style-type') || (tag == 'ol' ? 'decimal' : 'disc')) == style) {
+            domUtils.moveChild(list, preList);
+        }
+        if(preList && domUtils.isFillChar(preList)){
+            domUtils.remove(preList);
+        }
+        !ignoreEmpty && domUtils.isEmptyBlock(list) && domUtils.remove(list);
+        if(getStyle(list)){
+            adjustListStyle(list.ownerDocument,true)
+        }
+    }
+
+    function setListStyle(list,style){
+        if(customStyle[style]){
+            list.className = 'custom_' + style;
+        }
+        try{
+            domUtils.setStyle(list, 'list-style-type', style);
+        }catch(e){}
+    }
+    function clearEmptySibling(node) {
+        var tmpNode = node.previousSibling;
+        if (tmpNode && domUtils.isEmptyBlock(tmpNode)) {
+            domUtils.remove(tmpNode);
+        }
+        tmpNode = node.nextSibling;
+        if (tmpNode && domUtils.isEmptyBlock(tmpNode)) {
+            domUtils.remove(tmpNode);
+        }
+    }
+
+    me.addListener('keydown', function (type, evt) {
+        function preventAndSave() {
+            evt.preventDefault ? evt.preventDefault() : (evt.returnValue = false);
+            me.fireEvent('contentchange');
+            me.undoManger && me.undoManger.save();
+        }
+        function findList(node,filterFn){
+            while(node && !domUtils.isBody(node)){
+                if(filterFn(node)){
+                    return null
+                }
+                if(node.nodeType == 1 && /[ou]l/i.test(node.tagName)){
+                    return node;
+                }
+                node = node.parentNode;
+            }
+            return null;
+        }
+        var keyCode = evt.keyCode || evt.which;
+        if (keyCode == 13 && !evt.shiftKey) {//回车
+            var rng = me.selection.getRange(),
+                parent = domUtils.findParent(rng.startContainer,function(node){return domUtils.isBlockElm(node)},true),
+                li = domUtils.findParentByTagName(rng.startContainer,'li',true);
+            if(parent && parent.tagName != 'PRE' && !li){
+                var html = parent.innerHTML.replace(new RegExp(domUtils.fillChar, 'g'),'');
+                if(/^\s*1\s*\.[^\d]/.test(html)){
+                    parent.innerHTML = html.replace(/^\s*1\s*\./,'');
+                    rng.setStartAtLast(parent).collapse(true).select();
+                    me.__hasEnterExecCommand = true;
+                    me.execCommand('insertorderedlist');
+                    me.__hasEnterExecCommand = false;
+                }
+            }
+            var range = me.selection.getRange(),
+                start = findList(range.startContainer,function (node) {
+                    return node.tagName == 'TABLE';
+                }),
+                end = range.collapsed ? start : findList(range.endContainer,function (node) {
+                    return node.tagName == 'TABLE';
+                });
+
+            if (start && end && start === end) {
+
+                if (!range.collapsed) {
+                    start = domUtils.findParentByTagName(range.startContainer, 'li', true);
+                    end = domUtils.findParentByTagName(range.endContainer, 'li', true);
+                    if (start && end && start === end) {
+                        range.deleteContents();
+                        li = domUtils.findParentByTagName(range.startContainer, 'li', true);
+                        if (li && domUtils.isEmptyBlock(li)) {
+
+                            pre = li.previousSibling;
+                            next = li.nextSibling;
+                            p = me.document.createElement('p');
+
+                            domUtils.fillNode(me.document, p);
+                            parentList = li.parentNode;
+                            if (pre && next) {
+                                range.setStart(next, 0).collapse(true).select(true);
+                                domUtils.remove(li);
+
+                            } else {
+                                if (!pre && !next || !pre) {
+
+                                    parentList.parentNode.insertBefore(p, parentList);
+
+
+                                } else {
+                                    li.parentNode.parentNode.insertBefore(p, parentList.nextSibling);
+                                }
+                                domUtils.remove(li);
+                                if (!parentList.firstChild) {
+                                    domUtils.remove(parentList);
+                                }
+                                range.setStart(p, 0).setCursor();
+
+
+                            }
+                            preventAndSave();
+                            return;
+
+                        }
+                    } else {
+                        var tmpRange = range.cloneRange(),
+                            bk = tmpRange.collapse(false).createBookmark();
+
+                        range.deleteContents();
+                        tmpRange.moveToBookmark(bk);
+                        var li = domUtils.findParentByTagName(tmpRange.startContainer, 'li', true);
+
+                        clearEmptySibling(li);
+                        tmpRange.select();
+                        preventAndSave();
+                        return;
+                    }
+                }
+
+
+                li = domUtils.findParentByTagName(range.startContainer, 'li', true);
+
+                if (li) {
+                    if (domUtils.isEmptyBlock(li)) {
+                        bk = range.createBookmark();
+                        var parentList = li.parentNode;
+                        if (li !== parentList.lastChild) {
+                            domUtils.breakParent(li, parentList);
+                            clearEmptySibling(li);
+                        } else {
+
+                            parentList.parentNode.insertBefore(li, parentList.nextSibling);
+                            if (domUtils.isEmptyNode(parentList)) {
+                                domUtils.remove(parentList);
+                            }
+                        }
+                        //嵌套不处理
+                        if (!dtd.$list[li.parentNode.tagName]) {
+
+                            if (!domUtils.isBlockElm(li.firstChild)) {
+                                p = me.document.createElement('p');
+                                li.parentNode.insertBefore(p, li);
+                                while (li.firstChild) {
+                                    p.appendChild(li.firstChild);
+                                }
+                                domUtils.remove(li);
+                            } else {
+                                domUtils.remove(li, true);
+                            }
+                        }
+                        range.moveToBookmark(bk).select();
+
+
+                    } else {
+                        var first = li.firstChild;
+                        if (!first || !domUtils.isBlockElm(first)) {
+                            var p = me.document.createElement('p');
+
+                            !li.firstChild && domUtils.fillNode(me.document, p);
+                            while (li.firstChild) {
+
+                                p.appendChild(li.firstChild);
+                            }
+                            li.appendChild(p);
+                            first = p;
+                        }
+
+                        var span = me.document.createElement('span');
+
+                        range.insertNode(span);
+                        domUtils.breakParent(span, li);
+
+                        var nextLi = span.nextSibling;
+                        first = nextLi.firstChild;
+
+                        if (!first) {
+                            p = me.document.createElement('p');
+
+                            domUtils.fillNode(me.document, p);
+                            nextLi.appendChild(p);
+                            first = p;
+                        }
+                        if (domUtils.isEmptyNode(first)) {
+                            first.innerHTML = '';
+                            domUtils.fillNode(me.document, first);
+                        }
+
+                        range.setStart(first, 0).collapse(true).shrinkBoundary().select();
+                        domUtils.remove(span);
+                        var pre = nextLi.previousSibling;
+                        if (pre && domUtils.isEmptyBlock(pre)) {
+                            pre.innerHTML = '<p></p>';
+                            domUtils.fillNode(me.document, pre.firstChild);
+                        }
+
+                    }
+//                        }
+                    preventAndSave();
+                }
+
+
+            }
+
+
+        }
+        if (keyCode == 8) {
+            //修中ie中li下的问题
+            range = me.selection.getRange();
+            if (range.collapsed && domUtils.isStartInblock(range)) {
+                tmpRange = range.cloneRange().trimBoundary();
+                li = domUtils.findParentByTagName(range.startContainer, 'li', true);
+                //要在li的最左边，才能处理
+                if (li && domUtils.isStartInblock(tmpRange)) {
+                    start = domUtils.findParentByTagName(range.startContainer, 'p', true);
+                    if (start && start !== li.firstChild) {
+                        var parentList = domUtils.findParentByTagName(start,['ol','ul']);
+                        domUtils.breakParent(start,parentList);
+                        clearEmptySibling(start);
+                        me.fireEvent('contentchange');
+                        range.setStart(start,0).setCursor(false,true);
+                        me.fireEvent('saveScene');
+                        domUtils.preventDefault(evt);
+                        return;
+                    }
+
+                    if (li && (pre = li.previousSibling)) {
+                        if (keyCode == 46 && li.childNodes.length) {
+                            return;
+                        }
+                        //有可能上边的兄弟节点是个2级菜单，要追加到2级菜单的最后的li
+                        if (dtd.$list[pre.tagName]) {
+                            pre = pre.lastChild;
+                        }
+                        me.undoManger && me.undoManger.save();
+                        first = li.firstChild;
+                        if (domUtils.isBlockElm(first)) {
+                            if (domUtils.isEmptyNode(first)) {
+//                                    range.setEnd(pre, pre.childNodes.length).shrinkBoundary().collapse().select(true);
+                                pre.appendChild(first);
+                                range.setStart(first, 0).setCursor(false, true);
+                                //first不是唯一的节点
+                                while (li.firstChild) {
+                                    pre.appendChild(li.firstChild);
+                                }
+                            } else {
+
+                                span = me.document.createElement('span');
+                                range.insertNode(span);
+                                //判断pre是否是空的节点,如果是<p><br/></p>类型的空节点，干掉p标签防止它占位
+                                if (domUtils.isEmptyBlock(pre)) {
+                                    pre.innerHTML = '';
+                                }
+                                domUtils.moveChild(li, pre);
+                                range.setStartBefore(span).collapse(true).select(true);
+
+                                domUtils.remove(span);
+
+                            }
+                        } else {
+                            if (domUtils.isEmptyNode(li)) {
+                                var p = me.document.createElement('p');
+                                pre.appendChild(p);
+                                range.setStart(p, 0).setCursor();
+//                                    range.setEnd(pre, pre.childNodes.length).shrinkBoundary().collapse().select(true);
+                            } else {
+                                range.setEnd(pre, pre.childNodes.length).collapse().select(true);
+                                while (li.firstChild) {
+                                    pre.appendChild(li.firstChild);
+                                }
+                            }
+                        }
+                        domUtils.remove(li);
+                        me.fireEvent('contentchange');
+                        me.fireEvent('saveScene');
+                        domUtils.preventDefault(evt);
+                        return;
+
+                    }
+                    //trace:980
+
+                    if (li && !li.previousSibling) {
+                        var parentList = li.parentNode;
+                        var bk = range.createBookmark();
+                        if(domUtils.isTagNode(parentList.parentNode,'ol ul')){
+                            parentList.parentNode.insertBefore(li,parentList);
+                            if(domUtils.isEmptyNode(parentList)){
+                                domUtils.remove(parentList)
+                            }
+                        }else{
+
+                            while(li.firstChild){
+                                parentList.parentNode.insertBefore(li.firstChild,parentList);
+                            }
+
+                            domUtils.remove(li);
+                            if(domUtils.isEmptyNode(parentList)){
+                                domUtils.remove(parentList)
+                            }
+
+                        }
+                        range.moveToBookmark(bk).setCursor(false,true);
+                        me.fireEvent('contentchange');
+                        me.fireEvent('saveScene');
+                        domUtils.preventDefault(evt);
+                        return;
+
+                    }
+
+
+                }
+
+
+            }
+
+        }
+    });
+
+    me.addListener('keyup',function(type, evt){
+        var keyCode = evt.keyCode || evt.which;
+        if (keyCode == 8) {
+            var rng = me.selection.getRange(),list;
+            if(list = domUtils.findParentByTagName(rng.startContainer,['ol', 'ul'],true)){
+                adjustList(list,list.tagName.toLowerCase(),getStyle(list)||domUtils.getComputedStyle(list,'list-style-type'),true)
+            }
+        }
+    });
+    //处理tab键
+    me.addListener('tabkeydown',function(){
+
+        var range = me.selection.getRange();
+
+        //控制级数
+        function checkLevel(li){
+            if(me.options.maxListLevel != -1){
+                var level = li.parentNode,levelNum = 0;
+                while(/[ou]l/i.test(level.tagName)){
+                    levelNum++;
+                    level = level.parentNode;
+                }
+                if(levelNum >= me.options.maxListLevel){
+                    return true;
+                }
+            }
+        }
+        //只以开始为准
+        //todo 后续改进
+        var li = domUtils.findParentByTagName(range.startContainer, 'li', true);
+        if(li){
+
+            var bk;
+            if(range.collapsed){
+                if(checkLevel(li))
+                    return true;
+                var parentLi = li.parentNode,
+                    list = me.document.createElement(parentLi.tagName),
+                    index = utils.indexOf(listStyle[list.tagName], getStyle(parentLi)||domUtils.getComputedStyle(parentLi, 'list-style-type'));
+                index = index + 1 == listStyle[list.tagName].length ? 0 : index + 1;
+                var currentStyle = listStyle[list.tagName][index];
+                setListStyle(list,currentStyle);
+                if(domUtils.isStartInblock(range)){
+                    me.fireEvent('saveScene');
+                    bk = range.createBookmark();
+                    parentLi.insertBefore(list, li);
+                    list.appendChild(li);
+                    adjustList(list,list.tagName.toLowerCase(),currentStyle);
+                    me.fireEvent('contentchange');
+                    range.moveToBookmark(bk).select(true);
+                    return true;
+                }
+            }else{
+                me.fireEvent('saveScene');
+                bk = range.createBookmark();
+                for(var i= 0,closeList,parents = domUtils.findParents(li),ci;ci=parents[i++];){
+                    if(domUtils.isTagNode(ci,'ol ul')){
+                        closeList = ci;
+                        break;
+                    }
+                }
+                var current = li;
+                if(bk.end){
+                    while(current && !(domUtils.getPosition(current, bk.end) & domUtils.POSITION_FOLLOWING)){
+                        if(checkLevel(current)){
+                            current = domUtils.getNextDomNode(current,false,null,function(node){return node !== closeList});
+                            continue;
+                        }
+                        var parentLi = current.parentNode,
+                            list = me.document.createElement(parentLi.tagName),
+                            index = utils.indexOf(listStyle[list.tagName], getStyle(parentLi)||domUtils.getComputedStyle(parentLi, 'list-style-type'));
+                        var currentIndex = index + 1 == listStyle[list.tagName].length ? 0 : index + 1;
+                        var currentStyle = listStyle[list.tagName][currentIndex];
+                        setListStyle(list,currentStyle);
+                        parentLi.insertBefore(list, current);
+                        while(current && !(domUtils.getPosition(current, bk.end) & domUtils.POSITION_FOLLOWING)){
+                            li = current.nextSibling;
+                            list.appendChild(current);
+                            if(!li || domUtils.isTagNode(li,'ol ul')){
+                                if(li){
+                                    while(li = li.firstChild){
+                                        if(li.tagName == 'LI'){
+                                            break;
+                                        }
+                                    }
+                                }else{
+                                    li = domUtils.getNextDomNode(current,false,null,function(node){return node !== closeList});
+                                }
+                                break;
+                            }
+                            current = li;
+                        }
+                        adjustList(list,list.tagName.toLowerCase(),currentStyle);
+                        current = li;
+                    }
+                }
+                me.fireEvent('contentchange');
+                range.moveToBookmark(bk).select();
+                return true;
+            }
+        }
+
+    });
+    function getLi(start){
+        while(start && !domUtils.isBody(start)){
+            if(start.nodeName == 'TABLE'){
+                return null;
+            }
+            if(start.nodeName == 'LI'){
+                return start
+            }
+            start = start.parentNode;
+        }
+    }
+
+    /**
+     * 有序列表，与“insertunorderedlist”命令互斥
+     * @command insertorderedlist
+     * @method execCommand
+     * @param { String } command 命令字符串
+     * @param { String } style 插入的有序列表类型，值为：decimal,lower-alpha,lower-roman,upper-alpha,upper-roman,cn,cn1,cn2,num,num1,num2
+     * @example
+     * ```javascript
+     * editor.execCommand( 'insertorderedlist','decimal');
+     * ```
+     */
+    /**
+     * 查询当前选区内容是否有序列表
+     * @command insertorderedlist
+     * @method queryCommandState
+     * @param { String } cmd 命令字符串
+     * @return { int } 如果当前选区是有序列表返回1，否则返回0
+     * @example
+     * ```javascript
+     * editor.queryCommandState( 'insertorderedlist' );
+     * ```
+     */
+    /**
+     * 查询当前选区内容是否有序列表
+     * @command insertorderedlist
+     * @method queryCommandValue
+     * @param { String } cmd 命令字符串
+     * @return { String } 返回当前有序列表的类型，值为null或decimal,lower-alpha,lower-roman,upper-alpha,upper-roman,cn,cn1,cn2,num,num1,num2
+     * @example
+     * ```javascript
+     * editor.queryCommandValue( 'insertorderedlist' );
+     * ```
+     */
+
+    /**
+     * 无序列表，与“insertorderedlist”命令互斥
+     * @command insertunorderedlist
+     * @method execCommand
+     * @param { String } command 命令字符串
+     * @param { String } style 插入的无序列表类型，值为：circle,disc,square,dash,dot
+     * @example
+     * ```javascript
+     * editor.execCommand( 'insertunorderedlist','circle');
+     * ```
+     */
+    /**
+     * 查询当前是否有word文档粘贴进来的图片
+     * @command insertunorderedlist
+     * @method insertunorderedlist
+     * @param { String } command 命令字符串
+     * @return { int } 如果当前选区是无序列表返回1，否则返回0
+     * @example
+     * ```javascript
+     * editor.queryCommandState( 'insertunorderedlist' );
+     * ```
+     */
+    /**
+     * 查询当前选区内容是否有序列表
+     * @command insertunorderedlist
+     * @method queryCommandValue
+     * @param { String } command 命令字符串
+     * @return { String } 返回当前无序列表的类型，值为null或circle,disc,square,dash,dot
+     * @example
+     * ```javascript
+     * editor.queryCommandValue( 'insertunorderedlist' );
+     * ```
+     */
+
+    me.commands['insertorderedlist'] =
+    me.commands['insertunorderedlist'] = {
+            execCommand:function (command, style) {
+
+                if (!style) {
+                    style = command.toLowerCase() == 'insertorderedlist' ? 'decimal' : 'disc';
+                }
+                var me = this,
+                    range = this.selection.getRange(),
+                    filterFn = function (node) {
+                        return   node.nodeType == 1 ? node.tagName.toLowerCase() != 'br' : !domUtils.isWhitespace(node);
+                    },
+                    tag = command.toLowerCase() == 'insertorderedlist' ? 'ol' : 'ul',
+                    frag = me.document.createDocumentFragment();
+                //去掉是因为会出现选到末尾，导致adjustmentBoundary缩到ol/ul的位置
+                //range.shrinkBoundary();//.adjustmentBoundary();
+                range.adjustmentBoundary().shrinkBoundary();
+                var bko = range.createBookmark(true),
+                    start = getLi(me.document.getElementById(bko.start)),
+                    modifyStart = 0,
+                    end =  getLi(me.document.getElementById(bko.end)),
+                    modifyEnd = 0,
+                    startParent, endParent,
+                    list, tmp;
+
+                if (start || end) {
+                    start && (startParent = start.parentNode);
+                    if (!bko.end) {
+                        end = start;
+                    }
+                    end && (endParent = end.parentNode);
+
+                    if (startParent === endParent) {
+                        while (start !== end) {
+                            tmp = start;
+                            start = start.nextSibling;
+                            if (!domUtils.isBlockElm(tmp.firstChild)) {
+                                var p = me.document.createElement('p');
+                                while (tmp.firstChild) {
+                                    p.appendChild(tmp.firstChild);
+                                }
+                                tmp.appendChild(p);
+                            }
+                            frag.appendChild(tmp);
+                        }
+                        tmp = me.document.createElement('span');
+                        startParent.insertBefore(tmp, end);
+                        if (!domUtils.isBlockElm(end.firstChild)) {
+                            p = me.document.createElement('p');
+                            while (end.firstChild) {
+                                p.appendChild(end.firstChild);
+                            }
+                            end.appendChild(p);
+                        }
+                        frag.appendChild(end);
+                        domUtils.breakParent(tmp, startParent);
+                        if (domUtils.isEmptyNode(tmp.previousSibling)) {
+                            domUtils.remove(tmp.previousSibling);
+                        }
+                        if (domUtils.isEmptyNode(tmp.nextSibling)) {
+                            domUtils.remove(tmp.nextSibling)
+                        }
+                        var nodeStyle = getStyle(startParent) || domUtils.getComputedStyle(startParent, 'list-style-type') || (command.toLowerCase() == 'insertorderedlist' ? 'decimal' : 'disc');
+                        if (startParent.tagName.toLowerCase() == tag && nodeStyle == style) {
+                            for (var i = 0, ci, tmpFrag = me.document.createDocumentFragment(); ci = frag.firstChild;) {
+                                if(domUtils.isTagNode(ci,'ol ul')){
+//                                  删除时，子列表不处理
+//                                  utils.each(domUtils.getElementsByTagName(ci,'li'),function(li){
+//                                        while(li.firstChild){
+//                                            tmpFrag.appendChild(li.firstChild);
+//                                        }
+//
+//                                    });
+                                    tmpFrag.appendChild(ci);
+                                }else{
+                                    while (ci.firstChild) {
+
+                                        tmpFrag.appendChild(ci.firstChild);
+                                        domUtils.remove(ci);
+                                    }
+                                }
+
+                            }
+                            tmp.parentNode.insertBefore(tmpFrag, tmp);
+                        } else {
+                            list = me.document.createElement(tag);
+                            setListStyle(list,style);
+                            list.appendChild(frag);
+                            tmp.parentNode.insertBefore(list, tmp);
+                        }
+
+                        domUtils.remove(tmp);
+                        list && adjustList(list, tag, style);
+                        range.moveToBookmark(bko).select();
+                        return;
+                    }
+                    //开始
+                    if (start) {
+                        while (start) {
+                            tmp = start.nextSibling;
+                            if (domUtils.isTagNode(start, 'ol ul')) {
+                                frag.appendChild(start);
+                            } else {
+                                var tmpfrag = me.document.createDocumentFragment(),
+                                    hasBlock = 0;
+                                while (start.firstChild) {
+                                    if (domUtils.isBlockElm(start.firstChild)) {
+                                        hasBlock = 1;
+                                    }
+                                    tmpfrag.appendChild(start.firstChild);
+                                }
+                                if (!hasBlock) {
+                                    var tmpP = me.document.createElement('p');
+                                    tmpP.appendChild(tmpfrag);
+                                    frag.appendChild(tmpP);
+                                } else {
+                                    frag.appendChild(tmpfrag);
+                                }
+                                domUtils.remove(start);
+                            }
+
+                            start = tmp;
+                        }
+                        startParent.parentNode.insertBefore(frag, startParent.nextSibling);
+                        if (domUtils.isEmptyNode(startParent)) {
+                            range.setStartBefore(startParent);
+                            domUtils.remove(startParent);
+                        } else {
+                            range.setStartAfter(startParent);
+                        }
+                        modifyStart = 1;
+                    }
+
+                    if (end && domUtils.inDoc(endParent, me.document)) {
+                        //结束
+                        start = endParent.firstChild;
+                        while (start && start !== end) {
+                            tmp = start.nextSibling;
+                            if (domUtils.isTagNode(start, 'ol ul')) {
+                                frag.appendChild(start);
+                            } else {
+                                tmpfrag = me.document.createDocumentFragment();
+                                hasBlock = 0;
+                                while (start.firstChild) {
+                                    if (domUtils.isBlockElm(start.firstChild)) {
+                                        hasBlock = 1;
+                                    }
+                                    tmpfrag.appendChild(start.firstChild);
+                                }
+                                if (!hasBlock) {
+                                    tmpP = me.document.createElement('p');
+                                    tmpP.appendChild(tmpfrag);
+                                    frag.appendChild(tmpP);
+                                } else {
+                                    frag.appendChild(tmpfrag);
+                                }
+                                domUtils.remove(start);
+                            }
+                            start = tmp;
+                        }
+                        var tmpDiv = domUtils.createElement(me.document, 'div', {
+                            'tmpDiv':1
+                        });
+                        domUtils.moveChild(end, tmpDiv);
+
+                        frag.appendChild(tmpDiv);
+                        domUtils.remove(end);
+                        endParent.parentNode.insertBefore(frag, endParent);
+                        range.setEndBefore(endParent);
+                        if (domUtils.isEmptyNode(endParent)) {
+                            domUtils.remove(endParent);
+                        }
+
+                        modifyEnd = 1;
+                    }
+
+
+                }
+
+                if (!modifyStart) {
+                    range.setStartBefore(me.document.getElementById(bko.start));
+                }
+                if (bko.end && !modifyEnd) {
+                    range.setEndAfter(me.document.getElementById(bko.end));
+                }
+                range.enlarge(true, function (node) {
+                    return notExchange[node.tagName];
+                });
+
+                frag = me.document.createDocumentFragment();
+
+                var bk = range.createBookmark(),
+                    current = domUtils.getNextDomNode(bk.start, false, filterFn),
+                    tmpRange = range.cloneRange(),
+                    tmpNode,
+                    block = domUtils.isBlockElm;
+
+                while (current && current !== bk.end && (domUtils.getPosition(current, bk.end) & domUtils.POSITION_PRECEDING)) {
+
+                    if (current.nodeType == 3 || dtd.li[current.tagName]) {
+                        if (current.nodeType == 1 && dtd.$list[current.tagName]) {
+                            while (current.firstChild) {
+                                frag.appendChild(current.firstChild);
+                            }
+                            tmpNode = domUtils.getNextDomNode(current, false, filterFn);
+                            domUtils.remove(current);
+                            current = tmpNode;
+                            continue;
+
+                        }
+                        tmpNode = current;
+                        tmpRange.setStartBefore(current);
+
+                        while (current && current !== bk.end && (!block(current) || domUtils.isBookmarkNode(current) )) {
+                            tmpNode = current;
+                            current = domUtils.getNextDomNode(current, false, null, function (node) {
+                                return !notExchange[node.tagName];
+                            });
+                        }
+
+                        if (current && block(current)) {
+                            tmp = domUtils.getNextDomNode(tmpNode, false, filterFn);
+                            if (tmp && domUtils.isBookmarkNode(tmp)) {
+                                current = domUtils.getNextDomNode(tmp, false, filterFn);
+                                tmpNode = tmp;
+                            }
+                        }
+                        tmpRange.setEndAfter(tmpNode);
+
+                        current = domUtils.getNextDomNode(tmpNode, false, filterFn);
+
+                        var li = range.document.createElement('li');
+
+                        li.appendChild(tmpRange.extractContents());
+                        if(domUtils.isEmptyNode(li)){
+                            var tmpNode = range.document.createElement('p');
+                            while(li.firstChild){
+                                tmpNode.appendChild(li.firstChild)
+                            }
+                            li.appendChild(tmpNode);
+                        }
+                        frag.appendChild(li);
+                    } else {
+                        current = domUtils.getNextDomNode(current, true, filterFn);
+                    }
+                }
+                range.moveToBookmark(bk).collapse(true);
+                list = me.document.createElement(tag);
+                setListStyle(list,style);
+                list.appendChild(frag);
+                range.insertNode(list);
+                //当前list上下看能否合并
+                adjustList(list, tag, style);
+                //去掉冗余的tmpDiv
+                for (var i = 0, ci, tmpDivs = domUtils.getElementsByTagName(list, 'div'); ci = tmpDivs[i++];) {
+                    if (ci.getAttribute('tmpDiv')) {
+                        domUtils.remove(ci, true)
+                    }
+                }
+                range.moveToBookmark(bko).select();
+
+            },
+            queryCommandState:function (command) {
+                var tag = command.toLowerCase() == 'insertorderedlist' ? 'ol' : 'ul';
+                var path = this.selection.getStartElementPath();
+                for(var i= 0,ci;ci = path[i++];){
+                    if(ci.nodeName == 'TABLE'){
+                        return 0
+                    }
+                    if(tag == ci.nodeName.toLowerCase()){
+                        return 1
+                    };
+                }
+                return 0;
+
+            },
+            queryCommandValue:function (command) {
+                var tag = command.toLowerCase() == 'insertorderedlist' ? 'ol' : 'ul';
+                var path = this.selection.getStartElementPath(),
+                    node;
+                for(var i= 0,ci;ci = path[i++];){
+                    if(ci.nodeName == 'TABLE'){
+                        node = null;
+                        break;
+                    }
+                    if(tag == ci.nodeName.toLowerCase()){
+                        node = ci;
+                        break;
+                    };
+                }
+                return node ? getStyle(node) || domUtils.getComputedStyle(node, 'list-style-type') : null;
+            }
+        };
+};
+
+
+
+// plugins/source.js
+/**
+ * 源码编辑插件
+ * @file
+ * @since 1.2.6.1
+ */
+
+(function (){
+    var sourceEditors = {
+        textarea: function (editor, holder){
+            var textarea = holder.ownerDocument.createElement('textarea');
+            textarea.style.cssText = 'position:absolute;resize:none;width:100%;height:100%;border:0;padding:0;margin:0;overflow-y:auto;';
+            // todo: IE下只有onresize属性可用... 很纠结
+            if (browser.ie && browser.version < 8) {
+                textarea.style.width = holder.offsetWidth + 'px';
+                textarea.style.height = holder.offsetHeight + 'px';
+                holder.onresize = function (){
+                    textarea.style.width = holder.offsetWidth + 'px';
+                    textarea.style.height = holder.offsetHeight + 'px';
+                };
+            }
+            holder.appendChild(textarea);
+            return {
+                setContent: function (content){
+                    textarea.value = content;
+                },
+                getContent: function (){
+                    return textarea.value;
+                },
+                select: function (){
+                    var range;
+                    if (browser.ie) {
+                        range = textarea.createTextRange();
+                        range.collapse(true);
+                        range.select();
+                    } else {
+                        //todo: chrome下无法设置焦点
+                        textarea.setSelectionRange(0, 0);
+                        textarea.focus();
+                    }
+                },
+                dispose: function (){
+                    holder.removeChild(textarea);
+                    // todo
+                    holder.onresize = null;
+                    textarea = null;
+                    holder = null;
+                }
+            };
+        },
+        codemirror: function (editor, holder){
+
+            var codeEditor = window.CodeMirror(holder, {
+                mode: "text/html",
+                tabMode: "indent",
+                lineNumbers: true,
+                lineWrapping:true
+            });
+            var dom = codeEditor.getWrapperElement();
+            dom.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;font-family:consolas,"Courier new",monospace;font-size:13px;';
+            codeEditor.getScrollerElement().style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;';
+            codeEditor.refresh();
+            return {
+                getCodeMirror:function(){
+                    return codeEditor;
+                },
+                setContent: function (content){
+                    codeEditor.setValue(content);
+                },
+                getContent: function (){
+                    return codeEditor.getValue();
+                },
+                select: function (){
+                    codeEditor.focus();
+                },
+                dispose: function (){
+                    holder.removeChild(dom);
+                    dom = null;
+                    codeEditor = null;
+                }
+            };
+        }
+    };
+
+    UE.plugins['source'] = function (){
+        var me = this;
+        var opt = this.options;
+        var sourceMode = false;
+        var sourceEditor;
+        var orgSetContent;
+        opt.sourceEditor = browser.ie  ? 'textarea' : (opt.sourceEditor || 'codemirror');
+
+        me.setOpt({
+            sourceEditorFirst:false
+        });
+        function createSourceEditor(holder){
+            return sourceEditors[opt.sourceEditor == 'codemirror' && window.CodeMirror ? 'codemirror' : 'textarea'](me, holder);
+        }
+
+        var bakCssText;
+        //解决在源码模式下getContent不能得到最新的内容问题
+        var oldGetContent,
+            bakAddress;
+
+        /**
+         * 切换源码模式和编辑模式
+         * @command source
+         * @method execCommand
+         * @param { String } cmd 命令字符串
+         * @example
+         * ```javascript
+         * editor.execCommand( 'source');
+         * ```
+         */
+
+        /**
+         * 查询当前编辑区域的状态是源码模式还是可视化模式
+         * @command source
+         * @method queryCommandState
+         * @param { String } cmd 命令字符串
+         * @return { int } 如果当前是源码编辑模式，返回1，否则返回0
+         * @example
+         * ```javascript
+         * editor.queryCommandState( 'source' );
+         * ```
+         */
+
+        me.commands['source'] = {
+            execCommand: function (){
+
+                sourceMode = !sourceMode;
+                if (sourceMode) {
+                    bakAddress = me.selection.getRange().createAddress(false,true);
+                    me.undoManger && me.undoManger.save(true);
+                    if(browser.gecko){
+                        me.body.contentEditable = false;
+                    }
+
+                    bakCssText = me.iframe.style.cssText;
+                    me.iframe.style.cssText += 'position:absolute;left:-32768px;top:-32768px;';
+
+
+                    me.fireEvent('beforegetcontent');
+                    var root = UE.htmlparser(me.body.innerHTML);
+                    me.filterOutputRule(root);
+                    root.traversal(function (node) {
+                        if (node.type == 'element') {
+                            switch (node.tagName) {
+                                case 'td':
+                                case 'th':
+                                case 'caption':
+                                if(node.children && node.children.length == 1){
+                                    if(node.firstChild().tagName == 'br' ){
+                                        node.removeChild(node.firstChild())
+                                    }
+                                };
+                                break;
+                                case 'pre':
+                                    node.innerText(node.innerText().replace(/&nbsp;/g,' '))
+
+                            }
+                        }
+                    });
+
+                    me.fireEvent('aftergetcontent');
+
+                    var content = root.toHtml(true);
+
+                    sourceEditor = createSourceEditor(me.iframe.parentNode);
+
+                    sourceEditor.setContent(content);
+
+                    orgSetContent = me.setContent;
+
+                    me.setContent = function(html){
+                        //这里暂时不触发事件，防止报错
+                        var root = UE.htmlparser(html);
+                        me.filterInputRule(root);
+                        html = root.toHtml();
+                        sourceEditor.setContent(html);
+                    };
+
+                    setTimeout(function (){
+                        sourceEditor.select();
+                        me.addListener('fullscreenchanged', function(){
+                            try{
+                                sourceEditor.getCodeMirror().refresh()
+                            }catch(e){}
+                        });
+                    });
+
+                    //重置getContent，源码模式下取值也能是最新的数据
+                    oldGetContent = me.getContent;
+                    me.getContent = function (){
+                        return sourceEditor.getContent() || '<p>' + (browser.ie ? '' : '<br/>')+'</p>';
+                    };
+                } else {
+                    me.iframe.style.cssText = bakCssText;
+                    var cont = sourceEditor.getContent() || '<p>' + (browser.ie ? '' : '<br/>')+'</p>';
+                    //处理掉block节点前后的空格,有可能会误命中，暂时不考虑
+                    cont = cont.replace(new RegExp('[\\r\\t\\n ]*<\/?(\\w+)\\s*(?:[^>]*)>','g'), function(a,b){
+                        if(b && !dtd.$inlineWithA[b.toLowerCase()]){
+                            return a.replace(/(^[\n\r\t ]*)|([\n\r\t ]*$)/g,'');
+                        }
+                        return a.replace(/(^[\n\r\t]*)|([\n\r\t]*$)/g,'')
+                    });
+
+                    me.setContent = orgSetContent;
+
+                    me.setContent(cont);
+                    sourceEditor.dispose();
+                    sourceEditor = null;
+                    //还原getContent方法
+                    me.getContent = oldGetContent;
+                    var first = me.body.firstChild;
+                    //trace:1106 都删除空了，下边会报错，所以补充一个p占位
+                    if(!first){
+                        me.body.innerHTML = '<p>'+(browser.ie?'':'<br/>')+'</p>';
+                        first = me.body.firstChild;
+                    }
+
+
+                    //要在ifm为显示时ff才能取到selection,否则报错
+                    //这里不能比较位置了
+                    me.undoManger && me.undoManger.save(true);
+
+                    if(browser.gecko){
+
+                        var input = document.createElement('input');
+                        input.style.cssText = 'position:absolute;left:0;top:-32768px';
+
+                        document.body.appendChild(input);
+
+                        me.body.contentEditable = false;
+                        setTimeout(function(){
+                            domUtils.setViewportOffset(input, { left: -32768, top: 0 });
+                            input.focus();
+                            setTimeout(function(){
+                                me.body.contentEditable = true;
+                                me.selection.getRange().moveToAddress(bakAddress).select(true);
+                                domUtils.remove(input);
+                            });
+
+                        });
+                    }else{
+                        //ie下有可能报错，比如在代码顶头的情况
+                        try{
+                            me.selection.getRange().moveToAddress(bakAddress).select(true);
+                        }catch(e){}
+
+                    }
+                }
+                this.fireEvent('sourcemodechanged', sourceMode);
+            },
+            queryCommandState: function (){
+                return sourceMode|0;
+            },
+            notNeedUndo : 1
+        };
+        var oldQueryCommandState = me.queryCommandState;
+
+        me.queryCommandState = function (cmdName){
+            cmdName = cmdName.toLowerCase();
+            if (sourceMode) {
+                //源码模式下可以开启的命令
+                return cmdName in {
+                    'source' : 1,
+                    'fullscreen' : 1
+                } ? 1 : -1
+            }
+            return oldQueryCommandState.apply(this, arguments);
+        };
+
+        if(opt.sourceEditor == "codemirror"){
+
+            me.addListener("ready",function(){
+                utils.loadFile(document,{
+                    src : opt.codeMirrorJsUrl || opt.UEDITOR_HOME_URL + "third-party/codemirror/codemirror.js",
+                    tag : "script",
+                    type : "text/javascript",
+                    defer : "defer"
+                },function(){
+                    if(opt.sourceEditorFirst){
+                        setTimeout(function(){
+                            me.execCommand("source");
+                        },0);
+                    }
+                });
+                utils.loadFile(document,{
+                    tag : "link",
+                    rel : "stylesheet",
+                    type : "text/css",
+                    href : opt.codeMirrorCssUrl || opt.UEDITOR_HOME_URL + "third-party/codemirror/codemirror.css"
+                });
+
+            });
+        }
+
+    };
+
+})();
+
+// plugins/enterkey.js
+///import core
+///import plugins/undo.js
+///commands 设置回车标签p或br
+///commandsName  EnterKey
+///commandsTitle  设置回车标签p或br
+/**
+ * @description 处理回车
+ * @author zhanyi
+ */
+UE.plugins['enterkey'] = function() {
+    var hTag,
+        me = this,
+        tag = me.options.enterTag;
+    me.addListener('keyup', function(type, evt) {
+
+        var keyCode = evt.keyCode || evt.which;
+        if (keyCode == 13) {
+            var range = me.selection.getRange(),
+                start = range.startContainer,
+                doSave;
+
+            //修正在h1-h6里边回车后不能嵌套p的问题
+            if (!browser.ie) {
+
+                if (/h\d/i.test(hTag)) {
+                    if (browser.gecko) {
+                        var h = domUtils.findParentByTagName(start, [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6','blockquote','caption','table'], true);
+                        if (!h) {
+                            me.document.execCommand('formatBlock', false, '<p>');
+                            doSave = 1;
+                        }
+                    } else {
+                        //chrome remove div
+                        if (start.nodeType == 1) {
+                            var tmp = me.document.createTextNode(''),div;
+                            range.insertNode(tmp);
+                            div = domUtils.findParentByTagName(tmp, 'div', true);
+                            if (div) {
+                                var p = me.document.createElement('p');
+                                while (div.firstChild) {
+                                    p.appendChild(div.firstChild);
+                                }
+                                div.parentNode.insertBefore(p, div);
+                                domUtils.remove(div);
+                                range.setStartBefore(tmp).setCursor();
+                                doSave = 1;
+                            }
+                            domUtils.remove(tmp);
+
+                        }
+                    }
+
+                    if (me.undoManger && doSave) {
+                        me.undoManger.save();
+                    }
+                }
+                //没有站位符，会出现多行的问题
+                browser.opera &&  range.select();
+            }else{
+                me.fireEvent('saveScene',true,true)
+            }
+        }
+    });
+
+    me.addListener('keydown', function(type, evt) {
+        var keyCode = evt.keyCode || evt.which;
+        if (keyCode == 13) {//回车
+            if(me.fireEvent('beforeenterkeydown')){
+                domUtils.preventDefault(evt);
+                return;
+            }
+            me.fireEvent('saveScene',true,true);
+            hTag = '';
+
+
+            var range = me.selection.getRange();
+
+            if (!range.collapsed) {
+                //跨td不能删
+                var start = range.startContainer,
+                    end = range.endContainer,
+                    startTd = domUtils.findParentByTagName(start, 'td', true),
+                    endTd = domUtils.findParentByTagName(end, 'td', true);
+                if (startTd && endTd && startTd !== endTd || !startTd && endTd || startTd && !endTd) {
+                    evt.preventDefault ? evt.preventDefault() : ( evt.returnValue = false);
+                    return;
+                }
+            }
+            if (tag == 'p') {
+
+
+                if (!browser.ie) {
+
+                    start = domUtils.findParentByTagName(range.startContainer, ['ol','ul','p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6','blockquote','caption'], true);
+
+                    //opera下执行formatblock会在table的场景下有问题，回车在opera原生支持很好，所以暂时在opera去掉调用这个原生的command
+                    //trace:2431
+                    if (!start && !browser.opera) {
+
+                        me.document.execCommand('formatBlock', false, '<p>');
+
+                        if (browser.gecko) {
+                            range = me.selection.getRange();
+                            start = domUtils.findParentByTagName(range.startContainer, 'p', true);
+                            start && domUtils.removeDirtyAttr(start);
+                        }
+
+
+                    } else {
+                        hTag = start.tagName;
+                        start.tagName.toLowerCase() == 'p' && browser.gecko && domUtils.removeDirtyAttr(start);
+                    }
+
+                }
+
+            } else {
+                evt.preventDefault ? evt.preventDefault() : ( evt.returnValue = false);
+
+                if (!range.collapsed) {
+                    range.deleteContents();
+                    start = range.startContainer;
+                    if (start.nodeType == 1 && (start = start.childNodes[range.startOffset])) {
+                        while (start.nodeType == 1) {
+                            if (dtd.$empty[start.tagName]) {
+                                range.setStartBefore(start).setCursor();
+                                if (me.undoManger) {
+                                    me.undoManger.save();
+                                }
+                                return false;
+                            }
+                            if (!start.firstChild) {
+                                var br = range.document.createElement('br');
+                                start.appendChild(br);
+                                range.setStart(start, 0).setCursor();
+                                if (me.undoManger) {
+                                    me.undoManger.save();
+                                }
+                                return false;
+                            }
+                            start = start.firstChild;
+                        }
+                        if (start === range.startContainer.childNodes[range.startOffset]) {
+                            br = range.document.createElement('br');
+                            range.insertNode(br).setCursor();
+
+                        } else {
+                            range.setStart(start, 0).setCursor();
+                        }
+
+
+                    } else {
+                        br = range.document.createElement('br');
+                        range.insertNode(br).setStartAfter(br).setCursor();
+                    }
+
+
+                } else {
+                    br = range.document.createElement('br');
+                    range.insertNode(br);
+                    var parent = br.parentNode;
+                    if (parent.lastChild === br) {
+                        br.parentNode.insertBefore(br.cloneNode(true), br);
+                        range.setStartBefore(br);
+                    } else {
+                        range.setStartAfter(br);
+                    }
+                    range.setCursor();
+
+                }
+
+            }
+
+        }
+    });
+};
+
+
+// plugins/keystrokes.js
+/* 处理特殊键的兼容性问题 */
+UE.plugins['keystrokes'] = function() {
+    var me = this;
+    var collapsed = true;
+    me.addListener('keydown', function(type, evt) {
+        var keyCode = evt.keyCode || evt.which,
+            rng = me.selection.getRange();
+
+        //处理全选的情况
+        if(!rng.collapsed && !(evt.ctrlKey || evt.shiftKey || evt.altKey || evt.metaKey) && (keyCode >= 65 && keyCode <=90
+            || keyCode >= 48 && keyCode <= 57 ||
+            keyCode >= 96 && keyCode <= 111 || {
+                    13:1,
+                    8:1,
+                    46:1
+                }[keyCode])
+            ){
+
+            var tmpNode = rng.startContainer;
+            if(domUtils.isFillChar(tmpNode)){
+                rng.setStartBefore(tmpNode)
+            }
+            tmpNode = rng.endContainer;
+            if(domUtils.isFillChar(tmpNode)){
+                rng.setEndAfter(tmpNode)
+            }
+            rng.txtToElmBoundary();
+            //结束边界可能放到了br的前边，要把br包含进来
+            // x[xxx]<br/>
+            if(rng.endContainer && rng.endContainer.nodeType == 1){
+                tmpNode = rng.endContainer.childNodes[rng.endOffset];
+                if(tmpNode && domUtils.isBr(tmpNode)){
+                    rng.setEndAfter(tmpNode);
+                }
+            }
+            if(rng.startOffset == 0){
+                tmpNode = rng.startContainer;
+                if(domUtils.isBoundaryNode(tmpNode,'firstChild') ){
+                    tmpNode = rng.endContainer;
+                    if(rng.endOffset == (tmpNode.nodeType == 3 ? tmpNode.nodeValue.length : tmpNode.childNodes.length) && domUtils.isBoundaryNode(tmpNode,'lastChild')){
+                        me.fireEvent('saveScene');
+                        me.body.innerHTML = '<p>'+(browser.ie ? '' : '<br/>')+'</p>';
+                        rng.setStart(me.body.firstChild,0).setCursor(false,true);
+                        me._selectionChange();
+                        return;
+                    }
+                }
+            }
+        }
+
+        //处理backspace
+        if (keyCode == keymap.Backspace) {
+            rng = me.selection.getRange();
+            collapsed = rng.collapsed;
+            if(me.fireEvent('delkeydown',evt)){
+                return;
+            }
+            var start,end;
+            //避免按两次删除才能生效的问题
+            if(rng.collapsed && rng.inFillChar()){
+                start = rng.startContainer;
+
+                if(domUtils.isFillChar(start)){
+                    rng.setStartBefore(start).shrinkBoundary(true).collapse(true);
+                    domUtils.remove(start)
+                }else{
+                    start.nodeValue = start.nodeValue.replace(new RegExp('^' + domUtils.fillChar ),'');
+                    rng.startOffset--;
+                    rng.collapse(true).select(true)
+                }
+            }
+
+            //解决选中control元素不能删除的问题
+            if (start = rng.getClosedNode()) {
+                me.fireEvent('saveScene');
+                rng.setStartBefore(start);
+                domUtils.remove(start);
+                rng.setCursor();
+                me.fireEvent('saveScene');
+                domUtils.preventDefault(evt);
+                return;
+            }
+            //阻止在table上的删除
+            if (!browser.ie) {
+                start = domUtils.findParentByTagName(rng.startContainer, 'table', true);
+                end = domUtils.findParentByTagName(rng.endContainer, 'table', true);
+                if (start && !end || !start && end || start !== end) {
+                    evt.preventDefault();
+                    return;
+                }
+            }
+
+        }
+        //处理tab键的逻辑
+        if (keyCode == keymap.Tab) {
+            //不处理以下标签
+            var excludeTagNameForTabKey = {
+                'ol' : 1,
+                'ul' : 1,
+                'table':1
+            };
+            //处理组件里的tab按下事件
+            if(me.fireEvent('tabkeydown',evt)){
+                domUtils.preventDefault(evt);
+                return;
+            }
+            var range = me.selection.getRange();
+            me.fireEvent('saveScene');
+            for (var i = 0,txt = '',tabSize = me.options.tabSize|| 4,tabNode =  me.options.tabNode || '&nbsp;'; i < tabSize; i++) {
+                txt += tabNode;
+            }
+            var span = me.document.createElement('span');
+            span.innerHTML = txt + domUtils.fillChar;
+            if (range.collapsed) {
+                range.insertNode(span.cloneNode(true).firstChild).setCursor(true);
+            } else {
+                var filterFn = function(node) {
+                    return domUtils.isBlockElm(node) && !excludeTagNameForTabKey[node.tagName.toLowerCase()]
+
+                };
+                //普通的情况
+                start = domUtils.findParent(range.startContainer, filterFn,true);
+                end = domUtils.findParent(range.endContainer, filterFn,true);
+                if (start && end && start === end) {
+                    range.deleteContents();
+                    range.insertNode(span.cloneNode(true).firstChild).setCursor(true);
+                } else {
+                    var bookmark = range.createBookmark();
+                    range.enlarge(true);
+                    var bookmark2 = range.createBookmark(),
+                        current = domUtils.getNextDomNode(bookmark2.start, false, filterFn);
+                    while (current && !(domUtils.getPosition(current, bookmark2.end) & domUtils.POSITION_FOLLOWING)) {
+                        current.insertBefore(span.cloneNode(true).firstChild, current.firstChild);
+                        current = domUtils.getNextDomNode(current, false, filterFn);
+                    }
+                    range.moveToBookmark(bookmark2).moveToBookmark(bookmark).select();
+                }
+            }
+            domUtils.preventDefault(evt)
+        }
+        //trace:1634
+        //ff的del键在容器空的时候，也会删除
+        if(browser.gecko && keyCode == 46){
+            range = me.selection.getRange();
+            if(range.collapsed){
+                start = range.startContainer;
+                if(domUtils.isEmptyBlock(start)){
+                    var parent = start.parentNode;
+                    while(domUtils.getChildCount(parent) == 1 && !domUtils.isBody(parent)){
+                        start = parent;
+                        parent = parent.parentNode;
+                    }
+                    if(start === parent.lastChild)
+                        evt.preventDefault();
+                    return;
+                }
+            }
+        }
+    });
+    me.addListener('keyup', function(type, evt) {
+        var keyCode = evt.keyCode || evt.which,
+            rng,me = this;
+        if(keyCode == keymap.Backspace){
+            if(me.fireEvent('delkeyup')){
+                return;
+            }
+            rng = me.selection.getRange();
+            if(rng.collapsed){
+                var tmpNode,
+                    autoClearTagName = ['h1','h2','h3','h4','h5','h6'];
+                if(tmpNode = domUtils.findParentByTagName(rng.startContainer,autoClearTagName,true)){
+                    if(domUtils.isEmptyBlock(tmpNode)){
+                        var pre = tmpNode.previousSibling;
+                        if(pre && pre.nodeName != 'TABLE'){
+                            domUtils.remove(tmpNode);
+                            rng.setStartAtLast(pre).setCursor(false,true);
+                            return;
+                        }else{
+                            var next = tmpNode.nextSibling;
+                            if(next && next.nodeName != 'TABLE'){
+                                domUtils.remove(tmpNode);
+                                rng.setStartAtFirst(next).setCursor(false,true);
+                                return;
+                            }
+                        }
+                    }
+                }
+                //处理当删除到body时，要重新给p标签展位
+                if(domUtils.isBody(rng.startContainer)){
+                    var tmpNode = domUtils.createElement(me.document,'p',{
+                        'innerHTML' : browser.ie ? domUtils.fillChar : '<br/>'
+                    });
+                    rng.insertNode(tmpNode).setStart(tmpNode,0).setCursor(false,true);
+                }
+            }
+
+
+            //chrome下如果删除了inline标签，浏览器会有记忆，在输入文字还是会套上刚才删除的标签，所以这里再选一次就不会了
+            if( !collapsed && (rng.startContainer.nodeType == 3 || rng.startContainer.nodeType == 1 && domUtils.isEmptyBlock(rng.startContainer))){
+                if(browser.ie){
+                    var span = rng.document.createElement('span');
+                    rng.insertNode(span).setStartBefore(span).collapse(true);
+                    rng.select();
+                    domUtils.remove(span)
+                }else{
+                    rng.select()
+                }
+
+            }
+        }
+
+
+    })
+};
+
+// plugins/fiximgclick.js
+///import core
+///commands 修复chrome下图片不能点击的问题，出现八个角可改变大小
+///commandsName  FixImgClick
+///commandsTitle  修复chrome下图片不能点击的问题，出现八个角可改变大小
+//修复chrome下图片不能点击的问题，出现八个角可改变大小
+
+UE.plugins['fiximgclick'] = (function () {
+
+    var elementUpdated = false;
+    function Scale() {
+        this.editor = null;
+        this.resizer = null;
+        this.cover = null;
+        this.doc = document;
+        this.prePos = {x: 0, y: 0};
+        this.startPos = {x: 0, y: 0};
+    }
+
+    (function () {
+        var rect = [
+            //[left, top, width, height]
+            [0, 0, -1, -1],
+            [0, 0, 0, -1],
+            [0, 0, 1, -1],
+            [0, 0, -1, 0],
+            [0, 0, 1, 0],
+            [0, 0, -1, 1],
+            [0, 0, 0, 1],
+            [0, 0, 1, 1]
+        ];
+
+        Scale.prototype = {
+            init: function (editor) {
+                var me = this;
+                me.editor = editor;
+                me.startPos = this.prePos = {x: 0, y: 0};
+                me.dragId = -1;
+
+                var hands = [],
+                    cover = me.cover = document.createElement('div'),
+                    resizer = me.resizer = document.createElement('div');
+
+                cover.id = me.editor.ui.id + '_imagescale_cover';
+                cover.style.cssText = 'position:absolute;display:none;z-index:' + (me.editor.options.zIndex) + ';filter:alpha(opacity=0); opacity:0;background:#CCC;';
+                domUtils.on(cover, 'mousedown click', function () {
+                    me.hide();
+                });
+
+                for (i = 0; i < 8; i++) {
+                    hands.push('<span class="edui-editor-imagescale-hand' + i + '"></span>');
+                }
+                resizer.id = me.editor.ui.id + '_imagescale';
+                resizer.className = 'edui-editor-imagescale';
+                resizer.innerHTML = hands.join('');
+                resizer.style.cssText += ';display:none;border:1px solid #3b77ff;z-index:' + (me.editor.options.zIndex) + ';';
+
+                me.editor.ui.getDom().appendChild(cover);
+                me.editor.ui.getDom().appendChild(resizer);
+
+                me.initStyle();
+                me.initEvents();
+            },
+            initStyle: function () {
+                utils.cssRule('imagescale', '.edui-editor-imagescale{display:none;position:absolute;border:1px solid #38B2CE;cursor:hand;-webkit-box-sizing: content-box;-moz-box-sizing: content-box;box-sizing: content-box;}' +
+                    '.edui-editor-imagescale span{position:absolute;width:6px;height:6px;overflow:hidden;font-size:0px;display:block;background-color:#3C9DD0;}'
+                    + '.edui-editor-imagescale .edui-editor-imagescale-hand0{cursor:nw-resize;top:0;margin-top:-4px;left:0;margin-left:-4px;}'
+                    + '.edui-editor-imagescale .edui-editor-imagescale-hand1{cursor:n-resize;top:0;margin-top:-4px;left:50%;margin-left:-4px;}'
+                    + '.edui-editor-imagescale .edui-editor-imagescale-hand2{cursor:ne-resize;top:0;margin-top:-4px;left:100%;margin-left:-3px;}'
+                    + '.edui-editor-imagescale .edui-editor-imagescale-hand3{cursor:w-resize;top:50%;margin-top:-4px;left:0;margin-left:-4px;}'
+                    + '.edui-editor-imagescale .edui-editor-imagescale-hand4{cursor:e-resize;top:50%;margin-top:-4px;left:100%;margin-left:-3px;}'
+                    + '.edui-editor-imagescale .edui-editor-imagescale-hand5{cursor:sw-resize;top:100%;margin-top:-3px;left:0;margin-left:-4px;}'
+                    + '.edui-editor-imagescale .edui-editor-imagescale-hand6{cursor:s-resize;top:100%;margin-top:-3px;left:50%;margin-left:-4px;}'
+                    + '.edui-editor-imagescale .edui-editor-imagescale-hand7{cursor:se-resize;top:100%;margin-top:-3px;left:100%;margin-left:-3px;}');
+            },
+            initEvents: function () {
+                var me = this;
+
+                me.startPos.x = me.startPos.y = 0;
+                me.isDraging = false;
+            },
+            _eventHandler: function (e) {
+                var me = this;
+                switch (e.type) {
+                    case 'mousedown':
+                        var hand = e.target || e.srcElement, hand;
+                        if (hand.className.indexOf('edui-editor-imagescale-hand') != -1 && me.dragId == -1) {
+                            me.dragId = hand.className.slice(-1);
+                            me.startPos.x = me.prePos.x = e.clientX;
+                            me.startPos.y = me.prePos.y = e.clientY;
+                            domUtils.on(me.doc,'mousemove', me.proxy(me._eventHandler, me));
+                        }
+                        break;
+                    case 'mousemove':
+                        if (me.dragId != -1) {
+                            me.updateContainerStyle(me.dragId, {x: e.clientX - me.prePos.x, y: e.clientY - me.prePos.y});
+                            me.prePos.x = e.clientX;
+                            me.prePos.y = e.clientY;
+                            elementUpdated = true;
+                            me.updateTargetElement();
+
+                        }
+                        break;
+                    case 'mouseup':
+                        if (me.dragId != -1) {
+                            me.updateContainerStyle(me.dragId, {x: e.clientX - me.prePos.x, y: e.clientY - me.prePos.y});
+                            me.updateTargetElement();
+                            if (me.target.parentNode) me.attachTo(me.target);
+                            me.dragId = -1;
+                        }
+                        domUtils.un(me.doc,'mousemove', me.proxy(me._eventHandler, me));
+                        //修复只是点击挪动点，但没有改变大小，不应该触发contentchange
+                        if(elementUpdated){
+                            elementUpdated = false;
+                            me.editor.fireEvent('contentchange');
+                        }
+
+                        break;
+                    default:
+                        break;
+                }
+            },
+            updateTargetElement: function () {
+                var me = this;
+                domUtils.setStyles(me.target, {
+                    'width': me.resizer.style.width,
+                    'height': me.resizer.style.height
+                });
+                me.target.width = parseInt(me.resizer.style.width);
+                me.target.height = parseInt(me.resizer.style.height);
+                me.attachTo(me.target);
+            },
+            updateContainerStyle: function (dir, offset) {
+                var me = this,
+                    dom = me.resizer, tmp;
+
+                if (rect[dir][0] != 0) {
+                    tmp = parseInt(dom.style.left) + offset.x;
+                    dom.style.left = me._validScaledProp('left', tmp) + 'px';
+                }
+                if (rect[dir][1] != 0) {
+                    tmp = parseInt(dom.style.top) + offset.y;
+                    dom.style.top = me._validScaledProp('top', tmp) + 'px';
+                }
+                if (rect[dir][2] != 0) {
+                    tmp = dom.clientWidth + rect[dir][2] * offset.x;
+                    dom.style.width = me._validScaledProp('width', tmp) + 'px';
+                }
+                if (rect[dir][3] != 0) {
+                    tmp = dom.clientHeight + rect[dir][3] * offset.y;
+                    dom.style.height = me._validScaledProp('height', tmp) + 'px';
+                }
+            },
+            _validScaledProp: function (prop, value) {
+                var ele = this.resizer,
+                    wrap = document;
+
+                value = isNaN(value) ? 0 : value;
+                switch (prop) {
+                    case 'left':
+                        return value < 0 ? 0 : (value + ele.clientWidth) > wrap.clientWidth ? wrap.clientWidth - ele.clientWidth : value;
+                    case 'top':
+                        return value < 0 ? 0 : (value + ele.clientHeight) > wrap.clientHeight ? wrap.clientHeight - ele.clientHeight : value;
+                    case 'width':
+                        return value <= 0 ? 1 : (value + ele.offsetLeft) > wrap.clientWidth ? wrap.clientWidth - ele.offsetLeft : value;
+                    case 'height':
+                        return value <= 0 ? 1 : (value + ele.offsetTop) > wrap.clientHeight ? wrap.clientHeight - ele.offsetTop : value;
+                }
+            },
+            hideCover: function () {
+                this.cover.style.display = 'none';
+            },
+            showCover: function () {
+                var me = this,
+                    editorPos = domUtils.getXY(me.editor.ui.getDom()),
+                    iframePos = domUtils.getXY(me.editor.iframe);
+
+                domUtils.setStyles(me.cover, {
+                    'width': me.editor.iframe.offsetWidth + 'px',
+                    'height': me.editor.iframe.offsetHeight + 'px',
+                    'top': iframePos.y - editorPos.y + 'px',
+                    'left': iframePos.x - editorPos.x + 'px',
+                    'position': 'absolute',
+                    'display': ''
+                })
+            },
+            show: function (targetObj) {
+                var me = this;
+                me.resizer.style.display = 'block';
+                if(targetObj) me.attachTo(targetObj);
+
+                domUtils.on(this.resizer, 'mousedown', me.proxy(me._eventHandler, me));
+                domUtils.on(me.doc, 'mouseup', me.proxy(me._eventHandler, me));
+
+                me.showCover();
+                me.editor.fireEvent('afterscaleshow', me);
+                me.editor.fireEvent('saveScene');
+            },
+            hide: function () {
+                var me = this;
+                me.hideCover();
+                me.resizer.style.display = 'none';
+
+                domUtils.un(me.resizer, 'mousedown', me.proxy(me._eventHandler, me));
+                domUtils.un(me.doc, 'mouseup', me.proxy(me._eventHandler, me));
+                me.editor.fireEvent('afterscalehide', me);
+            },
+            proxy: function( fn, context ) {
+                return function(e) {
+                    return fn.apply( context || this, arguments);
+                };
+            },
+            attachTo: function (targetObj) {
+                var me = this,
+                    target = me.target = targetObj,
+                    resizer = this.resizer,
+                    imgPos = domUtils.getXY(target),
+                    iframePos = domUtils.getXY(me.editor.iframe),
+                    editorPos = domUtils.getXY(resizer.parentNode);
+
+                domUtils.setStyles(resizer, {
+                    'width': target.width + 'px',
+                    'height': target.height + 'px',
+                    'left': iframePos.x + imgPos.x - me.editor.document.body.scrollLeft - editorPos.x - parseInt(resizer.style.borderLeftWidth) + 'px',
+                    'top': iframePos.y + imgPos.y - me.editor.document.body.scrollTop - editorPos.y - parseInt(resizer.style.borderTopWidth) + 'px'
+                });
+            }
+        }
+    })();
+
+    return function () {
+        var me = this,
+            imageScale;
+
+        me.setOpt('imageScaleEnabled', true);
+
+        if ( !browser.ie && me.options.imageScaleEnabled) {
+            me.addListener('click', function (type, e) {
+
+                var range = me.selection.getRange(),
+                    img = range.getClosedNode();
+
+                if (img && img.tagName == 'IMG' && me.body.contentEditable!="false") {
+
+                    if (img.className.indexOf("edui-faked-music") != -1 ||
+                        img.getAttribute("anchorname") ||
+                        domUtils.hasClass(img, 'loadingclass') ||
+                        domUtils.hasClass(img, 'loaderrorclass')) { return }
+
+                    if (!imageScale) {
+                        imageScale = new Scale();
+                        imageScale.init(me);
+                        me.ui.getDom().appendChild(imageScale.resizer);
+
+                        var _keyDownHandler = function (e) {
+                            imageScale.hide();
+                            if(imageScale.target) me.selection.getRange().selectNode(imageScale.target).select();
+                        }, _mouseDownHandler = function (e) {
+                            var ele = e.target || e.srcElement;
+                            if (ele && (ele.className===undefined || ele.className.indexOf('edui-editor-imagescale') == -1)) {
+                                _keyDownHandler(e);
+                            }
+                        }, timer;
+
+                        me.addListener('afterscaleshow', function (e) {
+                            me.addListener('beforekeydown', _keyDownHandler);
+                            me.addListener('beforemousedown', _mouseDownHandler);
+                            domUtils.on(document, 'keydown', _keyDownHandler);
+                            domUtils.on(document,'mousedown', _mouseDownHandler);
+                            me.selection.getNative().removeAllRanges();
+                        });
+                        me.addListener('afterscalehide', function (e) {
+                            me.removeListener('beforekeydown', _keyDownHandler);
+                            me.removeListener('beforemousedown', _mouseDownHandler);
+                            domUtils.un(document, 'keydown', _keyDownHandler);
+                            domUtils.un(document,'mousedown', _mouseDownHandler);
+                            var target = imageScale.target;
+                            if (target.parentNode) {
+                                me.selection.getRange().selectNode(target).select();
+                            }
+                        });
+                        //TODO 有iframe的情况，mousedown不能往下传。。
+                        domUtils.on(imageScale.resizer, 'mousedown', function (e) {
+                            me.selection.getNative().removeAllRanges();
+                            var ele = e.target || e.srcElement;
+                            if (ele && ele.className.indexOf('edui-editor-imagescale-hand') == -1) {
+                                timer = setTimeout(function () {
+                                    imageScale.hide();
+                                    if(imageScale.target) me.selection.getRange().selectNode(ele).select();
+                                }, 200);
+                            }
+                        });
+                        domUtils.on(imageScale.resizer, 'mouseup', function (e) {
+                            var ele = e.target || e.srcElement;
+                            if (ele && ele.className.indexOf('edui-editor-imagescale-hand') == -1) {
+                                clearTimeout(timer);
+                            }
+                        });
+                    }
+                    imageScale.show(img);
+                } else {
+                    if (imageScale && imageScale.resizer.style.display != 'none') imageScale.hide();
+                }
+            });
+        }
+
+        if (browser.webkit) {
+            me.addListener('click', function (type, e) {
+                if (e.target.tagName == 'IMG' && me.body.contentEditable!="false") {
+                    var range = new dom.Range(me.document);
+                    range.selectNode(e.target).select();
+                }
+            });
+        }
+    }
+})();
+
+// plugins/autolink.js
+///import core
+///commands 为非ie浏览器自动添加a标签
+///commandsName  AutoLink
+///commandsTitle  自动增加链接
+/**
+ * @description 为非ie浏览器自动添加a标签
+ * @author zhanyi
+ */
+
+UE.plugin.register('autolink',function(){
+    var cont = 0;
+
+    return !browser.ie ? {
+
+            bindEvents:{
+                'reset' : function(){
+                    cont = 0;
+                },
+                'keydown':function(type, evt) {
+                    var me = this;
+                    var keyCode = evt.keyCode || evt.which;
+
+                    if (keyCode == 32 || keyCode == 13) {
+
+                        var sel = me.selection.getNative(),
+                            range = sel.getRangeAt(0).cloneRange(),
+                            offset,
+                            charCode;
+
+                        var start = range.startContainer;
+                        while (start.nodeType == 1 && range.startOffset > 0) {
+                            start = range.startContainer.childNodes[range.startOffset - 1];
+                            if (!start){
+                                break;
+                            }
+                            range.setStart(start, start.nodeType == 1 ? start.childNodes.length : start.nodeValue.length);
+                            range.collapse(true);
+                            start = range.startContainer;
+                        }
+
+                        do{
+                            if (range.startOffset == 0) {
+                                start = range.startContainer.previousSibling;
+
+                                while (start && start.nodeType == 1) {
+                                    start = start.lastChild;
+                                }
+                                if (!start || domUtils.isFillChar(start)){
+                                    break;
+                                }
+                                offset = start.nodeValue.length;
+                            } else {
+                                start = range.startContainer;
+                                offset = range.startOffset;
+                            }
+                            range.setStart(start, offset - 1);
+                            charCode = range.toString().charCodeAt(0);
+                        } while (charCode != 160 && charCode != 32);
+
+                        if (range.toString().replace(new RegExp(domUtils.fillChar, 'g'), '').match(/(?:https?:\/\/|ssh:\/\/|ftp:\/\/|file:\/|www\.)/i)) {
+                            while(range.toString().length){
+                                if(/^(?:https?:\/\/|ssh:\/\/|ftp:\/\/|file:\/|www\.)/i.test(range.toString())){
+                                    break;
+                                }
+                                try{
+                                    range.setStart(range.startContainer,range.startOffset+1);
+                                }catch(e){
+                                    //trace:2121
+                                    var start = range.startContainer;
+                                    while(!(next = start.nextSibling)){
+                                        if(domUtils.isBody(start)){
+                                            return;
+                                        }
+                                        start = start.parentNode;
+
+                                    }
+                                    range.setStart(next,0);
+
+                                }
+
+                            }
+                            //range的开始边界已经在a标签里的不再处理
+                            if(domUtils.findParentByTagName(range.startContainer,'a',true)){
+                                return;
+                            }
+                            var a = me.document.createElement('a'),text = me.document.createTextNode(' '),href;
+
+                            me.undoManger && me.undoManger.save();
+                            a.appendChild(range.extractContents());
+                            a.href = a.innerHTML = a.innerHTML.replace(/<[^>]+>/g,'');
+                            href = a.getAttribute("href").replace(new RegExp(domUtils.fillChar,'g'),'');
+                            href = /^(?:https?:\/\/)/ig.test(href) ? href : "http://"+ href;
+                            a.setAttribute('_src',utils.html(href));
+                            a.href = utils.html(href);
+
+                            range.insertNode(a);
+                            a.parentNode.insertBefore(text, a.nextSibling);
+                            range.setStart(text, 0);
+                            range.collapse(true);
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                            me.undoManger && me.undoManger.save();
+                        }
+                    }
+                }
+            }
+        }:{}
+    },function(){
+        var keyCodes = {
+            37:1, 38:1, 39:1, 40:1,
+            13:1,32:1
+        };
+        function checkIsCludeLink(node){
+            if(node.nodeType == 3){
+                return null
+            }
+            if(node.nodeName == 'A'){
+                return node;
+            }
+            var lastChild = node.lastChild;
+
+            while(lastChild){
+                if(lastChild.nodeName == 'A'){
+                    return lastChild;
+                }
+                if(lastChild.nodeType == 3){
+                    if(domUtils.isWhitespace(lastChild)){
+                        lastChild = lastChild.previousSibling;
+                        continue;
+                    }
+                    return null
+                }
+                lastChild = lastChild.lastChild;
+            }
+        }
+        browser.ie && this.addListener('keyup',function(cmd,evt){
+            var me = this,keyCode = evt.keyCode;
+            if(keyCodes[keyCode]){
+                var rng = me.selection.getRange();
+                var start = rng.startContainer;
+
+                if(keyCode == 13){
+                    while(start && !domUtils.isBody(start) && !domUtils.isBlockElm(start)){
+                        start = start.parentNode;
+                    }
+                    if(start && !domUtils.isBody(start) && start.nodeName == 'P'){
+                        var pre = start.previousSibling;
+                        if(pre && pre.nodeType == 1){
+                            var pre = checkIsCludeLink(pre);
+                            if(pre && !pre.getAttribute('_href')){
+                                domUtils.remove(pre,true);
+                            }
+                        }
+                    }
+                }else if(keyCode == 32 ){
+                    if(start.nodeType == 3 && /^\s$/.test(start.nodeValue)){
+                        start = start.previousSibling;
+                        if(start && start.nodeName == 'A' && !start.getAttribute('_href')){
+                            domUtils.remove(start,true);
+                        }
+                    }
+                }else {
+                    start = domUtils.findParentByTagName(start,'a',true);
+                    if(start && !start.getAttribute('_href')){
+                        var bk = rng.createBookmark();
+
+                        domUtils.remove(start,true);
+                        rng.moveToBookmark(bk).select(true)
+                    }
+                }
+
+            }
+
+
+        });
+    }
+);
+
+// plugins/autoheight.js
+///import core
+///commands 当输入内容超过编辑器高度时，编辑器自动增高
+///commandsName  AutoHeight,autoHeightEnabled
+///commandsTitle  自动增高
+/**
+ * @description 自动伸展
+ * @author zhanyi
+ */
+UE.plugins['autoheight'] = function () {
+    var me = this;
+    //提供开关，就算加载也可以关闭
+    me.autoHeightEnabled = me.options.autoHeightEnabled !== false;
+    if (!me.autoHeightEnabled) {
+        return;
+    }
+
+    var bakOverflow,
+        lastHeight = 0,
+        options = me.options,
+        currentHeight,
+        timer;
+
+    function adjustHeight() {
+        var me = this;
+        clearTimeout(timer);
+        if(isFullscreen)return;
+        if (!me.queryCommandState || me.queryCommandState && me.queryCommandState('source') != 1) {
+            timer = setTimeout(function(){
+
+                var node = me.body.lastChild;
+                while(node && node.nodeType != 1){
+                    node = node.previousSibling;
+                }
+                if(node && node.nodeType == 1){
+                    node.style.clear = 'both';
+                    currentHeight = Math.max(domUtils.getXY(node).y + node.offsetHeight + 25 ,Math.max(options.minFrameHeight, options.initialFrameHeight)) ;
+                    if (currentHeight != lastHeight) {
+                        if (currentHeight !== parseInt(me.iframe.parentNode.style.height)) {
+                            me.iframe.parentNode.style.height = currentHeight + 'px';
+                        }
+                        me.body.style.height = currentHeight + 'px';
+                        lastHeight = currentHeight;
+                    }
+                    domUtils.removeStyle(node,'clear');
+                }
+
+
+            },50)
+        }
+    }
+    var isFullscreen;
+    me.addListener('fullscreenchanged',function(cmd,f){
+        isFullscreen = f
+    });
+    me.addListener('destroy', function () {
+        me.removeListener('contentchange afterinserthtml keyup mouseup',adjustHeight)
+    });
+    me.enableAutoHeight = function () {
+        var me = this;
+        if (!me.autoHeightEnabled) {
+            return;
+        }
+        var doc = me.document;
+        me.autoHeightEnabled = true;
+        bakOverflow = doc.body.style.overflowY;
+        doc.body.style.overflowY = 'hidden';
+        me.addListener('contentchange afterinserthtml keyup mouseup',adjustHeight);
+        //ff不给事件算得不对
+
+        setTimeout(function () {
+            adjustHeight.call(me);
+        }, browser.gecko ? 100 : 0);
+        me.fireEvent('autoheightchanged', me.autoHeightEnabled);
+    };
+    me.disableAutoHeight = function () {
+
+        me.body.style.overflowY = bakOverflow || '';
+
+        me.removeListener('contentchange', adjustHeight);
+        me.removeListener('keyup', adjustHeight);
+        me.removeListener('mouseup', adjustHeight);
+        me.autoHeightEnabled = false;
+        me.fireEvent('autoheightchanged', me.autoHeightEnabled);
+    };
+
+    me.on('setHeight',function(){
+        me.disableAutoHeight()
+    });
+    me.addListener('ready', function () {
+        me.enableAutoHeight();
+        //trace:1764
+        var timer;
+        domUtils.on(browser.ie ? me.body : me.document, browser.webkit ? 'dragover' : 'drop', function () {
+            clearTimeout(timer);
+            timer = setTimeout(function () {
+                //trace:3681
+                adjustHeight.call(me);
+            }, 100);
+
+        });
+        //修复内容过多时，回到顶部，顶部内容被工具栏遮挡问题
+        var lastScrollY;
+        window.onscroll = function(){
+            if(lastScrollY === null){
+                lastScrollY = this.scrollY
+            }else if(this.scrollY == 0 && lastScrollY != 0){
+                me.window.scrollTo(0,0);
+                lastScrollY = null;
+            }
+        }
+    });
+
+
+};
+
+
+
+// plugins/autofloat.js
+///import core
+///commands 悬浮工具栏
+///commandsName  AutoFloat,autoFloatEnabled
+///commandsTitle  悬浮工具栏
+/**
+ *  modified by chengchao01
+ *  注意： 引入此功能后，在IE6下会将body的背景图片覆盖掉！
+ */
+UE.plugins['autofloat'] = function() {
+    var me = this,
+        lang = me.getLang();
+    me.setOpt({
+        topOffset:0
+    });
+    var optsAutoFloatEnabled = me.options.autoFloatEnabled !== false,
+        topOffset = me.options.topOffset;
+
+
+    //如果不固定toolbar的位置，则直接退出
+    if(!optsAutoFloatEnabled){
+        return;
+    }
+    var uiUtils = UE.ui.uiUtils,
+        LteIE6 = browser.ie && browser.version <= 6,
+        quirks = browser.quirks;
+
+    function checkHasUI(){
+        if(!UE.ui){
+            alert(lang.autofloatMsg);
+            return 0;
+        }
+        return 1;
+    }
+    function fixIE6FixedPos(){
+        var docStyle = document.body.style;
+        docStyle.backgroundImage = 'url("about:blank")';
+        docStyle.backgroundAttachment = 'fixed';
+    }
+    var	bakCssText,
+        placeHolder = document.createElement('div'),
+        toolbarBox,orgTop,
+        getPosition,
+        flag =true;   //ie7模式下需要偏移
+    function setFloating(){
+        var toobarBoxPos = domUtils.getXY(toolbarBox),
+            origalFloat = domUtils.getComputedStyle(toolbarBox,'position'),
+            origalLeft = domUtils.getComputedStyle(toolbarBox,'left');
+        toolbarBox.style.width = toolbarBox.offsetWidth + 'px';
+        toolbarBox.style.zIndex = me.options.zIndex * 1 + 1;
+        toolbarBox.parentNode.insertBefore(placeHolder, toolbarBox);
+        if (LteIE6 || (quirks && browser.ie)) {
+            if(toolbarBox.style.position != 'absolute'){
+                toolbarBox.style.position = 'absolute';
+            }
+            toolbarBox.style.top = (document.body.scrollTop||document.documentElement.scrollTop) - orgTop + topOffset  + 'px';
+        } else {
+            if (browser.ie7Compat && flag) {
+                flag = false;
+                toolbarBox.style.left =  domUtils.getXY(toolbarBox).x - document.documentElement.getBoundingClientRect().left+2  + 'px';
+            }
+            if(toolbarBox.style.position != 'fixed'){
+                toolbarBox.style.position = 'fixed';
+                toolbarBox.style.top = topOffset +"px";
+                ((origalFloat == 'absolute' || origalFloat == 'relative') && parseFloat(origalLeft)) && (toolbarBox.style.left = toobarBoxPos.x + 'px');
+            }
+        }
+    }
+    function unsetFloating(){
+        flag = true;
+        if(placeHolder.parentNode){
+            placeHolder.parentNode.removeChild(placeHolder);
+        }
+
+        toolbarBox.style.cssText = bakCssText;
+    }
+
+    function updateFloating(){
+        var rect3 = getPosition(me.container);
+        var offset=me.options.toolbarTopOffset||0;
+        if (rect3.top < 0 && rect3.bottom - toolbarBox.offsetHeight > offset) {
+            setFloating();
+        }else{
+            unsetFloating();
+        }
+    }
+    var defer_updateFloating = utils.defer(function(){
+        updateFloating();
+    },browser.ie ? 200 : 100,true);
+
+    me.addListener('destroy',function(){
+        domUtils.un(window, ['scroll','resize'], updateFloating);
+        me.removeListener('keydown', defer_updateFloating);
+    });
+
+    me.addListener('ready', function(){
+        if(checkHasUI(me)){
+            //加载了ui组件，但在new时，没有加载ui，导致编辑器实例上没有ui类，所以这里做判断
+            if(!me.ui){
+                return;
+            }
+            getPosition = uiUtils.getClientRect;
+            toolbarBox = me.ui.getDom('toolbarbox');
+            orgTop = getPosition(toolbarBox).top;
+            bakCssText = toolbarBox.style.cssText;
+            placeHolder.style.height = toolbarBox.offsetHeight + 'px';
+            if(LteIE6){
+                fixIE6FixedPos();
+            }
+            domUtils.on(window, ['scroll','resize'], updateFloating);
+            me.addListener('keydown', defer_updateFloating);
+
+            me.addListener('beforefullscreenchange', function (t, enabled){
+                if (enabled) {
+                    unsetFloating();
+                }
+            });
+            me.addListener('fullscreenchanged', function (t, enabled){
+                if (!enabled) {
+                    updateFloating();
+                }
+            });
+            me.addListener('sourcemodechanged', function (t, enabled){
+                setTimeout(function (){
+                    updateFloating();
+                },0);
+            });
+            me.addListener("clearDoc",function(){
+                setTimeout(function(){
+                    updateFloating();
+                },0);
+
+            })
+        }
+    });
+};
+
+
+// plugins/video.js
+/**
+ * video插件， 为UEditor提供视频插入支持
+ * @file
+ * @since 1.2.6.1
+ */
+
+UE.plugins['video'] = function (){
+    var me =this;
+
+    /**
+     * 创建插入视频字符窜
+     * @param url 视频地址
+     * @param width 视频宽度
+     * @param height 视频高度
+     * @param align 视频对齐
+     * @param toEmb

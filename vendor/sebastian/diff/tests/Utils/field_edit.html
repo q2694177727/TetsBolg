@@ -1,0 +1,54 @@
+cure-requests' => '1',
+  'connection' => 'close',
+  'host' => 'soxun.com',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ VIEW ] E:\phpStudy\PHPTutorial\WWW\newadmin\application\soxun\view\download\lists.html [ array (
+  0 => 'info',
+  1 => 'type',
+) ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.023001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_download` [ RunTime:0.026002s ]
+[ sql ] [ SQL ] SELECT * FROM `so_download` ORDER BY `sort` ASC,`d_num` DESC [ RunTime:0.008001s ]
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_download_type` [ RunTime:0.031001s ]
+[ sql ] [ SQL ] SELECT * FROM `so_download_type` WHERE  `d_type_id` IN (2,1) [ RunTime:0.033002s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.048003s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SELECT * FROM `so_download_type` [ RunTime:0.067004s ]
+---------------------------------------------------------------
+[2019-08-09T14:39:50+08:00] 127.0.0.1 GET soxun.com/soxun/index/index.html
+[运行时间：0.168009s] [吞吐率：5.95req/s] [内存消耗：1,858.41kb] [文件加载：69]
+[ info ] [ LANG ] E:\phpStudy\PHPTutorial\WWW\newadmin\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'pgv_pvi=2336585728; pgv_si=s8949521408; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1565083594,1565139130,1565314807,1565329920; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1565332739; admin=admin; role=2',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://soxun.com/admin',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'cache-control' => 'max-age=0',
+  'connection' => 'close',
+  'host' => 'soxun.com',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ VIEW ] E:\phpStudy\PHPTutorial\WWW\newadmin\application\soxun\view\index\index.html [ array (
+) ]
+---------------------------------------------------------------
+[2019-08-09T14:39:51+08:00] 127.0.0.1 GET soxun.com/soxun/link/index
+[运行时间：0.543031s] [吞吐率：1.84req/s] [内存消耗：3,200.69kb] [文件加载：83]
+[ info ] [ LANG ] E:\phpStudy\PHPTutorial\WWW\newadmin\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'pgv_pvi=2336585728; pgv_si=s8949521408; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1565083594,1565139130,1565314807,1565329920; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1565332739; admin=admin; role=2',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://soxun.com/soxun/index/index.html',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/

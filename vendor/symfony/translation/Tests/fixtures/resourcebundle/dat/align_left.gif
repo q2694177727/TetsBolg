@@ -1,0 +1,10 @@
+E:\phpStudy\PHPTutorial\WWW\newadmin\application\soxun\view\link\index.html [ array (
+  0 => 'data',
+) ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.054003s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_link` [ RunTime:0.058003s ]
+[ sql ] [ SQL ] SELECT * FROM `so_link` ORDER BY `sort` ASC [ RunTime:0.043002s ]
+---------------------------------------------------------------
+[2019-07-09T17:14:28+08:00] 127.0.0.1 GET soxun.com/soxun/link/index.html?page=1
+[运行时间：0.166009s] [吞吐率：6.02req/s] [内存消耗：2,635.02kb] [文件加载：85]
+[ info ] [ LANG ] E:\phpStud

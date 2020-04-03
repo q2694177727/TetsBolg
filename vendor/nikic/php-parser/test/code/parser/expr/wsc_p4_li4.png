@@ -1,0 +1,72 @@
+ple
+         * ```javascript
+         * editor.setDisabled(['bold','insertimage']); //禁用工具栏中除加粗和插入图片之外的所有功能
+         * ```
+         */
+        setDisabled: function (except) {
+            var me = this;
+            except = except ? utils.isArray(except) ? except : [except] : [];
+            if (me.body.contentEditable == 'true') {
+                if (!me.lastBk) {
+                    me.lastBk = me.selection.getRange().createBookmark(true);
+                }
+                me.body.contentEditable = false;
+                me.bkqueryCommandState = me.queryCommandState;
+                me.bkqueryCommandValue = me.queryCommandValue;
+                me.queryCommandState = function (type) {
+                    if (utils.indexOf(except, type) != -1) {
+                        return me.bkqueryCommandState.apply(me, arguments);
+                    }
+                    return -1;
+                };
+                me.queryCommandValue = function (type) {
+                    if (utils.indexOf(except, type) != -1) {
+                        return me.bkqueryCommandValue.apply(me, arguments);
+                    }
+                    return null;
+                };
+                me.fireEvent('selectionchange');
+            }
+        },
+        disable: function (except) {
+            return this.setDisabled(except);
+        },
+
+        /**
+         * 设置默认内容
+         * @method _setDefaultContent
+         * @private
+         * @param  { String } cont 要存入的内容
+         */
+        _setDefaultContent: function () {
+            function clear() {
+                var me = this;
+                if (me.document.getElementById('initContent')) {
+                    me.body.innerHTML = '<p>' + (ie ? '' : '<br/>') + '</p>';
+                    me.removeListener('firstBeforeExecCommand focus', clear);
+                    setTimeout(function () {
+                        me.focus();
+                        me._selectionChange();
+                    }, 0)
+                }
+            }
+
+            return function (cont) {
+                var me = this;
+                me.body.innerHTML = '<p id="initContent">' + cont + '</p>';
+
+                me.addListener('firstBeforeExecCommand focus', clear);
+            }
+        }(),
+
+        /**
+         * 显示编辑器
+         * @method setShow
+         * @example
+         * ```javascript
+         * editor.setShow()
+         * ```
+         */
+        setShow: function () {
+            var me = this, range = me.selection.getRange();
+            if (me

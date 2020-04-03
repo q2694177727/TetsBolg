@@ -1,0 +1,23 @@
+                // 很重要不能删除。删除了会死循环。
+                    // 保证执行顺序。让callback总是在下一个tick中执行。
+                    return promise[ key ](function() {
+                                var deferred = Base.Deferred(),
+                                    args = arguments;
+    
+                                setTimeout(function() {
+                                    deferred.resolve.apply( deferred, args );
+                                }, 1 );
+    
+                                return deferred.promise();
+                            })[ key ]( callback || Base.noop );
+                } else {
+                    return rlts[ 0 ];
+                }
+            }
+        });
+    
+        /**
+         * 添加组件
+         * @param  {object} widgetProto 组件原型，构造函数通过constructor属性定义
+         * @param  {object} responseMap API名称与函数实现的映射
+  

@@ -1,0 +1,3 @@
+<?php
+$_power=NULL;
+?>

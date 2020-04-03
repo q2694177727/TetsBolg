@@ -1,0 +1,96 @@
+号表示选区 -->
+         *      <b>x<i>x[x</i>xx]x</b>
+         *
+         *      <script>
+         *          //range是已选中的选区
+         *          range.deleteContents();
+         *
+         *          //竖线表示闭合后的选区位置
+         *          //output: <b>x<i>x</i>|x</b>
+         *          console.log( document.body.innerHTML );
+         *
+         *          //此时， range的各项属性为
+         *          //output: B
+         *          console.log( range.startContainer.tagName );
+         *          //output: 2
+         *          console.log( range.startOffset );
+         *          //output: B
+         *          console.log( range.endContainer.tagName );
+         *          //output: 2
+         *          console.log( range.endOffset );
+         *          //output: true
+         *          console.log( range.collapsed );
+         *
+         *      </script>
+         * </body>
+         * ```
+         */
+        deleteContents:function () {
+            var txt;
+            if (!this.collapsed) {
+                execContentsAction(this, 1);
+            }
+            if (browser.webkit) {
+                txt = this.startContainer;
+                if (txt.nodeType == 3 && !txt.nodeValue.length) {
+                    this.setStartBefore(txt).collapse(true);
+                    domUtils.remove(txt);
+                }
+            }
+            return this;
+        },
+
+        /**
+         * 将当前选区的内容提取到一个DocumentFragment里
+         * @method extractContents
+         * @remind 执行该操作后， 选区将变成闭合状态
+         * @warning 执行该操作后， 原来选区所选中的内容将从dom树上剥离出来
+         * @return { DocumentFragment } 返回包含所提取内容的DocumentFragment对象
+         * @example
+         * ```html
+         * <body>
+         *      <!-- 中括号表示选区 -->
+         *      <b>x<i>x[x</i>xx]x</b>
+         *
+         *      <script>
+         *          //range是已选中的选区
+         *          var fragment = range.extractContents(),
+         *              node = document.createElement( "div" );
+         *
+         *          node.appendChild( fragment );
+         *
+         *          //竖线表示闭合后的选区位置
+         *
+         *          //output: <b>x<i>x</i>|x</b>
+         *          console.log( document.body.innerHTML );
+         *          //output: <i>x</i>xx
+         *          console.log( node.innerHTML );
+         *
+         *          //此时， range的各项属性为
+         *          //output: B
+         *          console.log( range.startContainer.tagName );
+         *          //output: 2
+         *          console.log( range.startOffset );
+         *          //output: B
+         *          console.log( range.endContainer.tagName );
+         *          //output: 2
+         *          console.log( range.endOffset );
+         *          //output: true
+         *          console.log( range.collapsed );
+         *
+         *      </script>
+         * </body>
+         */
+        extractContents:function () {
+            return this.collapsed ? null : execContentsAction(this, 2);
+        },
+
+        /**
+         * 设置Range的开始容器节点和偏移量
+         * @method  setStart
+         * @remind 如果给定的节点是元素节点，那么offset指的是其子元素中索引为offset的元素，
+         *          如果是文本节点，那么offset指的是其文本内容的第offset个字符
+         * @remind 如果提供的容器节点是一个不能包含子元素的节点， 则该选区的开始容器将被设置
+         *          为该节点的父节点， 此时， 其距离开始容器的偏移量也变成了该节点在其父节点
+         *          中的索引
+         * @param { Node } node 将被设为当前选区开始边界容器的节点对�

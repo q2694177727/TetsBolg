@@ -1,0 +1,21 @@
+<div class="container" >
+    <div class="logo"><img src="{$logo}"></div>
+    <!--<div class="left_open">
+        <i title="展开左侧栏" class="iconfont">&#xe699;</i>
+    </div>-->
+    <ul class="layui-nav left fast-add" lay-filter="">
+        <li class="layui-nav-item">
+            <a href="{:url('commandcore/rycensus')}" target="_blank">人员信息</a>
+        </li>
+        <li class="layui-nav-item">
+            <a href="{:url('commandcore/census')}" target="_blank">大数据中心</a>
+        </li>
+        <li class="layui-nav-item">
+            <a href="javascript:;">+新增</a>
+            <dl class="layui-nav-child">
+                <dd><a onclick="x_admin_show('创建账号','{:url("user/adduser")}')"><i class="iconfont">&#xe6b8;</i>创建账号</a></dd>
+                <dd><a onclick="x_admin_show('添加街道','{:url("road/road_add")}')"><i class="iconfont">&#xe839;</i>添加街道</a></dd>
+                <dd><a onclick="x_admin_show('快捷立案','{:url("event/add_event")}')"><i class="iconfont">&#xe6a2;</i>快捷立案</a></dd>
+            </dl>
+        </li>
+        <li class="layui-nav-item">

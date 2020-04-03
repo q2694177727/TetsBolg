@@ -1,0 +1,3424 @@
+rtOffset:function (element, offset) {
+        var left = parseInt(element.style.left) | 0;
+        var top = parseInt(element.style.top) | 0;
+        var rect = element.getBoundingClientRect();
+        var offsetLeft = offset.left - rect.left;
+        var offsetTop = offset.top - rect.top;
+        if (offsetLeft) {
+            element.style.left = left + offsetLeft + 'px';
+        }
+        if (offsetTop) {
+            element.style.top = top + offsetTop + 'px';
+        }
+    },
+
+    /**
+     * 用“填充字符”填充节点
+     * @method fillNode
+     * @private
+     * @param { DomDocument } doc 填充的节点所在的docment对象
+     * @param { Node } node 需要填充的节点对象
+     * @example
+     * ```html
+     * <div id="test"></div>
+     *
+     * <script>
+     *     var testNode = document.getElementById("test");
+     *
+     *     //output: 0
+     *     console.log( testNode.childNodes.length );
+     *
+     *     UE.dom.domUtils.fillNode( document, testNode );
+     *
+     *     //output: 1
+     *     console.log( testNode.childNodes.length );
+     *
+     * </script>
+     * ```
+     */
+    fillNode:function (doc, node) {
+        var tmpNode = browser.ie ? doc.createTextNode(domUtils.fillChar) : doc.createElement('br');
+        node.innerHTML = '';
+        node.appendChild(tmpNode);
+    },
+
+    /**
+     * 把节点src的所有子节点追加到另一个节点tag上去
+     * @method moveChild
+     * @param { Node } src 源节点， 该节点下的所有子节点将被移除
+     * @param { Node } tag 目标节点， 从源节点移除的子节点将被追加到该节点下
+     * @example
+     * ```html
+     * <div id="test1">
+     *      <span></span>
+     * </div>
+     * <div id="test2">
+     *     <div></div>
+     * </div>
+     *
+     * <script>
+     *
+     *     var test1 = document.getElementById("test1"),
+     *         test2 = document.getElementById("test2");
+     *
+     *     UE.dom.domUtils.moveChild( test1, test2 );
+     *
+     *     //output: ""（空字符串）
+     *     console.log( test1.innerHTML );
+     *
+     *     //output: "<div></div><span></span>"
+     *     console.log( test2.innerHTML );
+     *
+     * </script>
+     * ```
+     */
+
+    /**
+     * 把节点src的所有子节点移动到另一个节点tag上去, 可以通过dir参数控制附加的行为是“追加”还是“插入顶部”
+     * @method moveChild
+     * @param { Node } src 源节点， 该节点下的所有子节点将被移除
+     * @param { Node } tag 目标节点， 从源节点移除的子节点将被附加到该节点下
+     * @param { Boolean } dir 附加方式， 如果为true， 则附加进去的节点将被放到目标节点的顶部， 反之，则放到末尾
+     * @example
+     * ```html
+     * <div id="test1">
+     *      <span></span>
+     * </div>
+     * <div id="test2">
+     *     <div></div>
+     * </div>
+     *
+     * <script>
+     *
+     *     var test1 = document.getElementById("test1"),
+     *         test2 = document.getElementById("test2");
+     *
+     *     UE.dom.domUtils.moveChild( test1, test2, true );
+     *
+     *     //output: ""（空字符串）
+     *     console.log( test1.innerHTML );
+     *
+     *     //output: "<span></span><div></div>"
+     *     console.log( test2.innerHTML );
+     *
+     * </script>
+     * ```
+     */
+    moveChild:function (src, tag, dir) {
+        while (src.firstChild) {
+            if (dir && tag.firstChild) {
+                tag.insertBefore(src.lastChild, tag.firstChild);
+            } else {
+                tag.appendChild(src.firstChild);
+            }
+        }
+    },
+
+    /**
+     * 判断节点的标签上是否不存在任何属性
+     * @method hasNoAttributes
+     * @private
+     * @param { Node } node 需要检测的节点对象
+     * @return { Boolean } 节点是否不包含任何属性
+     * @example
+     * ```html
+     * <div id="test"><span>xxxx</span></div>
+     *
+     * <script>
+     *
+     *     //output: false
+     *     console.log( UE.dom.domUtils.hasNoAttributes( document.getElementById("test") ) );
+     *
+     *     //output: true
+     *     console.log( UE.dom.domUtils.hasNoAttributes( document.getElementById("test").firstChild ) );
+     *
+     * </script>
+     * ```
+     */
+    hasNoAttributes:function (node) {
+        return browser.ie ? /^<\w+\s*?>/.test(node.outerHTML) : node.attributes.length == 0;
+    },
+
+    /**
+     * 检测节点是否是UEditor所使用的辅助节点
+     * @method isCustomeNode
+     * @private
+     * @param { Node } node 需要检测的节点
+     * @remind 辅助节点是指编辑器要完成工作临时添加的节点， 在输出的时候将会从编辑器内移除， 不会影响最终的结果。
+     * @return { Boolean } 给定的节点是否是一个辅助节点
+     */
+    isCustomeNode:function (node) {
+        return node.nodeType == 1 && node.getAttribute('_ue_custom_node_');
+    },
+
+    /**
+     * 检测节点的标签是否是给定的标签
+     * @method isTagNode
+     * @param { Node } node 需要检测的节点对象
+     * @param { String } tagName 标签
+     * @return { Boolean } 节点的标签是否是给定的标签
+     * @example
+     * ```html
+     * <div id="test"></div>
+     *
+     * <script>
+     *
+     *     //output: true
+     *     console.log( UE.dom.domUtils.isTagNode( document.getElementById("test"), "div" ) );
+     *
+     * </script>
+     * ```
+     */
+    isTagNode:function (node, tagNames) {
+        return node.nodeType == 1 && new RegExp('\\b' + node.tagName + '\\b','i').test(tagNames)
+    },
+
+    /**
+     * 给定一个节点数组，在通过指定的过滤器过滤后， 获取其中满足过滤条件的第一个节点
+     * @method filterNodeList
+     * @param { Array } nodeList 需要过滤的节点数组
+     * @param { Function } fn 过滤器， 对符合条件的节点， 执行结果返回true， 反之则返回false
+     * @return { Node | NULL } 如果找到符合过滤条件的节点， 则返回该节点， 否则返回NULL
+     * @example
+     * ```javascript
+     * var divNodes = document.getElementsByTagName("div");
+     * divNodes = [].slice.call( divNodes, 0 );
+     *
+     * //output: null
+     * console.log( UE.dom.domUtils.filterNodeList( divNodes, function ( node ) {
+     *     return node.tagName.toLowerCase() !== 'div';
+     * } ) );
+     * ```
+     */
+
+    /**
+     * 给定一个节点数组nodeList和一组标签名tagNames， 获取其中能够匹配标签名的节点集合中的第一个节点
+     * @method filterNodeList
+     * @param { Array } nodeList 需要过滤的节点数组
+     * @param { String } tagNames 需要匹配的标签名， 多个标签名之间用空格分割
+     * @return { Node | NULL } 如果找到标签名匹配的节点， 则返回该节点， 否则返回NULL
+     * @example
+     * ```javascript
+     * var divNodes = document.getElementsByTagName("div");
+     * divNodes = [].slice.call( divNodes, 0 );
+     *
+     * //output: null
+     * console.log( UE.dom.domUtils.filterNodeList( divNodes, 'a span' ) );
+     * ```
+     */
+
+    /**
+     * 给定一个节点数组，在通过指定的过滤器过滤后， 如果参数forAll为true， 则会返回所有满足过滤
+     * 条件的节点集合， 否则， 返回满足条件的节点集合中的第一个节点
+     * @method filterNodeList
+     * @param { Array } nodeList 需要过滤的节点数组
+     * @param { Function } fn 过滤器， 对符合条件的节点， 执行结果返回true， 反之则返回false
+     * @param { Boolean } forAll 是否返回整个节点数组, 如果该参数为false， 则返回节点集合中的第一个节点
+     * @return { Array | Node | NULL } 如果找到符合过滤条件的节点， 则根据参数forAll的值决定返回满足
+     *                                      过滤条件的节点数组或第一个节点， 否则返回NULL
+     * @example
+     * ```javascript
+     * var divNodes = document.getElementsByTagName("div");
+     * divNodes = [].slice.call( divNodes, 0 );
+     *
+     * //output: 3（假定有3个div）
+     * console.log( divNodes.length );
+     *
+     * var nodes = UE.dom.domUtils.filterNodeList( divNodes, function ( node ) {
+     *     return node.tagName.toLowerCase() === 'div';
+     * }, true );
+     *
+     * //output: 3
+     * console.log( nodes.length );
+     *
+     * var node = UE.dom.domUtils.filterNodeList( divNodes, function ( node ) {
+     *     return node.tagName.toLowerCase() === 'div';
+     * }, false );
+     *
+     * //output: div
+     * console.log( node.nodeName );
+     * ```
+     */
+    filterNodeList : function(nodelist,filter,forAll){
+        var results = [];
+        if(!utils .isFunction(filter)){
+            var str = filter;
+            filter = function(n){
+                return utils.indexOf(utils.isArray(str) ? str:str.split(' '), n.tagName.toLowerCase()) != -1
+            };
+        }
+        utils.each(nodelist,function(n){
+            filter(n) && results.push(n)
+        });
+        return results.length  == 0 ? null : results.length == 1 || !forAll ? results[0] : results
+    },
+
+    /**
+     * 查询给定的range选区是否在给定的node节点内，且在该节点的最末尾
+     * @method isInNodeEndBoundary
+     * @param { UE.dom.Range } rng 需要判断的range对象， 该对象的startContainer不能为NULL
+     * @param node 需要检测的节点对象
+     * @return { Number } 如果给定的选取range对象是在node内部的最末端， 则返回1, 否则返回0
+     */
+    isInNodeEndBoundary : function (rng,node){
+        var start = rng.startContainer;
+        if(start.nodeType == 3 && rng.startOffset != start.nodeValue.length){
+            return 0;
+        }
+        if(start.nodeType == 1 && rng.startOffset != start.childNodes.length){
+            return 0;
+        }
+        while(start !== node){
+            if(start.nextSibling){
+                return 0
+            };
+            start = start.parentNode;
+        }
+        return 1;
+    },
+    isBoundaryNode : function (node,dir){
+        var tmp;
+        while(!domUtils.isBody(node)){
+            tmp = node;
+            node = node.parentNode;
+            if(tmp !== node[dir]){
+                return false;
+            }
+        }
+        return true;
+    },
+    fillHtml :  browser.ie11below ? '&nbsp;' : '<br/>'
+};
+var fillCharReg = new RegExp(domUtils.fillChar, 'g');
+
+// core/Range.js
+/**
+ * Range封装
+ * @file
+ * @module UE.dom
+ * @class Range
+ * @since 1.2.6.1
+ */
+
+/**
+ * dom操作封装
+ * @unfile
+ * @module UE.dom
+ */
+
+/**
+ * Range实现类，本类是UEditor底层核心类，封装不同浏览器之间的Range操作。
+ * @unfile
+ * @module UE.dom
+ * @class Range
+ */
+
+
+(function () {
+    var guid = 0,
+        fillChar = domUtils.fillChar,
+        fillData;
+
+    /**
+     * 更新range的collapse状态
+     * @param  {Range}   range    range对象
+     */
+    function updateCollapse(range) {
+        range.collapsed =
+            range.startContainer && range.endContainer &&
+                range.startContainer === range.endContainer &&
+                range.startOffset == range.endOffset;
+    }
+
+    function selectOneNode(rng){
+        return !rng.collapsed && rng.startContainer.nodeType == 1 && rng.startContainer === rng.endContainer && rng.endOffset - rng.startOffset == 1
+    }
+    function setEndPoint(toStart, node, offset, range) {
+        //如果node是自闭合标签要处理
+        if (node.nodeType == 1 && (dtd.$empty[node.tagName] || dtd.$nonChild[node.tagName])) {
+            offset = domUtils.getNodeIndex(node) + (toStart ? 0 : 1);
+            node = node.parentNode;
+        }
+        if (toStart) {
+            range.startContainer = node;
+            range.startOffset = offset;
+            if (!range.endContainer) {
+                range.collapse(true);
+            }
+        } else {
+            range.endContainer = node;
+            range.endOffset = offset;
+            if (!range.startContainer) {
+                range.collapse(false);
+            }
+        }
+        updateCollapse(range);
+        return range;
+    }
+
+    function execContentsAction(range, action) {
+        //调整边界
+        //range.includeBookmark();
+        var start = range.startContainer,
+            end = range.endContainer,
+            startOffset = range.startOffset,
+            endOffset = range.endOffset,
+            doc = range.document,
+            frag = doc.createDocumentFragment(),
+            tmpStart, tmpEnd;
+        if (start.nodeType == 1) {
+            start = start.childNodes[startOffset] || (tmpStart = start.appendChild(doc.createTextNode('')));
+        }
+        if (end.nodeType == 1) {
+            end = end.childNodes[endOffset] || (tmpEnd = end.appendChild(doc.createTextNode('')));
+        }
+        if (start === end && start.nodeType == 3) {
+            frag.appendChild(doc.createTextNode(start.substringData(startOffset, endOffset - startOffset)));
+            //is not clone
+            if (action) {
+                start.deleteData(startOffset, endOffset - startOffset);
+                range.collapse(true);
+            }
+            return frag;
+        }
+        var current, currentLevel, clone = frag,
+            startParents = domUtils.findParents(start, true), endParents = domUtils.findParents(end, true);
+        for (var i = 0; startParents[i] == endParents[i];) {
+            i++;
+        }
+        for (var j = i, si; si = startParents[j]; j++) {
+            current = si.nextSibling;
+            if (si == start) {
+                if (!tmpStart) {
+                    if (range.startContainer.nodeType == 3) {
+                        clone.appendChild(doc.createTextNode(start.nodeValue.slice(startOffset)));
+                        //is not clone
+                        if (action) {
+                            start.deleteData(startOffset, start.nodeValue.length - startOffset);
+                        }
+                    } else {
+                        clone.appendChild(!action ? start.cloneNode(true) : start);
+                    }
+                }
+            } else {
+                currentLevel = si.cloneNode(false);
+                clone.appendChild(currentLevel);
+            }
+            while (current) {
+                if (current === end || current === endParents[j]) {
+                    break;
+                }
+                si = current.nextSibling;
+                clone.appendChild(!action ? current.cloneNode(true) : current);
+                current = si;
+            }
+            clone = currentLevel;
+        }
+        clone = frag;
+        if (!startParents[i]) {
+            clone.appendChild(startParents[i - 1].cloneNode(false));
+            clone = clone.firstChild;
+        }
+        for (var j = i, ei; ei = endParents[j]; j++) {
+            current = ei.previousSibling;
+            if (ei == end) {
+                if (!tmpEnd && range.endContainer.nodeType == 3) {
+                    clone.appendChild(doc.createTextNode(end.substringData(0, endOffset)));
+                    //is not clone
+                    if (action) {
+                        end.deleteData(0, endOffset);
+                    }
+                }
+            } else {
+                currentLevel = ei.cloneNode(false);
+                clone.appendChild(currentLevel);
+            }
+            //如果两端同级，右边第一次已经被开始做了
+            if (j != i || !startParents[i]) {
+                while (current) {
+                    if (current === start) {
+                        break;
+                    }
+                    ei = current.previousSibling;
+                    clone.insertBefore(!action ? current.cloneNode(true) : current, clone.firstChild);
+                    current = ei;
+                }
+            }
+            clone = currentLevel;
+        }
+        if (action) {
+            range.setStartBefore(!endParents[i] ? endParents[i - 1] : !startParents[i] ? startParents[i - 1] : endParents[i]).collapse(true);
+        }
+        tmpStart && domUtils.remove(tmpStart);
+        tmpEnd && domUtils.remove(tmpEnd);
+        return frag;
+    }
+
+    /**
+     * 创建一个跟document绑定的空的Range实例
+     * @constructor
+     * @param { Document } document 新建的选区所属的文档对象
+     */
+
+    /**
+     * @property { Node } startContainer 当前Range的开始边界的容器节点, 可以是一个元素节点或者是文本节点
+     */
+
+    /**
+     * @property { Node } startOffset 当前Range的开始边界容器节点的偏移量, 如果是元素节点，
+     *                              该值就是childNodes中的第几个节点， 如果是文本节点就是文本内容的第几个字符
+     */
+
+    /**
+     * @property { Node } endContainer 当前Range的结束边界的容器节点, 可以是一个元素节点或者是文本节点
+     */
+
+    /**
+     * @property { Node } endOffset 当前Range的结束边界容器节点的偏移量, 如果是元素节点，
+     *                              该值就是childNodes中的第几个节点， 如果是文本节点就是文本内容的第几个字符
+     */
+
+    /**
+     * @property { Boolean } collapsed 当前Range是否闭合
+     * @default true
+     * @remind Range是闭合的时候， startContainer === endContainer && startOffset === endOffset
+     */
+
+    /**
+     * @property { Document } document 当前Range所属的Document对象
+     * @remind 不同range的的document属性可以是不同的
+     */
+    var Range = dom.Range = function (document) {
+        var me = this;
+        me.startContainer =
+            me.startOffset =
+                me.endContainer =
+                    me.endOffset = null;
+        me.document = document;
+        me.collapsed = true;
+    };
+
+    /**
+     * 删除fillData
+     * @param doc
+     * @param excludeNode
+     */
+    function removeFillData(doc, excludeNode) {
+        try {
+            if (fillData && domUtils.inDoc(fillData, doc)) {
+                if (!fillData.nodeValue.replace(fillCharReg, '').length) {
+                    var tmpNode = fillData.parentNode;
+                    domUtils.remove(fillData);
+                    while (tmpNode && domUtils.isEmptyInlineElement(tmpNode) &&
+                        //safari的contains有bug
+                        (browser.safari ? !(domUtils.getPosition(tmpNode,excludeNode) & domUtils.POSITION_CONTAINS) : !tmpNode.contains(excludeNode))
+                        ) {
+                        fillData = tmpNode.parentNode;
+                        domUtils.remove(tmpNode);
+                        tmpNode = fillData;
+                    }
+                } else {
+                    fillData.nodeValue = fillData.nodeValue.replace(fillCharReg, '');
+                }
+            }
+        } catch (e) {
+        }
+    }
+
+    /**
+     * @param node
+     * @param dir
+     */
+    function mergeSibling(node, dir) {
+        var tmpNode;
+        node = node[dir];
+        while (node && domUtils.isFillChar(node)) {
+            tmpNode = node[dir];
+            domUtils.remove(node);
+            node = tmpNode;
+        }
+    }
+
+    Range.prototype = {
+
+        /**
+         * 克隆选区的内容到一个DocumentFragment里
+         * @method cloneContents
+         * @return { DocumentFragment | NULL } 如果选区是闭合的将返回null， 否则， 返回包含所clone内容的DocumentFragment元素
+         * @example
+         * ```html
+         * <body>
+         *      <!-- 中括号表示选区 -->
+         *      <b>x<i>x[x</i>xx]x</b>
+         *
+         *      <script>
+         *          //range是已选中的选区
+         *          var fragment = range.cloneContents(),
+         *              node = document.createElement("div");
+         *
+         *          node.appendChild( fragment );
+         *
+         *          //output: <i>x</i>xx
+         *          console.log( node.innerHTML );
+         *
+         *      </script>
+         * </body>
+         * ```
+         */
+        cloneContents:function () {
+            return this.collapsed ? null : execContentsAction(this, 0);
+        },
+
+        /**
+         * 删除当前选区范围中的所有内容
+         * @method deleteContents
+         * @remind 执行完该操作后， 当前Range对象变成了闭合状态
+         * @return { UE.dom.Range } 当前操作的Range对象
+         * @example
+         * ```html
+         * <body>
+         *      <!-- 中括号表示选区 -->
+         *      <b>x<i>x[x</i>xx]x</b>
+         *
+         *      <script>
+         *          //range是已选中的选区
+         *          range.deleteContents();
+         *
+         *          //竖线表示闭合后的选区位置
+         *          //output: <b>x<i>x</i>|x</b>
+         *          console.log( document.body.innerHTML );
+         *
+         *          //此时， range的各项属性为
+         *          //output: B
+         *          console.log( range.startContainer.tagName );
+         *          //output: 2
+         *          console.log( range.startOffset );
+         *          //output: B
+         *          console.log( range.endContainer.tagName );
+         *          //output: 2
+         *          console.log( range.endOffset );
+         *          //output: true
+         *          console.log( range.collapsed );
+         *
+         *      </script>
+         * </body>
+         * ```
+         */
+        deleteContents:function () {
+            var txt;
+            if (!this.collapsed) {
+                execContentsAction(this, 1);
+            }
+            if (browser.webkit) {
+                txt = this.startContainer;
+                if (txt.nodeType == 3 && !txt.nodeValue.length) {
+                    this.setStartBefore(txt).collapse(true);
+                    domUtils.remove(txt);
+                }
+            }
+            return this;
+        },
+
+        /**
+         * 将当前选区的内容提取到一个DocumentFragment里
+         * @method extractContents
+         * @remind 执行该操作后， 选区将变成闭合状态
+         * @warning 执行该操作后， 原来选区所选中的内容将从dom树上剥离出来
+         * @return { DocumentFragment } 返回包含所提取内容的DocumentFragment对象
+         * @example
+         * ```html
+         * <body>
+         *      <!-- 中括号表示选区 -->
+         *      <b>x<i>x[x</i>xx]x</b>
+         *
+         *      <script>
+         *          //range是已选中的选区
+         *          var fragment = range.extractContents(),
+         *              node = document.createElement( "div" );
+         *
+         *          node.appendChild( fragment );
+         *
+         *          //竖线表示闭合后的选区位置
+         *
+         *          //output: <b>x<i>x</i>|x</b>
+         *          console.log( document.body.innerHTML );
+         *          //output: <i>x</i>xx
+         *          console.log( node.innerHTML );
+         *
+         *          //此时， range的各项属性为
+         *          //output: B
+         *          console.log( range.startContainer.tagName );
+         *          //output: 2
+         *          console.log( range.startOffset );
+         *          //output: B
+         *          console.log( range.endContainer.tagName );
+         *          //output: 2
+         *          console.log( range.endOffset );
+         *          //output: true
+         *          console.log( range.collapsed );
+         *
+         *      </script>
+         * </body>
+         */
+        extractContents:function () {
+            return this.collapsed ? null : execContentsAction(this, 2);
+        },
+
+        /**
+         * 设置Range的开始容器节点和偏移量
+         * @method  setStart
+         * @remind 如果给定的节点是元素节点，那么offset指的是其子元素中索引为offset的元素，
+         *          如果是文本节点，那么offset指的是其文本内容的第offset个字符
+         * @remind 如果提供的容器节点是一个不能包含子元素的节点， 则该选区的开始容器将被设置
+         *          为该节点的父节点， 此时， 其距离开始容器的偏移量也变成了该节点在其父节点
+         *          中的索引
+         * @param { Node } node 将被设为当前选区开始边界容器的节点对象
+         * @param { int } offset 选区的开始位置偏移量
+         * @return { UE.dom.Range } 当前range对象
+         * @example
+         * ```html
+         * <!-- 选区 -->
+         * <b>xxx<i>x<span>xx</span>xx<em>xx</em>xxx</i>[xxx]</b>
+         *
+         * <script>
+         *
+         *     //执行操作
+         *     range.setStart( document.getElementsByTagName("i")[0], 1 );
+         *
+         *     //此时， 选区变成了
+         *     //<b>xxx<i>x[<span>xx</span>xx<em>xx</em>xxx</i>xxx]</b>
+         *
+         * </script>
+         * ```
+         * @example
+         * ```html
+         * <!-- 选区 -->
+         * <b>xxx<img>[xx]x</b>
+         *
+         * <script>
+         *
+         *     //执行操作
+         *     range.setStart( document.getElementsByTagName("img")[0], 3 );
+         *
+         *     //此时， 选区变成了
+         *     //<b>xxx[<img>xx]x</b>
+         *
+         * </script>
+         * ```
+         */
+        setStart:function (node, offset) {
+            return setEndPoint(true, node, offset, this);
+        },
+
+        /**
+         * 设置Range的结束容器和偏移量
+         * @method  setEnd
+         * @param { Node } node 作为当前选区结束边界容器的节点对象
+         * @param { int } offset 结束边界的偏移量
+         * @see UE.dom.Range:setStart(Node,int)
+         * @return { UE.dom.Range } 当前range对象
+         */
+        setEnd:function (node, offset) {
+            return setEndPoint(false, node, offset, this);
+        },
+
+        /**
+         * 将Range开始位置设置到node节点之后
+         * @method  setStartAfter
+         * @remind 该操作将会把给定节点的父节点作为range的开始容器， 且偏移量是该节点在其父节点中的位置索引+1
+         * @param { Node } node 选区的开始边界将紧接着该节点之后
+         * @return { UE.dom.Range } 当前range对象
+         * @example
+         * ```html
+         * <!-- 选区示例 -->
+         * <b>xx<i>xxx</i><span>xx[x</span>xxx]</b>
+         *
+         * <script>
+         *
+         *     //执行操作
+         *     range.setStartAfter( document.getElementsByTagName("i")[0] );
+         *
+         *     //结果选区
+         *     //<b>xx<i>xxx</i>[<span>xxx</span>xxx]</b>
+         *
+         * </script>
+         * ```
+         */
+        setStartAfter:function (node) {
+            return this.setStart(node.parentNode, domUtils.getNodeIndex(node) + 1);
+        },
+
+        /**
+         * 将Range开始位置设置到node节点之前
+         * @method  setStartBefore
+         * @remind 该操作将会把给定节点的父节点作为range的开始容器， 且偏移量是该节点在其父节点中的位置索引
+         * @param { Node } node 新的选区开始位置在该节点之前
+         * @see UE.dom.Range:setStartAfter(Node)
+         * @return { UE.dom.Range } 当前range对象
+         */
+        setStartBefore:function (node) {
+            return this.setStart(node.parentNode, domUtils.getNodeIndex(node));
+        },
+
+        /**
+         * 将Range结束位置设置到node节点之后
+         * @method  setEndAfter
+         * @remind 该操作将会把给定节点的父节点作为range的结束容器， 且偏移量是该节点在其父节点中的位置索引+1
+         * @param { Node } node 目标节点
+         * @see UE.dom.Range:setStartAfter(Node)
+         * @return { UE.dom.Range } 当前range对象
+         * @example
+         * ```html
+         * <!-- 选区示例 -->
+         * <b>[xx<i>xxx</i><span>xx]x</span>xxx</b>
+         *
+         * <script>
+         *
+         *     //执行操作
+         *     range.setStartAfter( document.getElementsByTagName("span")[0] );
+         *
+         *     //结果选区
+         *     //<b>[xx<i>xxx</i><span>xxx</span>]xxx</b>
+         *
+         * </script>
+         * ```
+         */
+        setEndAfter:function (node) {
+            return this.setEnd(node.parentNode, domUtils.getNodeIndex(node) + 1);
+        },
+
+        /**
+         * 将Range结束位置设置到node节点之前
+         * @method  setEndBefore
+         * @remind 该操作将会把给定节点的父节点作为range的结束容器， 且偏移量是该节点在其父节点中的位置索引
+         * @param { Node } node 目标节点
+         * @see UE.dom.Range:setEndAfter(Node)
+         * @return { UE.dom.Range } 当前range对象
+         */
+        setEndBefore:function (node) {
+            return this.setEnd(node.parentNode, domUtils.getNodeIndex(node));
+        },
+
+        /**
+         * 设置Range的开始位置到node节点内的第一个子节点之前
+         * @method  setStartAtFirst
+         * @remind 选区的开始容器将变成给定的节点， 且偏移量为0
+         * @remind 如果给定的节点是元素节点， 则该节点必须是允许包含子节点的元素。
+         * @param { Node } node 目标节点
+         * @see UE.dom.Range:setStartBefore(Node)
+         * @return { UE.dom.Range } 当前range对象
+         * @example
+         * ```html
+         * <!-- 选区示例 -->
+         * <b>xx<i>xxx</i><span>[xx]x</span>xxx</b>
+         *
+         * <script>
+         *
+         *     //执行操作
+         *     range.setStartAtFirst( document.getElementsByTagName("i")[0] );
+         *
+         *     //结果选区
+         *     //<b>xx<i>[xxx</i><span>xx]x</span>xxx</b>
+         *
+         * </script>
+         * ```
+         */
+        setStartAtFirst:function (node) {
+            return this.setStart(node, 0);
+        },
+
+        /**
+         * 设置Range的开始位置到node节点内的最后一个节点之后
+         * @method setStartAtLast
+         * @remind 选区的开始容器将变成给定的节点， 且偏移量为该节点的子节点数
+         * @remind 如果给定的节点是元素节点， 则该节点必须是允许包含子节点的元素。
+         * @param { Node } node 目标节点
+         * @see UE.dom.Range:setStartAtFirst(Node)
+         * @return { UE.dom.Range } 当前range对象
+         */
+        setStartAtLast:function (node) {
+            return this.setStart(node, node.nodeType == 3 ? node.nodeValue.length : node.childNodes.length);
+        },
+
+        /**
+         * 设置Range的结束位置到node节点内的第一个节点之前
+         * @method  setEndAtFirst
+         * @param { Node } node 目标节点
+         * @remind 选区的结束容器将变成给定的节点， 且偏移量为0
+         * @remind node必须是一个元素节点， 且必须是允许包含子节点的元素。
+         * @see UE.dom.Range:setStartAtFirst(Node)
+         * @return { UE.dom.Range } 当前range对象
+         */
+        setEndAtFirst:function (node) {
+            return this.setEnd(node, 0);
+        },
+
+        /**
+         * 设置Range的结束位置到node节点内的最后一个节点之后
+         * @method  setEndAtLast
+         * @param { Node } node 目标节点
+         * @remind 选区的结束容器将变成给定的节点， 且偏移量为该节点的子节点数量
+         * @remind node必须是一个元素节点， 且必须是允许包含子节点的元素。
+         * @see UE.dom.Range:setStartAtFirst(Node)
+         * @return { UE.dom.Range } 当前range对象
+         */
+        setEndAtLast:function (node) {
+            return this.setEnd(node, node.nodeType == 3 ? node.nodeValue.length : node.childNodes.length);
+        },
+
+        /**
+         * 选中给定节点
+         * @method  selectNode
+         * @remind 此时， 选区的开始容器和结束容器都是该节点的父节点， 其startOffset是该节点在父节点中的位置索引，
+         *          而endOffset为startOffset+1
+         * @param { Node } node 需要选中的节点
+         * @return { UE.dom.Range } 当前range对象，此时的range仅包含当前给定的节点对象
+         * @example
+         * ```html
+         * <!-- 选区示例 -->
+         * <b>xx<i>xxx</i><span>[xx]x</span>xxx</b>
+         *
+         * <script>
+         *
+         *     //执行操作
+         *     range.selectNode( document.getElementsByTagName("i")[0] );
+         *
+         *     //结果选区
+         *     //<b>xx[<i>xxx</i>]<span>xxx</span>xxx</b>
+         *
+         * </script>
+         * ```
+         */
+        selectNode:function (node) {
+            return this.setStartBefore(node).setEndAfter(node);
+        },
+
+        /**
+         * 选中给定节点内部的所有节点
+         * @method  selectNodeContents
+         * @remind 此时， 选区的开始容器和结束容器都是该节点， 其startOffset为0，
+         *          而endOffset是该节点的子节点数。
+         * @param { Node } node 目标节点， 当前range将包含该节点内的所有节点
+         * @return { UE.dom.Range } 当前range对象， 此时range仅包含给定节点的所有子节点
+         * @example
+         * ```html
+         * <!-- 选区示例 -->
+         * <b>xx<i>xxx</i><span>[xx]x</span>xxx</b>
+         *
+         * <script>
+         *
+         *     //执行操作
+         *     range.selectNode( document.getElementsByTagName("b")[0] );
+         *
+         *     //结果选区
+         *     //<b>[xx<i>xxx</i><span>xxx</span>xxx]</b>
+         *
+         * </script>
+         * ```
+         */
+        selectNodeContents:function (node) {
+            return this.setStart(node, 0).setEndAtLast(node);
+        },
+
+        /**
+         * clone当前Range对象
+         * @method  cloneRange
+         * @remind 返回的range是一个全新的range对象， 其内部所有属性与当前被clone的range相同。
+         * @return { UE.dom.Range } 当前range对象的一个副本
+         */
+        cloneRange:function () {
+            var me = this;
+            return new Range(me.document).setStart(me.startContainer, me.startOffset).setEnd(me.endContainer, me.endOffset);
+
+        },
+
+        /**
+         * 向当前选区的结束处闭合选区
+         * @method  collapse
+         * @return { UE.dom.Range } 当前range对象
+         * @example
+         * ```html
+         * <!-- 选区示例 -->
+         * <b>xx<i>xxx</i><span>[xx]x</span>xxx</b>
+         *
+         * <script>
+         *
+         *     //执行操作
+         *     range.collapse();
+         *
+         *     //结果选区
+         *     //“|”表示选区已闭合
+         *     //<b>xx<i>xxx</i><span>xx|x</span>xxx</b>
+         *
+         * </script>
+         * ```
+         */
+
+        /**
+         * 闭合当前选区，根据给定的toStart参数项决定是向当前选区开始处闭合还是向结束处闭合，
+         * 如果toStart的值为true，则向开始位置闭合， 反之，向结束位置闭合。
+         * @method  collapse
+         * @param { Boolean } toStart 是否向选区开始处闭合
+         * @return { UE.dom.Range } 当前range对象，此时range对象处于闭合状态
+         * @see UE.dom.Range:collapse()
+         * @example
+         * ```html
+         * <!-- 选区示例 -->
+         * <b>xx<i>xxx</i><span>[xx]x</span>xxx</b>
+         *
+         * <script>
+         *
+         *     //执行操作
+         *     range.collapse( true );
+         *
+         *     //结果选区
+         *     //“|”表示选区已闭合
+         *     //<b>xx<i>xxx</i><span>|xxx</span>xxx</b>
+         *
+         * </script>
+         * ```
+         */
+        collapse:function (toStart) {
+            var me = this;
+            if (toStart) {
+                me.endContainer = me.startContainer;
+                me.endOffset = me.startOffset;
+            } else {
+                me.startContainer = me.endContainer;
+                me.startOffset = me.endOffset;
+            }
+            me.collapsed = true;
+            return me;
+        },
+
+        /**
+         * 调整range的开始位置和结束位置，使其"收缩"到最小的位置
+         * @method  shrinkBoundary
+         * @return { UE.dom.Range } 当前range对象
+         * @example
+         * ```html
+         * <span>xx<b>xx[</b>xxxxx]</span> => <span>xx<b>xx</b>[xxxxx]</span>
+         * ```
+         *
+         * @example
+         * ```html
+         * <!-- 选区示例 -->
+         * <b>x[xx</b><i>]xxx</i>
+         *
+         * <script>
+         *
+         *     //执行收缩
+         *     range.shrinkBoundary();
+         *
+         *     //结果选区
+         *     //<b>x[xx]</b><i>xxx</i>
+         * </script>
+         * ```
+         *
+         * @example
+         * ```html
+         * [<b><i>xxxx</i>xxxxxxx</b>] => <b><i>[xxxx</i>xxxxxxx]</b>
+         * ```
+         */
+
+        /**
+         * 调整range的开始位置和结束位置，使其"收缩"到最小的位置，
+         * 如果ignoreEnd的值为true，则忽略对结束位置的调整
+         * @method  shrinkBoundary
+         * @param { Boolean } ignoreEnd 是否忽略对结束位置的调整
+         * @return { UE.dom.Range } 当前range对象
+         * @see UE.dom.domUtils.Range:shrinkBoundary()
+         */
+        shrinkBoundary:function (ignoreEnd) {
+            var me = this, child,
+                collapsed = me.collapsed;
+            function check(node){
+                return node.nodeType == 1 && !domUtils.isBookmarkNode(node) && !dtd.$empty[node.tagName] && !dtd.$nonChild[node.tagName]
+            }
+            while (me.startContainer.nodeType == 1 //是element
+                && (child = me.startContainer.childNodes[me.startOffset]) //子节点也是element
+                && check(child)) {
+                me.setStart(child, 0);
+            }
+            if (collapsed) {
+                return me.collapse(true);
+            }
+            if (!ignoreEnd) {
+                while (me.endContainer.nodeType == 1//是element
+                    && me.endOffset > 0 //如果是空元素就退出 endOffset=0那么endOffst-1为负值，childNodes[endOffset]报错
+                    && (child = me.endContainer.childNodes[me.endOffset - 1]) //子节点也是element
+                    && check(child)) {
+                    me.setEnd(child, child.childNodes.length);
+                }
+            }
+            return me;
+        },
+
+        /**
+         * 获取离当前选区内包含的所有节点最近的公共祖先节点，
+         * @method  getCommonAncestor
+         * @remind 返回的公共祖先节点一定不是range自身的容器节点， 但有可能是一个文本节点
+         * @return { Node } 当前range对象内所有节点的公共祖先节点
+         * @example
+         * ```html
+         * //选区示例
+         * <span>xxx<b>x[x<em>xx]x</em>xxx</b>xx</span>
+         * <script>
+         *
+         *     var node = range.getCommonAncestor();
+         *
+         *     //公共祖先节点是： b节点
+         *     //输出： B
+         *     console.log(node.tagName);
+         *
+         * </script>
+         * ```
+         */
+
+        /**
+         * 获取当前选区所包含的所有节点的公共祖先节点， 可以根据给定的参数 includeSelf 决定获取到
+         * 的公共祖先节点是否可以是当前选区的startContainer或endContainer节点， 如果 includeSelf
+         * 的取值为true， 则返回的节点可以是自身的容器节点， 否则， 则不能是容器节点
+         * @method  getCommonAncestor
+         * @param { Boolean } includeSelf 是否允许获取到的公共祖先节点是当前range对象的容器节点
+         * @return { Node } 当前range对象内所有节点的公共祖先节点
+         * @see UE.dom.Range:getCommonAncestor()
+         * @example
+         * ```html
+         * <body>
+         *
+         *     <!-- 选区示例 -->
+         *     <b>xxx<i>xxxx<span>xx[x</span>xx]x</i>xxxxxxx</b>
+         *
+         *     <script>
+         *
+         *         var node = range.getCommonAncestor( false );
+         *
+         *         //这里的公共祖先节点是B而不是I， 是因为参数限制了获取到的节点不能是容器节点
+         *         //output: B
+         *         console.log( node.tagName );
+         *
+         *     </script>
+         *
+         * </body>
+         * ```
+         */
+
+        /**
+         * 获取当前选区所包含的所有节点的公共祖先节点， 可以根据给定的参数 includeSelf 决定获取到
+         * 的公共祖先节点是否可以是当前选区的startContainer或endContainer节点， 如果 includeSelf
+         * 的取值为true， 则返回的节点可以是自身的容器节点， 否则， 则不能是容器节点； 同时可以根据
+         * ignoreTextNode 参数的取值决定是否忽略类型为文本节点的祖先节点。
+         * @method  getCommonAncestor
+         * @param { Boolean } includeSelf 是否允许获取到的公共祖先节点是当前range对象的容器节点
+         * @param { Boolean } ignoreTextNode 获取祖先节点的过程中是否忽略类型为文本节点的祖先节点
+         * @return { Node } 当前range对象内所有节点的公共祖先节点
+         * @see UE.dom.Range:getCommonAncestor()
+         * @see UE.dom.Range:getCommonAncestor(Boolean)
+         * @example
+         * ```html
+         * <body>
+         *
+         *     <!-- 选区示例 -->
+         *     <b>xxx<i>xxxx<span>x[x]x</span>xxx</i>xxxxxxx</b>
+         *
+         *     <script>
+         *
+         *         var node = range.getCommonAncestor( true, false );
+         *
+         *         //output: SPAN
+         *         console.log( node.tagName );
+         *
+         *     </script>
+         *
+         * </body>
+         * ```
+         */
+        getCommonAncestor:function (includeSelf, ignoreTextNode) {
+            var me = this,
+                start = me.startContainer,
+                end = me.endContainer;
+            if (start === end) {
+                if (includeSelf && selectOneNode(this)) {
+                    start = start.childNodes[me.startOffset];
+                    if(start.nodeType == 1)
+                        return start;
+                }
+                //只有在上来就相等的情况下才会出现是文本的情况
+                return ignoreTextNode && start.nodeType == 3 ? start.parentNode : start;
+            }
+            return domUtils.getCommonAncestor(start, end);
+        },
+
+        /**
+         * 调整当前Range的开始和结束边界容器，如果是容器节点是文本节点,就调整到包含该文本节点的父节点上
+         * @method trimBoundary
+         * @remind 该操作有可能会引起文本节点被切开
+         * @return { UE.dom.Range } 当前range对象
+         * @example
+         * ```html
+         *
+         * //选区示例
+         * <b>xxx<i>[xxxxx]</i>xxx</b>
+         *
+         * <script>
+         *     //未调整前， 选区的开始容器和结束都是文本节点
+         *     //执行调整
+         *     range.trimBoundary();
+         *
+         *     //调整之后， 容器节点变成了i节点
+         *     //<b>xxx[<i>xxxxx</i>]xxx</b>
+         * </script>
+         * ```
+         */
+
+        /**
+         * 调整当前Range的开始和结束边界容器，如果是容器节点是文本节点,就调整到包含该文本节点的父节点上，
+         * 可以根据 ignoreEnd 参数的值决定是否调整对结束边界的调整
+         * @method trimBoundary
+         * @param { Boolean } ignoreEnd 是否忽略对结束边界的调整
+         * @return { UE.dom.Range } 当前range对象
+         * @example
+         * ```html
+         *
+         * //选区示例
+         * <b>xxx<i>[xxxxx]</i>xxx</b>
+         *
+         * <script>
+         *     //未调整前， 选区的开始容器和结束都是文本节点
+         *     //执行调整
+         *     range.trimBoundary( true );
+         *
+         *     //调整之后， 开始容器节点变成了i节点
+         *     //但是， 结束容器没有发生变化
+         *     //<b>xxx[<i>xxxxx]</i>xxx</b>
+         * </script>
+         * ```
+         */
+        trimBoundary:function (ignoreEnd) {
+            this.txtToElmBoundary();
+            var start = this.startContainer,
+                offset = this.startOffset,
+                collapsed = this.collapsed,
+                end = this.endContainer;
+            if (start.nodeType == 3) {
+                if (offset == 0) {
+                    this.setStartBefore(start);
+                } else {
+                    if (offset >= start.nodeValue.length) {
+                        this.setStartAfter(start);
+                    } else {
+                        var textNode = domUtils.split(start, offset);
+                        //跟新结束边界
+                        if (start === end) {
+                            this.setEnd(textNode, this.endOffset - offset);
+                        } else if (start.parentNode === end) {
+                            this.endOffset += 1;
+                        }
+                        this.setStartBefore(textNode);
+                    }
+                }
+                if (collapsed) {
+                    return this.collapse(true);
+                }
+            }
+            if (!ignoreEnd) {
+                offset = this.endOffset;
+                end = this.endContainer;
+                if (end.nodeType == 3) {
+                    if (offset == 0) {
+                        this.setEndBefore(end);
+                    } else {
+                        offset < end.nodeValue.length && domUtils.split(end, offset);
+                        this.setEndAfter(end);
+                    }
+                }
+            }
+            return this;
+        },
+
+        /**
+         * 如果选区在文本的边界上，就扩展选区到文本的父节点上, 如果当前选区是闭合的， 则什么也不做
+         * @method txtToElmBoundary
+         * @remind 该操作不会修改dom节点
+         * @return { UE.dom.Range } 当前range对象
+         */
+
+        /**
+         * 如果选区在文本的边界上，就扩展选区到文本的父节点上, 如果当前选区是闭合的， 则根据参数项
+         * ignoreCollapsed 的值决定是否执行该调整
+         * @method txtToElmBoundary
+         * @param { Boolean } ignoreCollapsed 是否忽略选区的闭合状态， 如果该参数取值为true， 则
+         *                      不论选区是否闭合， 都会执行该操作， 反之， 则不会对闭合的选区执行该操作
+         * @return { UE.dom.Range } 当前range对象
+         */
+        txtToElmBoundary:function (ignoreCollapsed) {
+            function adjust(r, c) {
+                var container = r[c + 'Container'],
+                    offset = r[c + 'Offset'];
+                if (container.nodeType == 3) {
+                    if (!offset) {
+                        r['set' + c.replace(/(\w)/, function (a) {
+                            return a.toUpperCase();
+                        }) + 'Before'](container);
+                    } else if (offset >= container.nodeValue.length) {
+                        r['set' + c.replace(/(\w)/, function (a) {
+                            return a.toUpperCase();
+                        }) + 'After' ](container);
+                    }
+                }
+            }
+
+            if (ignoreCollapsed || !this.collapsed) {
+                adjust(this, 'start');
+                adjust(this, 'end');
+            }
+            return this;
+        },
+
+        /**
+         * 在当前选区的开始位置前插入节点，新插入的节点会被该range包含
+         * @method  insertNode
+         * @param { Node } node 需要插入的节点
+         * @remind 插入的节点可以是一个DocumentFragment依次插入多个节点
+         * @return { UE.dom.Range } 当前range对象
+         */
+        insertNode:function (node) {
+            var first = node, length = 1;
+            if (node.nodeType == 11) {
+                first = node.firstChild;
+                length = node.childNodes.length;
+            }
+            this.trimBoundary(true);
+            var start = this.startContainer,
+                offset = this.startOffset;
+            var nextNode = start.childNodes[ offset ];
+            if (nextNode) {
+                start.insertBefore(node, nextNode);
+            } else {
+                start.appendChild(node);
+            }
+            if (first.parentNode === this.endContainer) {
+                this.endOffset = this.endOffset + length;
+            }
+            return this.setStartBefore(first);
+        },
+
+        /**
+         * 闭合选区到当前选区的开始位置， 并且定位光标到闭合后的位置
+         * @method  setCursor
+         * @return { UE.dom.Range } 当前range对象
+         * @see UE.dom.Range:collapse()
+         */
+
+        /**
+         * 闭合选区，可以根据参数toEnd的值控制选区是向前闭合还是向后闭合， 并且定位光标到闭合后的位置。
+         * @method  setCursor
+         * @param { Boolean } toEnd 是否向后闭合， 如果为true， 则闭合选区时， 将向结束容器方向闭合，
+         *                      反之，则向开始容器方向闭合
+         * @return { UE.dom.Range } 当前range对象
+         * @see UE.dom.Range:collapse(Boolean)
+         */
+        setCursor:function (toEnd, noFillData) {
+            return this.collapse(!toEnd).select(noFillData);
+        },
+
+        /**
+         * 创建当前range的一个书签，记录下当前range的位置，方便当dom树改变时，还能找回原来的选区位置
+         * @method createBookmark
+         * @param { Boolean } serialize 控制返回的标记位置是对当前位置的引用还是ID，如果该值为true，则
+         *                              返回标记位置的ID， 反之则返回标记位置节点的引用
+         * @return { Object } 返回一个书签记录键值对， 其包含的key有： start => 开始标记的ID或者引用，
+         *                          end => 结束标记的ID或引用， id => 当前标记的类型， 如果为true，则表示
+         *                          返回的记录的类型为ID， 反之则为引用
+         */
+        createBookmark:function (serialize, same) {
+            var endNode,
+                startNode = this.document.createElement('span');
+            startNode.style.cssText = 'display:none;line-height:0px;';
+            startNode.appendChild(this.document.createTextNode('\u200D'));
+            startNode.id = '_baidu_bookmark_start_' + (same ? '' : guid++);
+
+            if (!this.collapsed) {
+                endNode = startNode.cloneNode(true);
+                endNode.id = '_baidu_bookmark_end_' + (same ? '' : guid++);
+            }
+            this.insertNode(startNode);
+            if (endNode) {
+                this.collapse().insertNode(endNode).setEndBefore(endNode);
+            }
+            this.setStartAfter(startNode);
+            return {
+                start:serialize ? startNode.id : startNode,
+                end:endNode ? serialize ? endNode.id : endNode : null,
+                id:serialize
+            }
+        },
+
+        /**
+         *  调整当前range的边界到书签位置，并删除该书签对象所标记的位置内的节点
+         *  @method  moveToBookmark
+         *  @param { BookMark } bookmark createBookmark所创建的标签对象
+         *  @return { UE.dom.Range } 当前range对象
+         *  @see UE.dom.Range:createBookmark(Boolean)
+         */
+        moveToBookmark:function (bookmark) {
+            var start = bookmark.id ? this.document.getElementById(bookmark.start) : bookmark.start,
+                end = bookmark.end && bookmark.id ? this.document.getElementById(bookmark.end) : bookmark.end;
+            this.setStartBefore(start);
+            domUtils.remove(start);
+            if (end) {
+                this.setEndBefore(end);
+                domUtils.remove(end);
+            } else {
+                this.collapse(true);
+            }
+            return this;
+        },
+
+        /**
+         * 调整range的边界，使其"放大"到最近的父节点
+         * @method  enlarge
+         * @remind 会引起选区的变化
+         * @return { UE.dom.Range } 当前range对象
+         */
+
+        /**
+         * 调整range的边界，使其"放大"到最近的父节点，根据参数 toBlock 的取值， 可以
+         * 要求扩大之后的父节点是block节点
+         * @method  enlarge
+         * @param { Boolean } toBlock 是否要求扩大之后的父节点必须是block节点
+         * @return { UE.dom.Range } 当前range对象
+         */
+        enlarge:function (toBlock, stopFn) {
+            var isBody = domUtils.isBody,
+                pre, node, tmp = this.document.createTextNode('');
+            if (toBlock) {
+                node = this.startContainer;
+                if (node.nodeType == 1) {
+                    if (node.childNodes[this.startOffset]) {
+                        pre = node = node.childNodes[this.startOffset]
+                    } else {
+                        node.appendChild(tmp);
+                        pre = node = tmp;
+                    }
+                } else {
+                    pre = node;
+                }
+                while (1) {
+                    if (domUtils.isBlockElm(node)) {
+                        node = pre;
+                        while ((pre = node.previousSibling) && !domUtils.isBlockElm(pre)) {
+                            node = pre;
+                        }
+                        this.setStartBefore(node);
+                        break;
+                    }
+                    pre = node;
+                    node = node.parentNode;
+                }
+                node = this.endContainer;
+                if (node.nodeType == 1) {
+                    if (pre = node.childNodes[this.endOffset]) {
+                        node.insertBefore(tmp, pre);
+                    } else {
+                        node.appendChild(tmp);
+                    }
+                    pre = node = tmp;
+                } else {
+                    pre = node;
+                }
+                while (1) {
+                    if (domUtils.isBlockElm(node)) {
+                        node = pre;
+                        while ((pre = node.nextSibling) && !domUtils.isBlockElm(pre)) {
+                            node = pre;
+                        }
+                        this.setEndAfter(node);
+                        break;
+                    }
+                    pre = node;
+                    node = node.parentNode;
+                }
+                if (tmp.parentNode === this.endContainer) {
+                    this.endOffset--;
+                }
+                domUtils.remove(tmp);
+            }
+
+            // 扩展边界到最大
+            if (!this.collapsed) {
+                while (this.startOffset == 0) {
+                    if (stopFn && stopFn(this.startContainer)) {
+                        break;
+                    }
+                    if (isBody(this.startContainer)) {
+                        break;
+                    }
+                    this.setStartBefore(this.startContainer);
+                }
+                while (this.endOffset == (this.endContainer.nodeType == 1 ? this.endContainer.childNodes.length : this.endContainer.nodeValue.length)) {
+                    if (stopFn && stopFn(this.endContainer)) {
+                        break;
+                    }
+                    if (isBody(this.endContainer)) {
+                        break;
+                    }
+                    this.setEndAfter(this.endContainer);
+                }
+            }
+            return this;
+        },
+        enlargeToBlockElm:function(ignoreEnd){
+            while(!domUtils.isBlockElm(this.startContainer)){
+                this.setStartBefore(this.startContainer);
+            }
+            if(!ignoreEnd){
+                while(!domUtils.isBlockElm(this.endContainer)){
+                    this.setEndAfter(this.endContainer);
+                }
+            }
+            return this;
+        },
+        /**
+         * 调整Range的边界，使其"缩小"到最合适的位置
+         * @method adjustmentBoundary
+         * @return { UE.dom.Range } 当前range对象
+         * @see UE.dom.Range:shrinkBoundary()
+         */
+        adjustmentBoundary:function () {
+            if (!this.collapsed) {
+                while (!domUtils.isBody(this.startContainer) &&
+                    this.startOffset == this.startContainer[this.startContainer.nodeType == 3 ? 'nodeValue' : 'childNodes'].length &&
+                    this.startContainer[this.startContainer.nodeType == 3 ? 'nodeValue' : 'childNodes'].length
+                    ) {
+
+                    this.setStartAfter(this.startContainer);
+                }
+                while (!domUtils.isBody(this.endContainer) && !this.endOffset &&
+                    this.endContainer[this.endContainer.nodeType == 3 ? 'nodeValue' : 'childNodes'].length
+                    ) {
+                    this.setEndBefore(this.endContainer);
+                }
+            }
+            return this;
+        },
+
+        /**
+         * 给range选区中的内容添加给定的inline标签
+         * @method applyInlineStyle
+         * @param { String } tagName 需要添加的标签名
+         * @example
+         * ```html
+         * <p>xxxx[xxxx]x</p>  ==>  range.applyInlineStyle("strong")  ==>  <p>xxxx[<strong>xxxx</strong>]x</p>
+         * ```
+         */
+
+        /**
+         * 给range选区中的内容添加给定的inline标签， 并且为标签附加上一些初始化属性。
+         * @method applyInlineStyle
+         * @param { String } tagName 需要添加的标签名
+         * @param { Object } attrs 跟随新添加的标签的属性
+         * @return { UE.dom.Range } 当前选区
+         * @example
+         * ```html
+         * <p>xxxx[xxxx]x</p>
+         *
+         * ==>
+         *
+         * <!-- 执行操作 -->
+         * range.applyInlineStyle("strong",{"style":"font-size:12px"})
+         *
+         * ==>
+         *
+         * <p>xxxx[<strong style="font-size:12px">xxxx</strong>]x</p>
+         * ```
+         */
+        applyInlineStyle:function (tagName, attrs, list) {
+            if (this.collapsed)return this;
+            this.trimBoundary().enlarge(false,
+                function (node) {
+                    return node.nodeType == 1 && domUtils.isBlockElm(node)
+                }).adjustmentBoundary();
+            var bookmark = this.createBookmark(),
+                end = bookmark.end,
+                filterFn = function (node) {
+                    return node.nodeType == 1 ? node.tagName.toLowerCase() != 'br' : !domUtils.isWhitespace(node);
+                },
+                current = domUtils.getNextDomNode(bookmark.start, false, filterFn),
+                node,
+                pre,
+                range = this.cloneRange();
+            while (current && (domUtils.getPosition(current, end) & domUtils.POSITION_PRECEDING)) {
+                if (current.nodeType == 3 || dtd[tagName][current.tagName]) {
+                    range.setStartBefore(current);
+                    node = current;
+                    while (node && (node.nodeType == 3 || dtd[tagName][node.tagName]) && node !== end) {
+                        pre = node;
+                        node = domUtils.getNextDomNode(node, node.nodeType == 1, null, function (parent) {
+                            return dtd[tagName][parent.tagName];
+                        });
+                    }
+                    var frag = range.setEndAfter(pre).extractContents(), elm;
+                    if (list && list.length > 0) {
+                        var level, top;
+                        top = level = list[0].cloneNode(false);
+                        for (var i = 1, ci; ci = list[i++];) {
+                            level.appendChild(ci.cloneNode(false));
+                            level = level.firstChild;
+                        }
+                        elm = level;
+                    } else {
+                        elm = range.document.createElement(tagName);
+                    }
+                    if (attrs) {
+                        domUtils.setAttributes(elm, attrs);
+                    }
+                    elm.appendChild(frag);
+                    range.insertNode(list ? top : elm);
+                    //处理下滑线在a上的情况
+                    var aNode;
+                    if (tagName == 'span' && attrs.style && /text\-decoration/.test(attrs.style) && (aNode = domUtils.findParentByTagName(elm, 'a', true))) {
+                        domUtils.setAttributes(aNode, attrs);
+                        domUtils.remove(elm, true);
+                        elm = aNode;
+                    } else {
+                        domUtils.mergeSibling(elm);
+                        domUtils.clearEmptySibling(elm);
+                    }
+                    //去除子节点相同的
+                    domUtils.mergeChild(elm, attrs);
+                    current = domUtils.getNextDomNode(elm, false, filterFn);
+                    domUtils.mergeToParent(elm);
+                    if (node === end) {
+                        break;
+                    }
+                } else {
+                    current = domUtils.getNextDomNode(current, true, filterFn);
+                }
+            }
+            return this.moveToBookmark(bookmark);
+        },
+
+        /**
+         * 移除当前选区内指定的inline标签，但保留其中的内容
+         * @method removeInlineStyle
+         * @param { String } tagName 需要移除的标签名
+         * @return { UE.dom.Range } 当前的range对象
+         * @example
+         * ```html
+         * xx[x<span>xxx<em>yyy</em>zz]z</span>  => range.removeInlineStyle(["em"])  => xx[x<span>xxxyyyzz]z</span>
+         * ```
+         */
+
+        /**
+         * 移除当前选区内指定的一组inline标签，但保留其中的内容
+         * @method removeInlineStyle
+         * @param { Array } tagNameArr 需要移除的标签名的数组
+         * @return { UE.dom.Range } 当前的range对象
+         * @see UE.dom.Range:removeInlineStyle(String)
+         */
+        removeInlineStyle:function (tagNames) {
+            if (this.collapsed)return this;
+            tagNames = utils.isArray(tagNames) ? tagNames : [tagNames];
+            this.shrinkBoundary().adjustmentBoundary();
+            var start = this.startContainer, end = this.endContainer;
+            while (1) {
+                if (start.nodeType == 1) {
+                    if (utils.indexOf(tagNames, start.tagName.toLowerCase()) > -1) {
+                        break;
+                    }
+                    if (start.tagName.toLowerCase() == 'body') {
+                        start = null;
+                        break;
+                    }
+                }
+                start = start.parentNode;
+            }
+            while (1) {
+                if (end.nodeType == 1) {
+                    if (utils.indexOf(tagNames, end.tagName.toLowerCase()) > -1) {
+                        break;
+                    }
+                    if (end.tagName.toLowerCase() == 'body') {
+                        end = null;
+                        break;
+                    }
+                }
+                end = end.parentNode;
+            }
+            var bookmark = this.createBookmark(),
+                frag,
+                tmpRange;
+            if (start) {
+                tmpRange = this.cloneRange().setEndBefore(bookmark.start).setStartBefore(start);
+                frag = tmpRange.extractContents();
+                tmpRange.insertNode(frag);
+                domUtils.clearEmptySibling(start, true);
+                start.parentNode.insertBefore(bookmark.start, start);
+            }
+            if (end) {
+                tmpRange = this.cloneRange().setStartAfter(bookmark.end).setEndAfter(end);
+                frag = tmpRange.extractContents();
+                tmpRange.insertNode(frag);
+                domUtils.clearEmptySibling(end, false, true);
+                end.parentNode.insertBefore(bookmark.end, end.nextSibling);
+            }
+            var current = domUtils.getNextDomNode(bookmark.start, false, function (node) {
+                return node.nodeType == 1;
+            }), next;
+            while (current && current !== bookmark.end) {
+                next = domUtils.getNextDomNode(current, true, function (node) {
+                    return node.nodeType == 1;
+                });
+                if (utils.indexOf(tagNames, current.tagName.toLowerCase()) > -1) {
+                    domUtils.remove(current, true);
+                }
+                current = next;
+            }
+            return this.moveToBookmark(bookmark);
+        },
+
+        /**
+         * 获取当前选中的自闭合的节点
+         * @method  getClosedNode
+         * @return { Node | NULL } 如果当前选中的是自闭合节点， 则返回该节点， 否则返回NULL
+         */
+        getClosedNode:function () {
+            var node;
+            if (!this.collapsed) {
+                var range = this.cloneRange().adjustmentBoundary().shrinkBoundary();
+                if (selectOneNode(range)) {
+                    var child = range.startContainer.childNodes[range.startOffset];
+                    if (child && child.nodeType == 1 && (dtd.$empty[child.tagName] || dtd.$nonChild[child.tagName])) {
+                        node = child;
+                    }
+                }
+            }
+            return node;
+        },
+
+        /**
+         * 在页面上高亮range所表示的选区
+         * @method select
+         * @return { UE.dom.Range } 返回当前Range对象
+         */
+            //这里不区分ie9以上，trace:3824
+        select:browser.ie ? function (noFillData, textRange) {
+            var nativeRange;
+            if (!this.collapsed)
+                this.shrinkBoundary();
+            var node = this.getClosedNode();
+            if (node && !textRange) {
+                try {
+                    nativeRange = this.document.body.createControlRange();
+                    nativeRange.addElement(node);
+                    nativeRange.select();
+                } catch (e) {}
+                return this;
+            }
+            var bookmark = this.createBookmark(),
+                start = bookmark.start,
+                end;
+            nativeRange = this.document.body.createTextRange();
+            nativeRange.moveToElementText(start);
+            nativeRange.moveStart('character', 1);
+            if (!this.collapsed) {
+                var nativeRangeEnd = this.document.body.createTextRange();
+                end = bookmark.end;
+                nativeRangeEnd.moveToElementText(end);
+                nativeRange.setEndPoint('EndToEnd', nativeRangeEnd);
+            } else {
+                if (!noFillData && this.startContainer.nodeType != 3) {
+                    //使用<span>|x<span>固定住光标
+                    var tmpText = this.document.createTextNode(fillChar),
+                        tmp = this.document.createElement('span');
+                    tmp.appendChild(this.document.createTextNode(fillChar));
+                    start.parentNode.insertBefore(tmp, start);
+                    start.parentNode.insertBefore(tmpText, start);
+                    //当点b,i,u时，不能清除i上边的b
+                    removeFillData(this.document, tmpText);
+                    fillData = tmpText;
+                    mergeSibling(tmp, 'previousSibling');
+                    mergeSibling(start, 'nextSibling');
+                    nativeRange.moveStart('character', -1);
+                    nativeRange.collapse(true);
+                }
+            }
+            this.moveToBookmark(bookmark);
+            tmp && domUtils.remove(tmp);
+            //IE在隐藏状态下不支持range操作，catch一下
+            try {
+                nativeRange.select();
+            } catch (e) {
+            }
+            return this;
+        } : function (notInsertFillData) {
+            function checkOffset(rng){
+
+                function check(node,offset,dir){
+                    if(node.nodeType == 3 && node.nodeValue.length < offset){
+                        rng[dir + 'Offset'] = node.nodeValue.length
+                    }
+                }
+                check(rng.startContainer,rng.startOffset,'start');
+                check(rng.endContainer,rng.endOffset,'end');
+            }
+            var win = domUtils.getWindow(this.document),
+                sel = win.getSelection(),
+                txtNode;
+            //FF下关闭自动长高时滚动条在关闭dialog时会跳
+            //ff下如果不body.focus将不能定位闭合光标到编辑器内
+            browser.gecko ? this.document.body.focus() : win.focus();
+            if (sel) {
+                sel.removeAllRanges();
+                // trace:870 chrome/safari后边是br对于闭合得range不能定位 所以去掉了判断
+                // this.startContainer.nodeType != 3 &&! ((child = this.startContainer.childNodes[this.startOffset]) && child.nodeType == 1 && child.tagName == 'BR'
+                if (this.collapsed && !notInsertFillData) {
+//                    //opear如果没有节点接着，原生的不能够定位,不能在body的第一级插入空白节点
+//                    if (notInsertFillData && browser.opera && !domUtils.isBody(this.startContainer) && this.startContainer.nodeType == 1) {
+//                        var tmp = this.document.createTextNode('');
+//                        this.insertNode(tmp).setStart(tmp, 0).collapse(true);
+//                    }
+//
+                    //处理光标落在文本节点的情况
+                    //处理以下的情况
+                    //<b>|xxxx</b>
+                    //<b>xxxx</b>|xxxx
+                    //xxxx<b>|</b>
+                    var start = this.startContainer,child = start;
+                    if(start.nodeType == 1){
+                        child = start.childNodes[this.startOffset];
+
+                    }
+                    if( !(start.nodeType == 3 && this.startOffset)  &&
+                        (child ?
+                            (!child.previousSibling || child.previousSibling.nodeType != 3)
+                            :
+                            (!start.lastChild || start.lastChild.nodeType != 3)
+                        )
+                    ){
+                        txtNode = this.document.createTextNode(fillChar);
+                        //跟着前边走
+                        this.insertNode(txtNode);
+                        removeFillData(this.document, txtNode);
+                        mergeSibling(txtNode, 'previousSibling');
+                        mergeSibling(txtNode, 'nextSibling');
+                        fillData = txtNode;
+                        this.setStart(txtNode, browser.webkit ? 1 : 0).collapse(true);
+                    }
+                }
+                var nativeRange = this.document.createRange();
+                if(this.collapsed && browser.opera && this.startContainer.nodeType == 1){
+                    var child = this.startContainer.childNodes[this.startOffset];
+                    if(!child){
+                        //往前靠拢
+                        child = this.startContainer.lastChild;
+                        if( child && domUtils.isBr(child)){
+                            this.setStartBefore(child).collapse(true);
+                        }
+                    }else{
+                        //向后靠拢
+                        while(child && domUtils.isBlockElm(child)){
+                            if(child.nodeType == 1 && child.childNodes[0]){
+                                child = child.childNodes[0]
+                            }else{
+                                break;
+                            }
+                        }
+                        child && this.setStartBefore(child).collapse(true)
+                    }
+
+                }
+                //是createAddress最后一位算的不准，现在这里进行微调
+                checkOffset(this);
+                nativeRange.setStart(this.startContainer, this.startOffset);
+                nativeRange.setEnd(this.endContainer, this.endOffset);
+                sel.addRange(nativeRange);
+            }
+            return this;
+        },
+
+        /**
+         * 滚动到当前range开始的位置
+         * @method scrollToView
+         * @param { Window } win 当前range对象所属的window对象
+         * @return { UE.dom.Range } 当前Range对象
+         */
+
+        /**
+         * 滚动到距离当前range开始位置 offset 的位置处
+         * @method scrollToView
+         * @param { Window } win 当前range对象所属的window对象
+         * @param { Number } offset 距离range开始位置处的偏移量， 如果为正数， 则向下偏移， 反之， 则向上偏移
+         * @return { UE.dom.Range } 当前Range对象
+         */
+        scrollToView:function (win, offset) {
+            win = win ? window : domUtils.getWindow(this.document);
+            var me = this,
+                span = me.document.createElement('span');
+            //trace:717
+            span.innerHTML = '&nbsp;';
+            me.cloneRange().insertNode(span);
+            domUtils.scrollToView(span, win, offset);
+            domUtils.remove(span);
+            return me;
+        },
+
+        /**
+         * 判断当前选区内容是否占位符
+         * @private
+         * @method inFillChar
+         * @return { Boolean } 如果是占位符返回true，否则返回false
+         */
+        inFillChar : function(){
+            var start = this.startContainer;
+            if(this.collapsed && start.nodeType == 3
+                && start.nodeValue.replace(new RegExp('^' + domUtils.fillChar),'').length + 1 == start.nodeValue.length
+                ){
+                return true;
+            }
+            return false;
+        },
+
+        /**
+         * 保存
+         * @method createAddress
+         * @private
+         * @return { Boolean } 返回开始和结束的位置
+         * @example
+         * ```html
+         * <body>
+         *     <p>
+         *         aaaa
+         *         <em>
+         *             <!-- 选区开始 -->
+         *             bbbb
+         *             <!-- 选区结束 -->
+         *         </em>
+         *     </p>
+         *
+         *     <script>
+         *         //output: {startAddress:[0,1,0,0],endAddress:[0,1,0,4]}
+         *         console.log( range.createAddress() );
+         *     </script>
+         * </body>
+         * ```
+         */
+        createAddress : function(ignoreEnd,ignoreTxt){
+            var addr = {},me = this;
+
+            function getAddress(isStart){
+                var node = isStart ? me.startContainer : me.endContainer;
+                var parents = domUtils.findParents(node,true,function(node){return !domUtils.isBody(node)}),
+                    addrs = [];
+                for(var i = 0,ci;ci = parents[i++];){
+                    addrs.push(domUtils.getNodeIndex(ci,ignoreTxt));
+                }
+                var firstIndex = 0;
+
+                if(ignoreTxt){
+                    if(node.nodeType == 3){
+                        var tmpNode = node.previousSibling;
+                        while(tmpNode && tmpNode.nodeType == 3){
+                            firstIndex += tmpNode.nodeValue.replace(fillCharReg,'').length;
+                            tmpNode = tmpNode.previousSibling;
+                        }
+                        firstIndex +=  (isStart ? me.startOffset : me.endOffset)// - (fillCharReg.test(node.nodeValue) ? 1 : 0 )
+                    }else{
+                        node =  node.childNodes[ isStart ? me.startOffset : me.endOffset];
+                        if(node){
+                            firstIndex = domUtils.getNodeIndex(node,ignoreTxt);
+                        }else{
+                            node = isStart ? me.startContainer : me.endContainer;
+                            var first = node.firstChild;
+                            while(first){
+                                if(domUtils.isFillChar(first)){
+                                    first = first.nextSibling;
+                                    continue;
+                                }
+                                firstIndex++;
+                                if(first.nodeType == 3){
+                                    while( first && first.nodeType == 3){
+                                        first = first.nextSibling;
+                                    }
+                                }else{
+                                    first = first.nextSibling;
+                                }
+                            }
+                        }
+                    }
+
+                }else{
+                    firstIndex = isStart ? domUtils.isFillChar(node) ? 0 : me.startOffset  : me.endOffset
+                }
+                if(firstIndex < 0){
+                    firstIndex = 0;
+                }
+                addrs.push(firstIndex);
+                return addrs;
+            }
+            addr.startAddress = getAddress(true);
+            if(!ignoreEnd){
+                addr.endAddress = me.collapsed ? [].concat(addr.startAddress) : getAddress();
+            }
+            return addr;
+        },
+
+        /**
+         * 保存
+         * @method createAddress
+         * @private
+         * @return { Boolean } 返回开始和结束的位置
+         * @example
+         * ```html
+         * <body>
+         *     <p>
+         *         aaaa
+         *         <em>
+         *             <!-- 选区开始 -->
+         *             bbbb
+         *             <!-- 选区结束 -->
+         *         </em>
+         *     </p>
+         *
+         *     <script>
+         *         var range = editor.selection.getRange();
+         *         range.moveToAddress({startAddress:[0,1,0,0],endAddress:[0,1,0,4]});
+         *         range.select();
+         *         //output: 'bbbb'
+         *         console.log(editor.selection.getText());
+         *     </script>
+         * </body>
+         * ```
+         */
+        moveToAddress : function(addr,ignoreEnd){
+            var me = this;
+            function getNode(address,isStart){
+                var tmpNode = me.document.body,
+                    parentNode,offset;
+                for(var i= 0,ci,l=address.length;i<l;i++){
+                    ci = address[i];
+                    parentNode = tmpNode;
+                    tmpNode = tmpNode.childNodes[ci];
+                    if(!tmpNode){
+                        offset = ci;
+                        break;
+                    }
+                }
+                if(isStart){
+                    if(tmpNode){
+                        me.setStartBefore(tmpNode)
+                    }else{
+                        me.setStart(parentNode,offset)
+                    }
+                }else{
+                    if(tmpNode){
+                        me.setEndBefore(tmpNode)
+                    }else{
+                        me.setEnd(parentNode,offset)
+                    }
+                }
+            }
+            getNode(addr.startAddress,true);
+            !ignoreEnd && addr.endAddress &&  getNode(addr.endAddress);
+            return me;
+        },
+
+        /**
+         * 判断给定的Range对象是否和当前Range对象表示的是同一个选区
+         * @method equals
+         * @param { UE.dom.Range } 需要判断的Range对象
+         * @return { Boolean } 如果给定的Range对象与当前Range对象表示的是同一个选区， 则返回true， 否则返回false
+         */
+        equals : function(rng){
+            for(var p in this){
+                if(this.hasOwnProperty(p)){
+                    if(this[p] !== rng[p])
+                        return false
+                }
+            }
+            return true;
+
+        },
+
+        /**
+         * 遍历range内的节点。每当遍历一个节点时， 都会执行参数项 doFn 指定的函数， 该函数的接受当前遍历的节点
+         * 作为其参数。
+         * @method traversal
+         * @param { Function }  doFn 对每个遍历的节点要执行的方法， 该方法接受当前遍历的节点作为其参数
+         * @return { UE.dom.Range } 当前range对象
+         * @example
+         * ```html
+         *
+         * <body>
+         *
+         *     <!-- 选区开始 -->
+         *     <span></span>
+         *     <a></a>
+         *     <!-- 选区结束 -->
+         * </body>
+         *
+         * <script>
+         *
+         *     //output: <span></span><a></a>
+         *     console.log( range.cloneContents() );
+         *
+         *     range.traversal( function ( node ) {
+         *
+         *         if ( node.nodeType === 1 ) {
+         *             node.className = "test";
+         *         }
+         *
+         *     } );
+         *
+         *     //output: <span class="test"></span><a class="test"></a>
+         *     console.log( range.cloneContents() );
+         *
+         * </script>
+         * ```
+         */
+
+        /**
+         * 遍历range内的节点。
+         * 每当遍历一个节点时， 都会执行参数项 doFn 指定的函数， 该函数的接受当前遍历的节点
+         * 作为其参数。
+         * 可以通过参数项 filterFn 来指定一个过滤器， 只有符合该过滤器过滤规则的节点才会触
+         * 发doFn函数的执行
+         * @method traversal
+         * @param { Function } doFn 对每个遍历的节点要执行的方法， 该方法接受当前遍历的节点作为其参数
+         * @param { Function } filterFn 过滤器， 该函数接受当前遍历的节点作为参数， 如果该节点满足过滤
+         *                      规则， 请返回true， 该节点会触发doFn， 否则， 请返回false， 则该节点不
+         *                      会触发doFn。
+         * @return { UE.dom.Range } 当前range对象
+         * @see UE.dom.Range:traversal(Function)
+         * @example
+         * ```html
+         *
+         * <body>
+         *
+         *     <!-- 选区开始 -->
+         *     <span></span>
+         *     <a></a>
+         *     <!-- 选区结束 -->
+         * </body>
+         *
+         * <script>
+         *
+         *     //output: <span></span><a></a>
+         *     console.log( range.cloneContents() );
+         *
+         *     range.traversal( function ( node ) {
+         *
+         *         node.className = "test";
+         *
+         *     }, function ( node ) {
+         *          return node.nodeType === 1;
+         *     } );
+         *
+         *     //output: <span class="test"></span><a class="test"></a>
+         *     console.log( range.cloneContents() );
+         *
+         * </script>
+         * ```
+         */
+        traversal:function(doFn,filterFn){
+            if (this.collapsed)
+                return this;
+            var bookmark = this.createBookmark(),
+                end = bookmark.end,
+                current = domUtils.getNextDomNode(bookmark.start, false, filterFn);
+            while (current && current !== end && (domUtils.getPosition(current, end) & domUtils.POSITION_PRECEDING)) {
+                var tmpNode = domUtils.getNextDomNode(current,false,filterFn);
+                doFn(current);
+                current = tmpNode;
+            }
+            return this.moveToBookmark(bookmark);
+        }
+    };
+})();
+
+// core/Selection.js
+/**
+ * 选集
+ * @file
+ * @module UE.dom
+ * @class Selection
+ * @since 1.2.6.1
+ */
+
+/**
+ * 选区集合
+ * @unfile
+ * @module UE.dom
+ * @class Selection
+ */
+(function () {
+
+    function getBoundaryInformation( range, start ) {
+        var getIndex = domUtils.getNodeIndex;
+        range = range.duplicate();
+        range.collapse( start );
+        var parent = range.parentElement();
+        //如果节点里没有子节点，直接退出
+        if ( !parent.hasChildNodes() ) {
+            return  {container:parent, offset:0};
+        }
+        var siblings = parent.children,
+            child,
+            testRange = range.duplicate(),
+            startIndex = 0, endIndex = siblings.length - 1, index = -1,
+            distance;
+        while ( startIndex <= endIndex ) {
+            index = Math.floor( (startIndex + endIndex) / 2 );
+            child = siblings[index];
+            testRange.moveToElementText( child );
+            var position = testRange.compareEndPoints( 'StartToStart', range );
+            if ( position > 0 ) {
+                endIndex = index - 1;
+            } else if ( position < 0 ) {
+                startIndex = index + 1;
+            } else {
+                //trace:1043
+                return  {container:parent, offset:getIndex( child )};
+            }
+        }
+        if ( index == -1 ) {
+            testRange.moveToElementText( parent );
+            testRange.setEndPoint( 'StartToStart', range );
+            distance = testRange.text.replace( /(\r\n|\r)/g, '\n' ).length;
+            siblings = parent.childNodes;
+            if ( !distance ) {
+                child = siblings[siblings.length - 1];
+                return  {container:child, offset:child.nodeValue.length};
+            }
+
+            var i = siblings.length;
+            while ( distance > 0 ){
+                distance -= siblings[ --i ].nodeValue.length;
+            }
+            return {container:siblings[i], offset:-distance};
+        }
+        testRange.collapse( position > 0 );
+        testRange.setEndPoint( position > 0 ? 'StartToStart' : 'EndToStart', range );
+        distance = testRange.text.replace( /(\r\n|\r)/g, '\n' ).length;
+        if ( !distance ) {
+            return  dtd.$empty[child.tagName] || dtd.$nonChild[child.tagName] ?
+            {container:parent, offset:getIndex( child ) + (position > 0 ? 0 : 1)} :
+            {container:child, offset:position > 0 ? 0 : child.childNodes.length}
+        }
+        while ( distance > 0 ) {
+            try {
+                var pre = child;
+                child = child[position > 0 ? 'previousSibling' : 'nextSibling'];
+                distance -= child.nodeValue.length;
+            } catch ( e ) {
+                return {container:parent, offset:getIndex( pre )};
+            }
+        }
+        return  {container:child, offset:position > 0 ? -distance : child.nodeValue.length + distance}
+    }
+
+    /**
+     * 将ieRange转换为Range对象
+     * @param {Range}   ieRange    ieRange对象
+     * @param {Range}   range      Range对象
+     * @return  {Range}  range       返回转换后的Range对象
+     */
+    function transformIERangeToRange( ieRange, range ) {
+        if ( ieRange.item ) {
+            range.selectNode( ieRange.item( 0 ) );
+        } else {
+            var bi = getBoundaryInformation( ieRange, true );
+            range.setStart( bi.container, bi.offset );
+            if ( ieRange.compareEndPoints( 'StartToEnd', ieRange ) != 0 ) {
+                bi = getBoundaryInformation( ieRange, false );
+                range.setEnd( bi.container, bi.offset );
+            }
+        }
+        return range;
+    }
+
+    /**
+     * 获得ieRange
+     * @param {Selection} sel    Selection对象
+     * @return {ieRange}    得到ieRange
+     */
+    function _getIERange( sel ) {
+        var ieRange;
+        //ie下有可能报错
+        try {
+            ieRange = sel.getNative().createRange();
+        } catch ( e ) {
+            return null;
+        }
+        var el = ieRange.item ? ieRange.item( 0 ) : ieRange.parentElement();
+        if ( ( el.ownerDocument || el ) === sel.document ) {
+            return ieRange;
+        }
+        return null;
+    }
+
+    var Selection = dom.Selection = function ( doc ) {
+        var me = this, iframe;
+        me.document = doc;
+        if ( browser.ie9below ) {
+            iframe = domUtils.getWindow( doc ).frameElement;
+            domUtils.on( iframe, 'beforedeactivate', function () {
+                me._bakIERange = me.getIERange();
+            } );
+            domUtils.on( iframe, 'activate', function () {
+                try {
+                    if ( !_getIERange( me ) && me._bakIERange ) {
+                        me._bakIERange.select();
+                    }
+                } catch ( ex ) {
+                }
+                me._bakIERange = null;
+            } );
+        }
+        iframe = doc = null;
+    };
+
+    Selection.prototype = {
+
+        rangeInBody : function(rng,txtRange){
+            var node = browser.ie9below || txtRange ? rng.item ? rng.item() : rng.parentElement() : rng.startContainer;
+
+            return node === this.document.body || domUtils.inDoc(node,this.document);
+        },
+
+        /**
+         * 获取原生seleciton对象
+         * @method getNative
+         * @return { Object } 获得selection对象
+         * @example
+         * ```javascript
+         * editor.selection.getNative();
+         * ```
+         */
+        getNative:function () {
+            var doc = this.document;
+            try {
+                return !doc ? null : browser.ie9below ? doc.selection : domUtils.getWindow( doc ).getSelection();
+            } catch ( e ) {
+                return null;
+            }
+        },
+
+        /**
+         * 获得ieRange
+         * @method getIERange
+         * @return { Object } 返回ie原生的Range
+         * @example
+         * ```javascript
+         * editor.selection.getIERange();
+         * ```
+         */
+        getIERange:function () {
+            var ieRange = _getIERange( this );
+            if ( !ieRange ) {
+                if ( this._bakIERange ) {
+                    return this._bakIERange;
+                }
+            }
+            return ieRange;
+        },
+
+        /**
+         * 缓存当前选区的range和选区的开始节点
+         * @method cache
+         */
+        cache:function () {
+            this.clear();
+            this._cachedRange = this.getRange();
+            this._cachedStartElement = this.getStart();
+            this._cachedStartElementPath = this.getStartElementPath();
+        },
+
+        /**
+         * 获取选区开始位置的父节点到body
+         * @method getStartElementPath
+         * @return { Array } 返回父节点集合
+         * @example
+         * ```javascript
+         * editor.selection.getStartElementPath();
+         * ```
+         */
+        getStartElementPath:function () {
+            if ( this._cachedStartElementPath ) {
+                return this._cachedStartElementPath;
+            }
+            var start = this.getStart();
+            if ( start ) {
+                return domUtils.findParents( start, true, null, true )
+            }
+            return [];
+        },
+
+        /**
+         * 清空缓存
+         * @method clear
+         */
+        clear:function () {
+            this._cachedStartElementPath = this._cachedRange = this._cachedStartElement = null;
+        },
+
+        /**
+         * 编辑器是否得到了选区
+         * @method isFocus
+         */
+        isFocus:function () {
+            try {
+                if(browser.ie9below){
+
+                    var nativeRange = _getIERange(this);
+                    return !!(nativeRange && this.rangeInBody(nativeRange));
+                }else{
+                    return !!this.getNative().rangeCount;
+                }
+            } catch ( e ) {
+                return false;
+            }
+
+        },
+
+        /**
+         * 获取选区对应的Range
+         * @method getRange
+         * @return { Object } 得到Range对象
+         * @example
+         * ```javascript
+         * editor.selection.getRange();
+         * ```
+         */
+        getRange:function () {
+            var me = this;
+            function optimze( range ) {
+                var child = me.document.body.firstChild,
+                    collapsed = range.collapsed;
+                while ( child && child.firstChild ) {
+                    range.setStart( child, 0 );
+                    child = child.firstChild;
+                }
+                if ( !range.startContainer ) {
+                    range.setStart( me.document.body, 0 )
+                }
+                if ( collapsed ) {
+                    range.collapse( true );
+                }
+            }
+
+            if ( me._cachedRange != null ) {
+                return this._cachedRange;
+            }
+            var range = new baidu.editor.dom.Range( me.document );
+
+            if ( browser.ie9below ) {
+                var nativeRange = me.getIERange();
+                if ( nativeRange ) {
+                    //备份的_bakIERange可能已经实效了，dom树发生了变化比如从源码模式切回来，所以try一下，实效就放到body开始位置
+                    try{
+                        transformIERangeToRange( nativeRange, range );
+                    }catch(e){
+                        optimze( range );
+                    }
+
+                } else {
+                    optimze( range );
+                }
+            } else {
+                var sel = me.getNative();
+                if ( sel && sel.rangeCount ) {
+                    var firstRange = sel.getRangeAt( 0 );
+                    var lastRange = sel.getRangeAt( sel.rangeCount - 1 );
+                    range.setStart( firstRange.startContainer, firstRange.startOffset ).setEnd( lastRange.endContainer, lastRange.endOffset );
+                    if ( range.collapsed && domUtils.isBody( range.startContainer ) && !range.startOffset ) {
+                        optimze( range );
+                    }
+                } else {
+                    //trace:1734 有可能已经不在dom树上了，标识的节点
+                    if ( this._bakRange && domUtils.inDoc( this._bakRange.startContainer, this.document ) ){
+                        return this._bakRange;
+                    }
+                    optimze( range );
+                }
+            }
+            return this._bakRange = range;
+        },
+
+        /**
+         * 获取开始元素，用于状态反射
+         * @method getStart
+         * @return { Element } 获得开始元素
+         * @example
+         * ```javascript
+         * editor.selection.getStart();
+         * ```
+         */
+        getStart:function () {
+            if ( this._cachedStartElement ) {
+                return this._cachedStartElement;
+            }
+            var range = browser.ie9below ? this.getIERange() : this.getRange(),
+                tmpRange,
+                start, tmp, parent;
+            if ( browser.ie9below ) {
+                if ( !range ) {
+                    //todo 给第一个值可能会有问题
+                    return this.document.body.firstChild;
+                }
+                //control元素
+                if ( range.item ){
+                    return range.item( 0 );
+                }
+                tmpRange = range.duplicate();
+                //修正ie下<b>x</b>[xx] 闭合后 <b>x|</b>xx
+                tmpRange.text.length > 0 && tmpRange.moveStart( 'character', 1 );
+                tmpRange.collapse( 1 );
+                start = tmpRange.parentElement();
+                parent = tmp = range.parentElement();
+                while ( tmp = tmp.parentNode ) {
+                    if ( tmp == start ) {
+                        start = parent;
+                        break;
+                    }
+                }
+            } else {
+                range.shrinkBoundary();
+                start = range.startContainer;
+                if ( start.nodeType == 1 && start.hasChildNodes() ){
+                    start = start.childNodes[Math.min( start.childNodes.length - 1, range.startOffset )];
+                }
+                if ( start.nodeType == 3 ){
+                    return start.parentNode;
+                }
+            }
+            return start;
+        },
+
+        /**
+         * 得到选区中的文本
+         * @method getText
+         * @return { String } 选区中包含的文本
+         * @example
+         * ```javascript
+         * editor.selection.getText();
+         * ```
+         */
+        getText:function () {
+            var nativeSel, nativeRange;
+            if ( this.isFocus() && (nativeSel = this.getNative()) ) {
+                nativeRange = browser.ie9below ? nativeSel.createRange() : nativeSel.getRangeAt( 0 );
+                return browser.ie9below ? nativeRange.text : nativeRange.toString();
+            }
+            return '';
+        },
+
+        /**
+         * 清除选区
+         * @method clearRange
+         * @example
+         * ```javascript
+         * editor.selection.clearRange();
+         * ```
+         */
+        clearRange : function(){
+            this.getNative()[browser.ie9below ? 'empty' : 'removeAllRanges']();
+        }
+    };
+})();
+
+// core/Editor.js
+/**
+ * 编辑器主类，包含编辑器提供的大部分公用接口
+ * @file
+ * @module UE
+ * @class Editor
+ * @since 1.2.6.1
+ */
+
+/**
+ * UEditor公用空间，UEditor所有的功能都挂载在该空间下
+ * @unfile
+ * @module UE
+ */
+
+/**
+ * UEditor的核心类，为用户提供与编辑器交互的接口。
+ * @unfile
+ * @module UE
+ * @class Editor
+ */
+
+(function () {
+    var uid = 0, _selectionChangeTimer;
+
+    /**
+     * 获取编辑器的html内容，赋值到编辑器所在表单的textarea文本域里面
+     * @private
+     * @method setValue
+     * @param { UE.Editor } editor 编辑器事例
+     */
+    function setValue(form, editor) {
+        var textarea;
+        if (editor.textarea) {
+            if (utils.isString(editor.textarea)) {
+                for (var i = 0, ti, tis = domUtils.getElementsByTagName(form, 'textarea'); ti = tis[i++];) {
+                    if (ti.id == 'ueditor_textarea_' + editor.options.textarea) {
+                        textarea = ti;
+                        break;
+                    }
+                }
+            } else {
+                textarea = editor.textarea;
+            }
+        }
+        if (!textarea) {
+            form.appendChild(textarea = domUtils.createElement(document, 'textarea', {
+                'name': editor.options.textarea,
+                'id': 'ueditor_textarea_' + editor.options.textarea,
+                'style': "display:none"
+            }));
+            //不要产生多个textarea
+            editor.textarea = textarea;
+        }
+        !textarea.getAttribute('name') && textarea.setAttribute('name', editor.options.textarea );
+        textarea.value = editor.hasContents() ?
+            (editor.options.allHtmlEnabled ? editor.getAllHtml() : editor.getContent(null, null, true)) :
+            ''
+    }
+    function loadPlugins(me){
+        //初始化插件
+        for (var pi in UE.plugins) {
+            UE.plugins[pi].call(me);
+        }
+
+    }
+    function checkCurLang(I18N){
+        for(var lang in I18N){
+            return lang
+        }
+    }
+
+    function langReadied(me){
+        me.langIsReady = true;
+
+        me.fireEvent("langReady");
+    }
+
+    /**
+     * 编辑器准备就绪后会触发该事件
+     * @module UE
+     * @class Editor
+     * @event ready
+     * @remind render方法执行完成之后,会触发该事件
+     * @remind
+     * @example
+     * ```javascript
+     * editor.addListener( 'ready', function( editor ) {
+     *     editor.execCommand( 'focus' ); //编辑器家在完成后，让编辑器拿到焦点
+     * } );
+     * ```
+     */
+    /**
+     * 执行destroy方法,会触发该事件
+     * @module UE
+     * @class Editor
+     * @event destroy
+     * @see UE.Editor:destroy()
+     */
+    /**
+     * 执行reset方法,会触发该事件
+     * @module UE
+     * @class Editor
+     * @event reset
+     * @see UE.Editor:reset()
+     */
+    /**
+     * 执行focus方法,会触发该事件
+     * @module UE
+     * @class Editor
+     * @event focus
+     * @see UE.Editor:focus(Boolean)
+     */
+    /**
+     * 语言加载完成会触发该事件
+     * @module UE
+     * @class Editor
+     * @event langReady
+     */
+    /**
+     * 运行命令之后会触发该命令
+     * @module UE
+     * @class Editor
+     * @event beforeExecCommand
+     */
+    /**
+     * 运行命令之后会触发该命令
+     * @module UE
+     * @class Editor
+     * @event afterExecCommand
+     */
+    /**
+     * 运行命令之前会触发该命令
+     * @module UE
+     * @class Editor
+     * @event firstBeforeExecCommand
+     */
+    /**
+     * 在getContent方法执行之前会触发该事件
+     * @module UE
+     * @class Editor
+     * @event beforeGetContent
+     * @see UE.Editor:getContent()
+     */
+    /**
+     * 在getContent方法执行之后会触发该事件
+     * @module UE
+     * @class Editor
+     * @event afterGetContent
+     * @see UE.Editor:getContent()
+     */
+    /**
+     * 在getAllHtml方法执行时会触发该事件
+     * @module UE
+     * @class Editor
+     * @event getAllHtml
+     * @see UE.Editor:getAllHtml()
+     */
+    /**
+     * 在setContent方法执行之前会触发该事件
+     * @module UE
+     * @class Editor
+     * @event beforeSetContent
+     * @see UE.Editor:setContent(String)
+     */
+    /**
+     * 在setContent方法执行之后会触发该事件
+     * @module UE
+     * @class Editor
+     * @event afterSetContent
+     * @see UE.Editor:setContent(String)
+     */
+    /**
+     * 每当编辑器内部选区发生改变时，将触发该事件
+     * @event selectionchange
+     * @warning 该事件的触发非常频繁，不建议在该事件的处理过程中做重量级的处理
+     * @example
+     * ```javascript
+     * editor.addListener( 'selectionchange', function( editor ) {
+     *     console.log('选区发生改变');
+     * }
+     */
+    /**
+     * 在所有selectionchange的监听函数执行之前，会触发该事件
+     * @module UE
+     * @class Editor
+     * @event beforeSelectionChange
+     * @see UE.Editor:selectionchange
+     */
+    /**
+     * 在所有selectionchange的监听函数执行完之后，会触发该事件
+     * @module UE
+     * @class Editor
+     * @event afterSelectionChange
+     * @see UE.Editor:selectionchange
+     */
+    /**
+     * 编辑器内容发生改变时会触发该事件
+     * @module UE
+     * @class Editor
+     * @event contentChange
+     */
+
+
+    /**
+     * 以默认参数构建一个编辑器实例
+     * @constructor
+     * @remind 通过 改构造方法实例化的编辑器,不带ui层.需要render到一个容器,编辑器实例才能正常渲染到页面
+     * @example
+     * ```javascript
+     * var editor = new UE.Editor();
+     * editor.execCommand('blod');
+     * ```
+     * @see UE.Config
+     */
+
+    /**
+     * 以给定的参数集合创建一个编辑器实例，对于未指定的参数，将应用默认参数。
+     * @constructor
+     * @remind 通过 改构造方法实例化的编辑器,不带ui层.需要render到一个容器,编辑器实例才能正常渲染到页面
+     * @param { Object } setting 创建编辑器的参数
+     * @example
+     * ```javascript
+     * var editor = new UE.Editor();
+     * editor.execCommand('blod');
+     * ```
+     * @see UE.Config
+     */
+    var Editor = UE.Editor = function (options) {
+        var me = this;
+        me.uid = uid++;
+        EventBase.call(me);
+        me.commands = {};
+        me.options = utils.extend(utils.clone(options || {}), UEDITOR_CONFIG, true);
+        me.shortcutkeys = {};
+        me.inputRules = [];
+        me.outputRules = [];
+        //设置默认的常用属性
+        me.setOpt(Editor.defaultOptions(me));
+
+        /* 尝试异步加载后台配置 */
+        me.loadServerConfig();
+
+        if(!utils.isEmptyObject(UE.I18N)){
+            //修改默认的语言类型
+            me.options.lang = checkCurLang(UE.I18N);
+            UE.plugin.load(me);
+            langReadied(me);
+
+        }else{
+            utils.loadFile(document, {
+                src: me.options.langPath + me.options.lang + "/" + me.options.lang + ".js",
+                tag: "script",
+                type: "text/javascript",
+                defer: "defer"
+            }, function () {
+                UE.plugin.load(me);
+                langReadied(me);
+            });
+        }
+
+        UE.instants['ueditorInstant' + me.uid] = me;
+    };
+    Editor.prototype = {
+         registerCommand : function(name,obj){
+            this.commands[name] = obj;
+         },
+        /**
+         * 编辑器对外提供的监听ready事件的接口， 通过调用该方法，达到的效果与监听ready事件是一致的
+         * @method ready
+         * @param { Function } fn 编辑器ready之后所执行的回调, 如果在注册事件之前编辑器已经ready，将会
+         * 立即触发该回调。
+         * @remind 需要等待编辑器加载完成后才能执行的代码,可以使用该方法传入
+         * @example
+         * ```javascript
+         * editor.ready( function( editor ) {
+         *     editor.setContent('初始化完毕');
+         * } );
+         * ```
+         * @see UE.Editor.event:ready
+         */
+        ready: function (fn) {
+            var me = this;
+            if (fn) {
+                me.isReady ? fn.apply(me) : me.addListener('ready', fn);
+            }
+        },
+
+        /**
+         * 该方法是提供给插件里面使用，设置配置项默认值
+         * @method setOpt
+         * @warning 三处设置配置项的优先级: 实例化时传入参数 > setOpt()设置 > config文件里设置
+         * @warning 该方法仅供编辑器插件内部和编辑器初始化时调用，其他地方不能调用。
+         * @param { String } key 编辑器的可接受的选项名称
+         * @param { * } val  该选项可接受的值
+         * @example
+         * ```javascript
+         * editor.setOpt( 'initContent', '欢迎使用编辑器' );
+         * ```
+         */
+
+        /**
+         * 该方法是提供给插件里面使用，以{key:value}集合的方式设置插件内用到的配置项默认值
+         * @method setOpt
+         * @warning 三处设置配置项的优先级: 实例化时传入参数 > setOpt()设置 > config文件里设置
+         * @warning 该方法仅供编辑器插件内部和编辑器初始化时调用，其他地方不能调用。
+         * @param { Object } options 将要设置的选项的键值对对象
+         * @example
+         * ```javascript
+         * editor.setOpt( {
+         *     'initContent': '欢迎使用编辑器'
+         * } );
+         * ```
+         */
+        setOpt: function (key, val) {
+            var obj = {};
+            if (utils.isString(key)) {
+                obj[key] = val
+            } else {
+                obj = key;
+            }
+            utils.extend(this.options, obj, true);
+        },
+        getOpt:function(key){
+            return this.options[key]
+        },
+        /**
+         * 销毁编辑器实例，使用textarea代替
+         * @method destroy
+         * @example
+         * ```javascript
+         * editor.destroy();
+         * ```
+         */
+        destroy: function () {
+
+            var me = this;
+            me.fireEvent('destroy');
+            var container = me.container.parentNode;
+            var textarea = me.textarea;
+            if (!textarea) {
+                textarea = document.createElement('textarea');
+                container.parentNode.insertBefore(textarea, container);
+            } else {
+                textarea.style.display = ''
+            }
+
+            textarea.style.width = me.iframe.offsetWidth + 'px';
+            textarea.style.height = me.iframe.offsetHeight + 'px';
+            textarea.value = me.getContent();
+            textarea.id = me.key;
+            container.innerHTML = '';
+            domUtils.remove(container);
+            var key = me.key;
+            //trace:2004
+            for (var p in me) {
+                if (me.hasOwnProperty(p)) {
+                    delete this[p];
+                }
+            }
+            UE.delEditor(key);
+        },
+
+        /**
+         * 渲染编辑器的DOM到指定容器
+         * @method render
+         * @param { String } containerId 指定一个容器ID
+         * @remind 执行该方法,会触发ready事件
+         * @warning 必须且只能调用一次
+         */
+
+        /**
+         * 渲染编辑器的DOM到指定容器
+         * @method render
+         * @param { Element } containerDom 直接指定容器对象
+         * @remind 执行该方法,会触发ready事件
+         * @warning 必须且只能调用一次
+         */
+        render: function (container) {
+            var me = this,
+                options = me.options,
+                getStyleValue=function(attr){
+                    return parseInt(domUtils.getComputedStyle(container,attr));
+                };
+            if (utils.isString(container)) {
+                container = document.getElementById(container);
+            }
+            if (container) {
+                if(options.initialFrameWidth){
+                    options.minFrameWidth = options.initialFrameWidth
+                }else{
+                    options.minFrameWidth = options.initialFrameWidth = container.offsetWidth;
+                }
+                if(options.initialFrameHeight){
+                    options.minFrameHeight = options.initialFrameHeight
+                }else{
+                    options.initialFrameHeight = options.minFrameHeight = container.offsetHeight;
+                }
+
+                container.style.width = /%$/.test(options.initialFrameWidth) ?  '100%' : options.initialFrameWidth-
+                    getStyleValue("padding-left")- getStyleValue("padding-right") +'px';
+                container.style.height = /%$/.test(options.initialFrameHeight) ?  '100%' : options.initialFrameHeight -
+                    getStyleValue("padding-top")- getStyleValue("padding-bottom") +'px';
+
+                container.style.zIndex = options.zIndex;
+
+                var html = ( ie && browser.version < 9  ? '' : '<!DOCTYPE html>') +
+                    '<html xmlns=\'http://www.w3.org/1999/xhtml\' class=\'view\' ><head>' +
+                    '<style type=\'text/css\'>' +
+                    //设置四周的留边
+                    '.view{padding:0;word-wrap:break-word;cursor:text;height:90%;}\n' +
+                    //设置默认字体和字号
+                    //font-family不能呢随便改，在safari下fillchar会有解析问题
+                    'body{margin:8px;font-family:sans-serif;font-size:16px;}' +
+                    //设置段落间距
+                    'p{margin:5px 0;}</style>' +
+                    ( options.iframeCssUrl ? '<link rel=\'stylesheet\' type=\'text/css\' href=\'' + utils.unhtml(options.iframeCssUrl) + '\'/>' : '' ) +
+                    (options.initialStyle ? '<style>' + options.initialStyle + '</style>' : '') +
+                    '</head><body class=\'view\' ></body>' +
+                    '<script type=\'text/javascript\' ' + (ie ? 'defer=\'defer\'' : '' ) +' id=\'_initialScript\'>' +
+                    'setTimeout(function(){editor = window.parent.UE.instants[\'ueditorInstant' + me.uid + '\'];editor._setup(document);},0);' +
+                    'var _tmpScript = document.getElementById(\'_initialScript\');_tmpScript.parentNode.removeChild(_tmpScript);</script></html>';
+                container.appendChild(domUtils.createElement(document, 'iframe', {
+                    id: 'ueditor_' + me.uid,
+                    width: "100%",
+                    height: "100%",
+                    frameborder: "0",
+                    //先注释掉了，加的原因忘记了，但开启会直接导致全屏模式下内容多时不会出现滚动条
+//                    scrolling :'no',
+                    src: 'javascript:void(function(){document.open();' + (options.customDomain && document.domain != location.hostname ?  'document.domain="' + document.domain + '";' : '') +
+                        'document.write("' + html + '");document.close();}())'
+                }));
+                container.style.overflow = 'hidden';
+                //解决如果是给定的百分比，会导致高度算不对的问题
+                setTimeout(function(){
+                    if( /%$/.test(options.initialFrameWidth)){
+                        options.minFrameWidth = options.initialFrameWidth = container.offsetWidth;
+                        //如果这里给定宽度，会导致ie在拖动窗口大小时，编辑区域不随着变化
+//                        container.style.width = options.initialFrameWidth + 'px';
+                    }
+                    if(/%$/.test(options.initialFrameHeight)){
+                        options.minFrameHeight = options.initialFrameHeight = container.offsetHeight;
+                        container.style.height = options.initialFrameHeight + 'px';
+                    }
+                })
+            }
+        },
+
+        /**
+         * 编辑器初始化
+         * @method _setup
+         * @private
+         * @param { Element } doc 编辑器Iframe中的文档对象
+         */
+        _setup: function (doc) {
+
+            var me = this,
+                options = me.options;
+            if (ie) {
+                doc.body.disabled = true;
+                doc.body.contentEditable = true;
+                doc.body.disabled = false;
+            } else {
+                doc.body.contentEditable = true;
+            }
+            doc.body.spellcheck = false;
+            me.document = doc;
+            me.window = doc.defaultView || doc.parentWindow;
+            me.iframe = me.window.frameElement;
+            me.body = doc.body;
+            me.selection = new dom.Selection(doc);
+            //gecko初始化就能得到range,无法判断isFocus了
+            var geckoSel;
+            if (browser.gecko && (geckoSel = this.selection.getNative())) {
+                geckoSel.removeAllRanges();
+            }
+            this._initEvents();
+            //为form提交提供一个隐藏的textarea
+            for (var form = this.iframe.parentNode; !domUtils.isBody(form); form = form.parentNode) {
+                if (form.tagName == 'FORM') {
+                    me.form = form;
+                    if(me.options.autoSyncData){
+                        domUtils.on(me.window,'blur',function(){
+                            setValue(form,me);
+                        });
+                    }else{
+                        domUtils.on(form, 'submit', function () {
+                            setValue(this, me);
+                        });
+                    }
+                    break;
+                }
+            }
+            if (options.initialContent) {
+                if (options.autoClearinitialContent) {
+                    var oldExecCommand = me.execCommand;
+                    me.execCommand = function () {
+                        me.fireEvent('firstBeforeExecCommand');
+                        return oldExecCommand.apply(me, arguments);
+                    };
+                    this._setDefaultContent(options.initialContent);
+                } else
+                    this.setContent(options.initialContent, false, true);
+            }
+
+            //编辑器不能为空内容
+
+            if (domUtils.isEmptyNode(me.body)) {
+                me.body.innerHTML = '<p>' + (browser.ie ? '' : '<br/>') + '</p>';
+            }
+            //如果要求focus, 就把光标定位到内容开始
+            if (options.focus) {
+                setTimeout(function () {
+                    me.focus(me.options.focusInEnd);
+                    //如果自动清除开着，就不需要做selectionchange;
+                    !me.options.autoClearinitialContent && me._selectionChange();
+                }, 0);
+            }
+            if (!me.container) {
+                me.container = this.iframe.parentNode;
+            }
+            if (options.fullscreen && me.ui) {
+                me.ui.setFullScreen(true);
+            }
+
+            try {
+                me.document.execCommand('2D-position', false, false);
+            } catch (e) {
+            }
+            try {
+                me.document.execCommand('enableInlineTableEditing', false, false);
+            } catch (e) {
+            }
+            try {
+                me.document.execCommand('enableObjectResizing', false, false);
+            } catch (e) {
+            }
+
+            //挂接快捷键
+            me._bindshortcutKeys();
+            me.isReady = 1;
+            me.fireEvent('ready');
+            options.onready && options.onready.call(me);
+            if (!browser.ie9below) {
+                domUtils.on(me.window, ['blur', 'focus'], function (e) {
+                    //chrome下会出现alt+tab切换时，导致选区位置不对
+                    if (e.type == 'blur') {
+                        me._bakRange = me.selection.getRange();
+                        try {
+                            me._bakNativeRange = me.selection.getNative().getRangeAt(0);
+                            me.selection.getNative().removeAllRanges();
+                        } catch (e) {
+                            me._bakNativeRange = null;
+                        }
+
+                    } else {
+                        try {
+                            me._bakRange && me._bakRange.select();
+                        } catch (e) {
+                        }
+                    }
+                });
+            }
+            //trace:1518 ff3.6body不够寛，会导致点击空白处无法获得焦点
+            if (browser.gecko && browser.version <= 10902) {
+                //修复ff3.6初始化进来，不能点击获得焦点
+                me.body.contentEditable = false;
+                setTimeout(function () {
+                    me.body.contentEditable = true;
+                }, 100);
+                setInterval(function () {
+                    me.body.style.height = me.iframe.offsetHeight - 20 + 'px'
+                }, 100)
+            }
+
+            !options.isShow && me.setHide();
+            options.readonly && me.setDisabled();
+        },
+
+        /**
+         * 同步数据到编辑器所在的form
+         * 从编辑器的容器节点向上查找form元素，若找到，就同步编辑内容到找到的form里，为提交数据做准备，主要用于是手动提交的情况
+         * 后台取得数据的键值，使用你容器上的name属性，如果没有就使用参数里的textarea项
+         * @method sync
+         * @example
+         * ```javascript
+         * editor.sync();
+         * form.sumbit(); //form变量已经指向了form元素
+         * ```
+         */
+
+        /**
+         * 根据传入的formId，在页面上查找要同步数据的表单，若找到，就同步编辑内容到找到的form里，为提交数据做准备
+         * 后台取得数据的键值，该键值默认使用给定的编辑器容器的name属性，如果没有name属性则使用参数项里给定的“textarea”项
+         * @method sync
+         * @param { String } formID 指定一个要同步数据的form的id,编辑器的数据会同步到你指定form下
+         */
+        sync: function (formId) {
+            var me = this,
+                form = formId ? document.getElementById(formId) :
+                    domUtils.findParent(me.iframe.parentNode, function (node) {
+                        return node.tagName == 'FORM'
+                    }, true);
+            form && setValue(form, me);
+        },
+
+        /**
+         * 设置编辑器高度
+         * @method setHeight
+         * @remind 当配置项autoHeightEnabled为真时,该方法无效
+         * @param { Number } number 设置的高度值，纯数值，不带单位
+         * @example
+         * ```javascript
+         * editor.setHeight(number);
+         * ```
+         */
+        setHeight: function (height,notSetHeight) {
+            if (height !== parseInt(this.iframe.parentNode.style.height)) {
+                this.iframe.parentNode.style.height = height + 'px';
+            }
+            !notSetHeight && (this.options.minFrameHeight = this.options.initialFrameHeight = height);
+            this.body.style.height = height + 'px';
+            !notSetHeight && this.trigger('setHeight')
+        },
+
+        /**
+         * 为编辑器的编辑命令提供快捷键
+         * 这个接口是为插件扩展提供的接口,主要是为新添加的插件，如果需要添加快捷键，所提供的接口
+         * @method addshortcutkey
+         * @param { Object } keyset 命令名和快捷键键值对对象，多个按钮的快捷键用“＋”分隔
+         * @example
+         * ```javascript
+         * editor.addshortcutkey({
+         *     "Bold" : "ctrl+66",//^B
+         *     "Italic" : "ctrl+73", //^I
+         * });
+         * ```
+         */
+        /**
+         * 这个接口是为插件扩展提供的接口,主要是为新添加的插件，如果需要添加快捷键，所提供的接口
+         * @method addshortcutkey
+         * @param { String } cmd 触发快捷键时，响应的命令
+         * @param { String } keys 快捷键的字符串，多个按钮用“＋”分隔
+         * @example
+         * ```javascript
+         * editor.addshortcutkey("Underline", "ctrl+85"); //^U
+         * ```
+         */
+        addshortcutkey: function (cmd, keys) {
+            var obj = {};
+            if (keys) {
+                obj[cmd] = keys
+            } else {
+                obj = cmd;
+            }
+            utils.extend(this.shortcutkeys, obj)
+        },
+
+        /**
+         * 对编辑器设置keydown事件监听，绑定快捷键和命令，当快捷键组合触发成功，会响应对应的命令
+         * @method _bindshortcutKeys
+         * @private
+         */
+        _bindshortcutKeys: function () {
+            var me = this, shortcutkeys = this.shortcutkeys;
+            me.addListener('keydown', function (type, e) {
+                var keyCode = e.keyCode || e.which;
+                for (var i in shortcutkeys) {
+                    var tmp = shortcutkeys[i].split(',');
+                    for (var t = 0, ti; ti = tmp[t++];) {
+                        ti = ti.split(':');
+                        var key = ti[0], param = ti[1];
+                        if (/^(ctrl)(\+shift)?\+(\d+)$/.test(key.toLowerCase()) || /^(\d+)$/.test(key)) {
+                            if (( (RegExp.$1 == 'ctrl' ? (e.ctrlKey || e.metaKey) : 0)
+                                && (RegExp.$2 != "" ? e[RegExp.$2.slice(1) + "Key"] : 1)
+                                && keyCode == RegExp.$3
+                                ) ||
+                                keyCode == RegExp.$1
+                                ) {
+                                if (me.queryCommandState(i,param) != -1)
+                                    me.execCommand(i, param);
+                                domUtils.preventDefault(e);
+                            }
+                        }
+                    }
+
+                }
+            });
+        },
+
+        /**
+         * 获取编辑器的内容
+         * @method getContent
+         * @warning 该方法获取到的是经过编辑器内置的过滤规则进行过滤后得到的内容
+         * @return { String } 编辑器的内容字符串, 如果编辑器的内容为空，或者是空的标签内容（如:”&lt;p&gt;&lt;br/&gt;&lt;/p&gt;“）， 则返回空字符串
+         * @example
+         * ```javascript
+         * //编辑器html内容:<p>1<strong>2<em>34</em>5</strong>6</p>
+         * var content = editor.getContent(); //返回值:<p>1<strong>2<em>34</em>5</strong>6</p>
+         * ```
+         */
+
+        /**
+         * 获取编辑器的内容。 可以通过参数定义编辑器内置的判空规则
+         * @method getContent
+         * @param { Function } fn 自定的判空规则， 要求该方法返回一个boolean类型的值，
+         *                      代表当前编辑器的内容是否空，
+         *                      如果返回true， 则该方法将直接返回空字符串；如果返回false，则编辑器将返回
+         *                      经过内置过滤规则处理后的内容。
+         * @remind 该方法在处理包含有初始化内容的时候能起到很好的作用。
+         * @warning 该方法获取到的是经过编辑器内置的过滤规则进行过滤后得到的内容
+         * @return { String } 编辑器的内容字符串
+         * @example
+         * ```javascript
+         * // editor 是一个编辑器的实例
+         * var content = editor.getContent( function ( editor ) {
+         *      return editor.body.innerHTML === '欢迎使用UEditor'; //返回空字符串
+         * } );
+         * ```
+         */
+        getContent: function (cmd, fn,notSetCursor,ignoreBlank,formatter) {
+            var me = this;
+            if (cmd && utils.isFunction(cmd)) {
+                fn = cmd;
+                cmd = '';
+            }
+            if (fn ? !fn() : !this.hasContents()) {
+                return '';
+            }
+            me.fireEvent('beforegetcontent');
+            var root = UE.htmlparser(me.body.innerHTML,ignoreBlank);
+            me.filterOutputRule(root);
+            me.fireEvent('aftergetcontent', cmd,root);
+            return  root.toHtml(formatter);
+        },
+
+        /**
+         * 取得完整的html代码，可以直接显示成完整的html文档
+         * @method getAllHtml
+         * @return { String } 编辑器的内容html文档字符串
+         * @eaxmple
+         * ```javascript
+         * editor.getAllHtml(); //返回格式大致是: <html><head>...</head><body>...</body></html>
+         * ```
+         */
+        getAllHtml: function () {
+            var me = this,
+                headHtml = [],
+                html = '';
+            me.fireEvent('getAllHtml', headHtml);
+            if (browser.ie && browser.version > 8) {
+                var headHtmlForIE9 = '';
+                utils.each(me.document.styleSheets, function (si) {
+                    headHtmlForIE9 += ( si.href ? '<link rel="stylesheet" type="text/css" href="' + si.href + '" />' : '<style>' + si.cssText + '</style>');
+                });
+                utils.each(me.document.getElementsByTagName('script'), function (si) {
+                    headHtmlForIE9 += si.outerHTML;
+                });
+
+            }
+            return '<html><head>' + (me.options.charset ? '<meta http-equiv="Content-Type" content="text/html; charset=' + me.options.charset + '"/>' : '')
+                + (headHtmlForIE9 || me.document.getElementsByTagName('head')[0].innerHTML) + headHtml.join('\n') + '</head>'
+                + '<body ' + (ie && browser.version < 9 ? 'class="view"' : '') + '>' + me.getContent(null, null, true) + '</body></html>';
+        },
+
+        /**
+         * 得到编辑器的纯文本内容，但会保留段落格式
+         * @method getPlainTxt
+         * @return { String } 编辑器带段落格式的纯文本内容字符串
+         * @example
+         * ```javascript
+         * //编辑器html内容:<p><strong>1</strong></p><p><strong>2</strong></p>
+         * console.log(editor.getPlainTxt()); //输出:"1\n2\n
+         * ```
+         */
+        getPlainTxt: function () {
+            var reg = new RegExp(domUtils.fillChar, 'g'),
+                html = this.body.innerHTML.replace(/[\n\r]/g, '');//ie要先去了\n在处理
+            html = html.replace(/<(p|div)[^>]*>(<br\/?>|&nbsp;)<\/\1>/gi, '\n')
+                .replace(/<br\/?>/gi, '\n')
+                .replace(/<[^>/]+>/g, '')
+                .replace(/(\n)?<\/([^>]+)>/g, function (a, b, c) {
+                    return dtd.$block[c] ? '\n' : b ? b : '';
+                });
+            //取出来的空格会有c2a0会变成乱码，处理这种情况\u00a0
+            return html.replace(reg, '').replace(/\u00a0/g, ' ').replace(/&nbsp;/g, ' ');
+        },
+
+        /**
+         * 获取编辑器中的纯文本内容,没有段落格式
+         * @method getContentTxt
+         * @return { String } 编辑器不带段落格式的纯文本内容字符串
+         * @example
+         * ```javascript
+         * //编辑器html内容:<p><strong>1</strong></p><p><strong>2</strong></p>
+         * console.log(editor.getPlainTxt()); //输出:"12
+         * ```
+         */
+        getContentTxt: function () {
+            var reg = new RegExp(domUtils.fillChar, 'g');
+            //取出来的空格会有c2a0会变成乱码，处理这种情况\u00a0
+            return this.body[browser.ie ? 'innerText' : 'textContent'].replace(reg, '').replace(/\u00a0/g, ' ');
+        },
+
+        /**
+         * 设置编辑器的内容，可修改编辑器当前的html内容
+         * @method setContent
+         * @warning 通过该方法插入的内容，是经过编辑器内置的过滤规则进行过滤后得到的内容
+         * @warning 该方法会触发selectionchange事件
+         * @param { String } html 要插入的html内容
+         * @example
+         * ```javascript
+         * editor.getContent('<p>test</p>');
+         * ```
+         */
+
+        /**
+         * 设置编辑器的内容，可修改编辑器当前的html内容
+         * @method setContent
+         * @warning 通过该方法插入的内容，是经过编辑器内置的过滤规则进行过滤后得到的内容
+         * @warning 该方法会触发selectionchange事件
+         * @param { String } html 要插入的html内容
+         * @param { Boolean } isAppendTo 若传入true，不清空原来的内容，在最后插入内容，否则，清空内容再插入
+         * @example
+         * ```javascript
+         * //假设设置前的编辑器内容是 <p>old text</p>
+         * editor.setContent('<p>new text</p>', true); //插入的结果是<p>old text</p><p>new text</p>
+         * ```
+         */
+        setContent: function (html, isAppendTo, notFireSelectionchange) {
+            var me = this;
+
+            me.fireEvent('beforesetcontent', html);
+            var root = UE.htmlparser(html);
+            me.filterInputRule(root);
+            html = root.toHtml();
+
+            me.body.innerHTML = (isAppendTo ? me.body.innerHTML : '') + html;
+
+
+            function isCdataDiv(node){
+                return  node.tagName == 'DIV' && node.getAttribute('cdata_tag');
+            }
+            //给文本或者inline节点套p标签
+            if (me.options.enterTag == 'p') {
+
+                var child = this.body.firstChild, tmpNode;
+                if (!child || child.nodeType == 1 &&
+                    (dtd.$cdata[child.tagName] || isCdataDiv(child) ||
+                        domUtils.isCustomeNode(child)
+                        )
+                    && child === this.body.lastChild) {
+                    this.body.innerHTML = '<p>' + (browser.ie ? '&nbsp;' : '<br/>') + '</p>' + this.body.innerHTML;
+
+                } else {
+                    var p = me.document.createElement('p');
+                    while (child) {
+                        while (child && (child.nodeType == 3 || child.nodeType == 1 && dtd.p[child.tagName] && !dtd.$cdata[child.tagName])) {
+                            tmpNode = child.nextSibling;
+                            p.appendChild(child);
+                            child = tmpNode;
+                        }
+                        if (p.firstChild) {
+                            if (!child) {
+                                me.body.appendChild(p);
+                                break;
+                            } else {
+                                child.parentNode.insertBefore(p, child);
+                                p = me.document.createElement('p');
+                            }
+                        }
+                        child = child.nextSibling;
+                    }
+                }
+            }
+            me.fireEvent('aftersetcontent');
+            me.fireEvent('contentchange');
+
+            !notFireSelectionchange && me._selectionChange();
+            //清除保存的选区
+            me._bakRange = me._bakIERange = me._bakNativeRange = null;
+            //trace:1742 setContent后gecko能得到焦点问题
+            var geckoSel;
+            if (browser.gecko && (geckoSel = this.selection.getNative())) {
+                geckoSel.removeAllRanges();
+            }
+            if(me.options.autoSyncData){
+                me.form && setValue(me.form,me);
+            }
+        },
+
+        /**
+         * 让编辑器获得焦点，默认focus到编辑器头�

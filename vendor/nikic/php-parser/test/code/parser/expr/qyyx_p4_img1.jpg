@@ -1,0 +1,920 @@
+nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; admin=admin; role=1; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575872250',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/soxun/index/index.html',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'cache-control' => 'no-cache',
+  'pragma' => 'no-cache',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ DB ] INIT mysql
+[ info ] [ VIEW ] D:\wwwroot\zhongyi.com\application\soxun\view\news\index.html [ array (
+  0 => 'info',
+  1 => 'cate',
+) ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.002000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_cate` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT `cate_id`,`c_name` FROM `so_cate` WHERE  `cate_pid` = 2 ORDER BY `sort` ASC [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_news` [ RunTime:0.010001s ]
+[ sql ] [ SQL ] SELECT * FROM `so_news` ORDER BY `n_time` DESC [ RunTime:0.000000s ]
+[ sql ] [ SQL ] SELECT * FROM `so_cate` WHERE  `cate_id` IN (21) [ RunTime:0.002000s ]
+---------------------------------------------------------------
+[2019-12-09T14:36:27+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/index/index.html
+[运行时间：0.081005s] [吞吐率：12.34req/s] [内存消耗：2,462.30kb] [文件加载：75]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; admin=admin; role=1; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575872250',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/admin',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'cache-control' => 'max-age=0',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ VIEW ] D:\wwwroot\zhongyi.com\application\soxun\view\index\index.html [ array (
+) ]
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ sql ] [ DB ] CONNECT:[ UseTime:0.002000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_admin` [ RunTime:0.001001s ]
+[ sql ] [ SQL ] SELECT * FROM `so_admin` WHERE  `a_name` = 'admin' LIMIT 1 [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.012000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SELECT * FROM `so_admin` WHERE  `a_name` = 'admin' LIMIT 1 [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.010001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SELECT * FROM `so_admin` WHERE  `a_name` = 'admin' LIMIT 1 [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.011001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_auth_group` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT `rules` FROM `so_auth_group` WHERE  `group_id` = 1 LIMIT 1 [ RunTime:0.001000s ]
+---------------------------------------------------------------
+[2019-12-09T14:36:27+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/index/welcome.html
+[运行时间：0.185011s] [吞吐率：5.41req/s] [内存消耗：2,413.29kb] [文件加载：74]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; admin=admin; role=1; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575872250',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/soxun/index/index.html',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ VIEW ] D:\wwwroot\zhongyi.com\application\soxun\view\index\welcome.html [ array (
+) ]
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ sql ] [ DB ] CONNECT:[ UseTime:0.011001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_news` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_news` [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.011000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_user` [ RunTime:0.002001s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_user` [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.011000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_message` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_message` WHERE  `goods_id` = 0 [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.010001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_message` WHERE  `goods_id` <> 0 [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.013001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_goods` [ RunTime:0.042002s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_goods` [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.010001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_resume` [ RunTime:0.035002s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_resume` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] select VERSION() as version [ RunTime:0.001000s ]
+---------------------------------------------------------------
+[2019-12-09T14:36:27+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/news/index.html
+[运行时间：0.069004s] [吞吐率：14.49req/s] [内存消耗：2,575.79kb] [文件加载：87]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; admin=admin; role=1; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575872250',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/soxun/index/index.html',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ DB ] INIT mysql
+[ info ] [ VIEW ] D:\wwwroot\zhongyi.com\application\soxun\view\news\index.html [ array (
+  0 => 'info',
+  1 => 'cate',
+) ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.012001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_cate` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT `cate_id`,`c_name` FROM `so_cate` WHERE  `cate_pid` = 2 ORDER BY `sort` ASC [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_news` [ RunTime:0.006001s ]
+[ sql ] [ SQL ] SELECT * FROM `so_news` ORDER BY `n_time` DESC [ RunTime:0.000000s ]
+[ sql ] [ SQL ] SELECT * FROM `so_cate` WHERE  `cate_id` IN (21) [ RunTime:0.001000s ]
+---------------------------------------------------------------
+[2019-12-09T14:36:53+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/index/index.html
+[运行时间：0.025001s] [吞吐率：40.00req/s] [内存消耗：1,406.64kb] [文件加载：69]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; admin=admin; role=1; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575872250',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/admin',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'cache-control' => 'max-age=0',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+[ error ] [0]致命错误: Class 'app\soxun\controller\Content' not found[D:\wwwroot\zhongyi.com\application\soxun\controller\Index.php:11]
+---------------------------------------------------------------
+[2019-12-09T14:36:59+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/index/index.html
+[运行时间：0.075004s] [吞吐率：13.33req/s] [内存消耗：2,470.16kb] [文件加载：76]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; admin=admin; role=1; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575872250',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/admin',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'cache-control' => 'max-age=0',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ sql ] [ DB ] CONNECT:[ UseTime:0.011001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_cate` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT * FROM `so_cate` WHERE  `cate_pid` = 4 ORDER BY `sort` ASC [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.010001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 27 LIMIT 1 [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.019001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 28 LIMIT 1 [ RunTime:0.000000s ]
+---------------------------------------------------------------
+[2019-12-09T14:37:03+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/index/index.html
+[运行时间：0.081004s] [吞吐率：12.35req/s] [内存消耗：2,462.30kb] [文件加载：75]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; admin=admin; role=1; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575872250',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/admin',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'cache-control' => 'max-age=0',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ VIEW ] D:\wwwroot\zhongyi.com\application\soxun\view\index\index.html [ array (
+) ]
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ sql ] [ DB ] CONNECT:[ UseTime:0.002001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_admin` [ RunTime:0.004000s ]
+[ sql ] [ SQL ] SELECT * FROM `so_admin` WHERE  `a_name` = 'admin' LIMIT 1 [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.010000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SELECT * FROM `so_admin` WHERE  `a_name` = 'admin' LIMIT 1 [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.011000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SELECT * FROM `so_admin` WHERE  `a_name` = 'admin' LIMIT 1 [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.002000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_auth_group` [ RunTime:0.000000s ]
+[ sql ] [ SQL ] SELECT `rules` FROM `so_auth_group` WHERE  `group_id` = 1 LIMIT 1 [ RunTime:0.015001s ]
+---------------------------------------------------------------
+[2019-12-09T14:37:03+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/index/welcome.html
+[运行时间：0.107006s] [吞吐率：9.35req/s] [内存消耗：2,413.29kb] [文件加载：74]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; admin=admin; role=1; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575872250',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/soxun/index/index.html',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ VIEW ] D:\wwwroot\zhongyi.com\application\soxun\view\index\welcome.html [ array (
+) ]
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ sql ] [ DB ] CONNECT:[ UseTime:0.010000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_news` [ RunTime:0.002000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_news` [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.011001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_user` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_user` [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.010001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_message` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_message` WHERE  `goods_id` = 0 [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.011000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_message` WHERE  `goods_id` <> 0 [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.011001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_goods` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_goods` [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.011001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_resume` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_resume` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] select VERSION() as version [ RunTime:0.001000s ]
+---------------------------------------------------------------
+[2019-12-09T14:37:03+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/news/index.html
+[运行时间：0.113007s] [吞吐率：8.85req/s] [内存消耗：2,575.79kb] [文件加载：87]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; admin=admin; role=1; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575872250',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/soxun/index/index.html',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ DB ] INIT mysql
+[ info ] [ VIEW ] D:\wwwroot\zhongyi.com\application\soxun\view\news\index.html [ array (
+  0 => 'info',
+  1 => 'cate',
+) ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.002000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_cate` [ RunTime:0.002001s ]
+[ sql ] [ SQL ] SELECT `cate_id`,`c_name` FROM `so_cate` WHERE  `cate_pid` = 2 ORDER BY `sort` ASC [ RunTime:0.000000s ]
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_news` [ RunTime:0.050003s ]
+[ sql ] [ SQL ] SELECT * FROM `so_news` ORDER BY `n_time` DESC [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT * FROM `so_cate` WHERE  `cate_id` IN (21) [ RunTime:0.001000s ]
+---------------------------------------------------------------
+[2019-12-09T14:37:30+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/api/outlogin.html
+[运行时间：0.024002s] [吞吐率：41.66req/s] [内存消耗：1,475.88kb] [文件加载：67]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; admin=admin; role=1; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575872250',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/soxun/index/index.html',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+---------------------------------------------------------------
+[2019-12-09T14:37:30+08:00] 172.168.10.73 GET 172.168.10.73:1238/admin.html
+[运行时间：0.046003s] [吞吐率：21.74req/s] [内存消耗：1,396.61kb] [文件加载：68]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+  'rule' => 'admin',
+  'route' => 'soxun/login/index',
+  'option' => 
+  array (
+    'merge_rule_regex' => false,
+  ),
+  'var' => 
+  array (
+  ),
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575872250; basemsg=%E6%88%90%E5%8A%9F%E9%80%80%E5%87%BA%E7%99%BB%E5%BD%95%21',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/soxun/index/index.html',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ VIEW ] D:\wwwroot\zhongyi.com\application\soxun\view\login\index.html [ array (
+) ]
+---------------------------------------------------------------
+[2019-12-09T14:37:40+08:00] 172.168.10.73 POST 172.168.10.73:1238/soxun/api/login.html
+[运行时间：0.097005s] [吞吐率：10.31req/s] [内存消耗：2,158.67kb] [文件加载：71]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575873451',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/admin.html',
+  'content-type' => 'application/x-www-form-urlencoded; charset=UTF-8',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'x-requested-with' => 'XMLHttpRequest',
+  'origin' => 'http://172.168.10.73:1238',
+  'accept' => '*/*',
+  'content-length' => '35',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+)
+[ info ] [ PARAM ] array (
+  'username' => 'soxun888',
+  'password' => 'soxun888',
+)
+[ info ] [ DB ] INIT mysql
+[ sql ] [ DB ] CONNECT:[ UseTime:0.010000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_admin` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT * FROM `so_admin` WHERE  `a_name` = 'soxun888'  AND `status` = '1' LIMIT 1 [ RunTime:0.032002s ]
+---------------------------------------------------------------
+[2019-12-09T14:37:42+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/index/index.html
+[运行时间：0.024001s] [吞吐率：41.67req/s] [内存消耗：1,448.41kb] [文件加载：69]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575873451; admin=soxun888; role=2; basemsg=%E7%99%BB%E5%BD%95%E6%88%90%E5%8A%9F',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/admin.html',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ VIEW ] D:\wwwroot\zhongyi.com\application\soxun\view\index\index.html [ array (
+) ]
+---------------------------------------------------------------
+[2019-12-09T14:37:42+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/index/welcome.html
+[运行时间：0.092005s] [吞吐率：10.87req/s] [内存消耗：2,413.29kb] [文件加载：74]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575873451; admin=soxun888; role=2',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/soxun/index/index.html',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ VIEW ] D:\wwwroot\zhongyi.com\application\soxun\view\index\welcome.html [ array (
+) ]
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ sql ] [ DB ] CONNECT:[ UseTime:0.012000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_news` [ RunTime:0.004001s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_news` [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.002000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_user` [ RunTime:0.009000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_user` [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.006001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_message` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_message` WHERE  `goods_id` = 0 [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.006000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_message` WHERE  `goods_id` <> 0 [ RunTime:0.005000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.002001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_goods` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_goods` [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.002000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_resume` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_resume` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] select VERSION() as version [ RunTime:0.001000s ]
+---------------------------------------------------------------
+[2019-12-09T14:37:42+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/news/index.html
+[运行时间：0.046002s] [吞吐率：21.74req/s] [内存消耗：2,575.79kb] [文件加载：87]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575873451; admin=soxun888; role=2',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/soxun/index/index.html',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ DB ] INIT mysql
+[ info ] [ VIEW ] D:\wwwroot\zhongyi.com\application\soxun\view\news\index.html [ array (
+  0 => 'info',
+  1 => 'cate',
+) ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.002000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_cate` [ RunTime:0.001001s ]
+[ sql ] [ SQL ] SELECT `cate_id`,`c_name` FROM `so_cate` WHERE  `cate_pid` = 2 ORDER BY `sort` ASC [ RunTime:0.000000s ]
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_news` [ RunTime:0.002000s ]
+[ sql ] [ SQL ] SELECT * FROM `so_news` ORDER BY `n_time` DESC [ RunTime:0.000000s ]
+[ sql ] [ SQL ] SELECT * FROM `so_cate` WHERE  `cate_id` IN (21) [ RunTime:0.001000s ]
+---------------------------------------------------------------
+[2019-12-09T14:37:46+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/login/super_login.html
+[运行时间：0.042003s] [吞吐率：23.81req/s] [内存消耗：1,420.95kb] [文件加载：69]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575873451; admin=soxun888; role=2',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/soxun/index/index.html',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ VIEW ] D:\wwwroot\zhongyi.com\application\soxun\view\login\super_login.html [ array (
+) ]
+---------------------------------------------------------------
+[2019-12-09T14:37:49+08:00] 172.168.10.73 POST 172.168.10.73:1238/soxun/api/super_login.html
+[运行时间：0.022002s] [吞吐率：45.45req/s] [内存消耗：1,444.29kb] [文件加载：66]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575873451; admin=soxun888; role=2',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/soxun/login/super_login.html',
+  'content-type' => 'application/x-www-form-urlencoded; charset=UTF-8',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'x-requested-with' => 'XMLHttpRequest',
+  'origin' => 'http://172.168.10.73:1238',
+  'accept' => '*/*',
+  'content-length' => '27',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+)
+[ info ] [ PARAM ] array (
+  'user' => 'soxun888',
+  'pass' => 'soxun888',
+)
+---------------------------------------------------------------
+[2019-12-09T14:37:49+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/backdoor/index.html
+[运行时间：0.048003s] [吞吐率：20.83req/s] [内存消耗：1,396.47kb] [文件加载：65]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575873451; admin=soxun888; role=2; super_admin=975349b24e521a6421f3a24b5d8db655; basemsg=%E7%99%BB%E5%BD%95%E6%88%90%E5%8A%9F%21',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/soxun/login/super_login.html',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ VIEW ] D:\wwwroot\zhongyi.com\application\soxun\view\backdoor\index.html [ array (
+) ]
+---------------------------------------------------------------
+[2019-12-09T14:37:50+08:00] 172.168.10.73 POST 172.168.10.73:1238/soxun/api/backdoor_tree.html
+[运行时间：0.021001s] [吞吐率：47.62req/s] [内存消耗：1,443.35kb] [文件加载：66]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575873451; admin=soxun888; role=2; super_admin=975349b24e521a6421f3a24b5d8db655; basemsg=%E7%99%BB%E5%BD%95%E6%88%90%E5%8A%9F%21',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/soxun/backdoor/index.html',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'x-requested-with' => 'XMLHttpRequest',
+  'origin' => 'http://172.168.10.73:1238',
+  'accept' => 'application/json, text/javascript, */*; q=0.01',
+  'content-length' => '0',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+---------------------------------------------------------------
+[2019-12-09T14:37:57+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/api/outlogin.html
+[运行时间：0.025001s] [吞吐率：40.00req/s] [内存消耗：1,476.51kb] [文件加载：67]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575873451; admin=soxun888; role=2; super_admin=975349b24e521a6421f3a24b5d8db655',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/soxun/index/index.html',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+---------------------------------------------------------------
+[2019-12-09T14:37:57+08:00] 172.168.10.73 GET 172.168.10.73:1238/admin.html
+[运行时间：0.029002s] [吞吐率：34.48req/s] [内存消耗：1,396.61kb] [文件加载：68]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ VIEW ] D:\wwwroot\zhongyi.com\application\soxun\view\index\welcome.html [ array (
+) ]
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ sql ] [ DB ] CONNECT:[ UseTime:0.003001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_news` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_news` [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.002000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_user` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_user` [ RunTime:0.002000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.002000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_message` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_message` WHERE  `goods_id` = 0 [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.002000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_message` WHERE  `goods_id` <> 0 [ RunTime:0.002000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.001001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_goods` [ RunTime:0.002000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_goods` [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.004000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_resume` [ RunTime:0.004000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_resume` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] select VERSION() as version [ RunTime:0.000000s ]
+---------------------------------------------------------------
+[2019-12-09T14:32:02+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/cate/gclist?cate_id=23
+[运行时间：0.081004s] [吞吐率：12.35req/s] [内存消耗：2,476.93kb] [文件加载：76]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; admin=admin; role=1; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575872250',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/soxun/index/index.html',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+  'cate_id' => '23',
+)
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ sql ] [ DB ] CONNECT:[ UseTime:0.006001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_cate` [ RunTime:0.002000s ]
+[ sql ] [ SQL ] SELECT * FROM `so_cate` WHERE  `cate_pdbname=souxun;charset=utf8
+[ sql ] [ SQL ] SELECT * FROM `so_admin` WHERE  `a_name` = 'admin' LIMIT 1 [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.010001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_auth_group` [ RunTime:0.009000s ]
+[ sql ] [ SQL ] SELECT `rules` FROM `so_auth_group` WHERE  `group_id` = 1 LIMIT 1 [ RunTime:0.001000s ]
+---------------------------------------------------------------
+[2019-12-09T14:33:26+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/index/welcome.html
+[运行时间：0.106006s] [吞吐率：9.43req/s] [内存消耗：2,413.29kb] [文件加载：74]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; admin=admin; role=1; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575872250',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/soxun/index/index.html',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ VIEW ] D:\wwwroot\zhongyi.com\application\soxun\view\index\welcome.html [ array (
+) ]
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ sql ] [ DB ] CONNECT:[ UseTime:0.011001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_news` [ RunTime:0.002000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_news` [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.010000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_user` [ RunTime:0.001001s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_user` [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.010000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_message` [ RunTime:0.002000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_message` WHERE  `goods_id` = 0 [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.010001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_message` WHERE  `goods_id` <> 0 [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.010001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_goods` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_goods` [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.011000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_resume` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_resume` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] select VERSION() as version [ RunTime:0.000000s ]
+---------------------------------------------------------------
+[2019-12-09T14:33:30+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/index/index.html
+[运行时间：0.097005s] [吞吐率：10.31reqid` = 4 ORDER BY `sort` ASC [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.010001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 27 LIMIT 1 [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.010000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 28 LIMIT 1 [ RunTime:0.000000s ]
+---------------------------------------------------------------
+[2019-12-09T14:32:06+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/index/index.html
+[运行时间：0.089005s] [吞吐率：11.24req/s] [内存消耗：2,462.30kb] [文件加载：75]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; admin=admin; role=1; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575872250',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/admin',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'cache-control' => 'max-age=0',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ VIEW ] D:\wwwroot\zhongyi.com\application\soxun\view\index\index.html [ array (
+) ]
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ sql ] [ DB ] CONNECT:[ UseTime:0.011000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_admin` [ RunTime:0.017001s ]
+[ sql ] [ SQL ] SELECT * FROM `so_admin` WHERE  `a_name` = 'admin' LIMIT 1 [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.010001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SELECT * FROM `so_admin` WHERE  `a_name` = 'admin' LIMIT 1 [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.001000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SELECT * FROM `so_admin` WHERE  `a_name` = 'admin' LIMIT 1 [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.010001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_auth_group` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT `rules` FROM `so_auth_group` WHERE  `group_id` = 1 LIMIT 1 [ RunTime:0.001000s ]
+---------------------------------------------------------------
+[2019-12-09T14:32:06+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/index/welcome.html
+[运行时间：0.126007s] [吞吐率：7.94req/s] [内存消耗：2,413.29kb] [文件加载：74]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSEfo ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; admin=admin; role=1; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575872250',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/soxun/index/index.html',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+)
+[ info ] [ VIEW ] D:\wwwroot\zhongyi.com\application\soxun\view\index\welcome.html [ array (
+) ]
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ info ] [ DB ] INIT mysql
+[ sql ] [ DB ] CONNECT:[ UseTime:0.011000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_news` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_news` [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.012001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_user` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_user` [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.010001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_message` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_message` WHERE  `goods_id` = 0 [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.012001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_message` WHERE  `goods_id` <> 0 [ RunTime:0.000000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.010000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_goods` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_goods` [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.011001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_resume` [ RunTime:0.002000s ]
+[ sql ] [ SQL ] SELECT COUNT(*) AS tp_count FROM `so_resume` [ RunTime:0.000000s ]
+[ sql ] [ SQL ] select VERSION() as version [ RunTime:0.010001s ]
+---------------------------------------------------------------
+[2019-12-09T14:35:38+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/news/index.html
+[运行时间：0.110006s] [吞吐率：9.09req/s] [内存消耗：2,575.79kb] [文件加载：87]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; admin=admin; role=1; Hm_lpvt_b393d15ECT `c_name` FROM `so_cate` WHERE  `cate_id` = 19 LIMIT 1 [ RunTime:0.000000s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 20 LIMIT 1 [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 20 LIMIT 1 [ RunTime:0.001001s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 20 LIMIT 1 [ RunTime:0.000000s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 20 LIMIT 1 [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 20 LIMIT 1 [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 20 LIMIT 1 [ RunTime:0.001000s ]
+---------------------------------------------------------------
+[2019-12-09T14:23:04+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/cate/gclist?id=27
+[运行时间：0.074005s] [吞吐率：13.51req/s] [内存消耗：2,710.71kb] [文件加载：86]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; admin=admin; role=1; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575872250',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/soxun/cate/gclist?id=27',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'cache-control' => 'max-age=0',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+  'id' => '27',
+)
+[ info ] [ DB ] INIT mysql
+[ info ] [ VIEW ] D:\wwwroot\zhongyi.com\application\soxun\view\cate\gclist.html [ array (
+  0 => 'data',
+  1 => 'pro1',
+) ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.011001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_cate` [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT `cate_id`,`c_name` FROM `so_cate` WHERE  `cate_pid` = 3 ORDER BY `sort` ASC [ RunTime:0.000000s ]
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_goods` [ RunTime:0.015001s ]
+[ sql ] [ SQL ] SELECT * FROM `so_goods` ORDER BY `sort` ASC [ RunTime:0.000000s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 19 LIMIT 1 [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 20 LIMIT 1 [ RunTime:0.000000s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 20 LIMIT 1 [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 20 LIMIT 1 [ RunTime:0.000000s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 20 LIMIT 1 [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 20 LIMIT 1 [ RunTime:0.000000s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 20 LIMIT 1 [ RunTime:0.000000s ]
+---------------------------------------------------------------
+[2019-12-09T14:24:02+08:00] 172.168.10.73 GET 172.168.10.73:1238/soxun/cate/gclist?id=27
+[运行时间：0.111006s] [吞吐率：9.01req/s] [内存消耗：2,762.81kb] [文件加载：86]
+[ info ] [ LANG ] D:\wwwroot\zhongyi.com\thinkphp\lang\zh-cn.php
+[ info ] [ ROUTE ] array (
+)
+[ info ] [ HEADER ] array (
+  'cookie' => 'phpmodel=%5B%225.2%22%2C%227.1%22%2C%225.6%22%2C%225.5%22%2C%225.4%22%2C%225.3%22%2C%227.0%22%5D; serverip=112.232.100.225; iplist=112.232.100.225; serverType=nginx-1.12; webSoft=D%3A%5CBtSoft%5CWebSoft; ftp=1; mysql=1; sqlserver=1; openPHPmyadmin=yes; rank=a; Path=D%3A%5C%5Cwwwroot%5C%5Ctest.com%5C%5C; pnull=1; SetId=inputPath; ChangePath=5; web=true; memSize=4042; PCmemory=4042%2C410; upNet=25.42; downNet=548.57; PHPSESSID=4ko4lk2brrr79a33qsg5c3vtu4; Hm_lvt_b393d153aeb26b46e9431fabaf0f6190=1574990232,1575597558,1575682128,1575852696; admin=admin; role=1; Hm_lpvt_b393d153aeb26b46e9431fabaf0f6190=1575872250',
+  'accept-language' => 'zh-CN,zh;q=0.9',
+  'accept-encoding' => 'gzip, deflate',
+  'referer' => 'http://172.168.10.73:1238/soxun/cate/gclist?id=27',
+  'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'upgrade-insecure-requests' => '1',
+  'cache-control' => 'max-age=0',
+  'connection' => 'keep-alive',
+  'host' => '172.168.10.73:1238',
+  'content-length' => '',
+  'content-type' => '',
+)
+[ info ] [ PARAM ] array (
+  'id' => '27',
+)
+[ info ] [ DB ] INIT mysql
+[ info ] [ VIEW ] D:\wwwroot\zhongyi.com\application\soxun\view\cate\gclist.html [ array (
+  0 => 'data',
+  1 => 'pro1',
+) ]
+[ info ] [ DB ] INIT mysql
+[ sql ] [ DB ] CONNECT:[ UseTime:0.011001s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_cate` [ RunTime:0.022001s ]
+[ sql ] [ SQL ] SELECT `cate_id`,`c_name` FROM `so_cate` WHERE  `cate_pid` = 3 ORDER BY `sort` ASC [ RunTime:0.000000s ]
+[ sql ] [ SQL ] SHOW COLUMNS FROM `so_goods` [ RunTime:0.015001s ]
+[ sql ] [ SQL ] SELECT * FROM `so_goods` ORDER BY `sort` ASC [ RunTime:0.009001s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 19 LIMIT 1 [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 20 LIMIT 1 [ RunTime:0.000000s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 20 LIMIT 1 [ RunTime:0.000000s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 20 LIMIT 1 [ RunTime:0.000000s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 20 LIMIT 1 [ RunTime:0.001000s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 20 LIMIT 1 [ RunTime:0.000000s ]
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 20 LIMIT 1 [ RunTime:0.001000s ]
+[ sql ] [ DB ] CONNECT:[ UseTime:0.001000s ] mysql:host=172.168.10.73;port=3306;dbname=souxun;charset=utf8
+[ sql ] [ SQL ] SELECT `c_name` FROM `so_cate` WHERE  `cate_id` = 27 LIMIT 1 [ RunTim

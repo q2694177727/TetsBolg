@@ -1,0 +1,21 @@
+se, 否则返回true
+             */
+            trigger: function( type ) {
+                var args, events, allEvents;
+    
+                if ( !this._events || !type ) {
+                    return this;
+                }
+    
+                args = slice.call( arguments, 1 );
+                events = findHandlers( this._events, type );
+                allEvents = findHandlers( this._events, 'all' );
+    
+                return triggerHanders( events, args ) &&
+                        triggerHanders( allEvents, arguments );
+            }
+        };
+    
+        /**
+         * 中介者，它本身是个单例，但可以通过[installTo](#WebUploader:Mediator:installTo)方法，使任何对象具备事件行为。
+         * 主要目的是负责模块与模块之间的合�

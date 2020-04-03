@@ -1,0 +1,1156 @@
+ * <script>
+     *
+     *     //output: true
+     *     console.log( UE.dom.domUtils.isBlockElm( document.getElementById("test1") ) );
+     *
+     *     //output: false
+     *     console.log( UE.dom.domUtils.isBlockElm( document.getElementById("test2") ) );
+     *
+     *     //output: true
+     *     console.log( UE.dom.domUtils.isBlockElm( document.getElementById("test3") ) );
+     *
+     * </script>
+     * ```
+     */
+    isBlockElm:function (node) {
+        return node.nodeType == 1 && (dtd.$block[node.tagName] || styleBlock[domUtils.getComputedStyle(node, 'display')]) && !dtd.$nonChild[node.tagName];
+    },
+    /**
+     * 检测node节点是否为body节点
+     * @method isBody
+     * @param { Element } node 需要检测的dom元素
+     * @return { Boolean } 给定的元素是否是body元素
+     * @example
+     * ```javascript
+     * //output: true
+     * console.log( UE.dom.domUtils.isBody( document.body ) );
+     * ```
+     */
+    isBody:function (node) {
+        return  node && node.nodeType == 1 && node.tagName.toLowerCase() == 'body';
+    },
+    /**
+     * 以node节点为分界，将该节点的指定祖先节点parent拆分成两个独立的节点，
+     * 拆分形成的两个节点之间是node节点
+     * @method breakParent
+     * @param { Node } node 作为分界的节点对象
+     * @param { Node } parent 该节点必须是node节点的祖先节点， 且是block节点。
+     * @return { Node } 给定的node分界节点
+     * @example
+     * ```javascript
+     *
+     *      var node = document.createElement("span"),
+     *          wrapNode = document.createElement( "div" ),
+     *          parent = document.createElement("p");
+     *
+     *      parent.appendChild( node );
+     *      wrapNode.appendChild( parent );
+     *
+     *      //拆分前
+     *      //output: <p><span></span></p>
+     *      console.log( wrapNode.innerHTML );
+     *
+     *
+     *      UE.dom.domUtils.breakParent( node, parent );
+     *      //拆分后
+     *      //output: <p></p><span></span><p></p>
+     *      console.log( wrapNode.innerHTML );
+     *
+     * ```
+     */
+    breakParent:function (node, parent) {
+        var tmpNode,
+            parentClone = node,
+            clone = node,
+            leftNodes,
+            rightNodes;
+        do {
+            parentClone = parentClone.parentNode;
+            if (leftNodes) {
+                tmpNode = parentClone.cloneNode(false);
+                tmpNode.appendChild(leftNodes);
+                leftNodes = tmpNode;
+                tmpNode = parentClone.cloneNode(false);
+                tmpNode.appendChild(rightNodes);
+                rightNodes = tmpNode;
+            } else {
+                leftNodes = parentClone.cloneNode(false);
+                rightNodes = leftNodes.cloneNode(false);
+            }
+            while (tmpNode = clone.previousSibling) {
+                leftNodes.insertBefore(tmpNode, leftNodes.firstChild);
+            }
+            while (tmpNode = clone.nextSibling) {
+                rightNodes.appendChild(tmpNode);
+            }
+            clone = parentClone;
+        } while (parent !== parentClone);
+        tmpNode = parent.parentNode;
+        tmpNode.insertBefore(leftNodes, parent);
+        tmpNode.insertBefore(rightNodes, parent);
+        tmpNode.insertBefore(node, rightNodes);
+        domUtils.remove(parent);
+        return node;
+    },
+    /**
+     * 检查节点node是否是空inline节点
+     * @method  isEmptyInlineElement
+     * @param { Node } node 需要检测的节点对象
+     * @return { Number }  如果给定的节点是空的inline节点， 则返回1, 否则返回0。
+     * @example
+     * ```html
+     * <b><i></i></b> => 1
+     * <b><i></i><u></u></b> => 1
+     * <b></b> => 1
+     * <b>xx<i></i></b> => 0
+     * ```
+     */
+    isEmptyInlineElement:function (node) {
+        if (node.nodeType != 1 || !dtd.$removeEmpty[ node.tagName ]) {
+            return 0;
+        }
+        node = node.firstChild;
+        while (node) {
+            //如果是创建的bookmark就跳过
+            if (domUtils.isBookmarkNode(node)) {
+                return 0;
+            }
+            if (node.nodeType == 1 && !domUtils.isEmptyInlineElement(node) ||
+                node.nodeType == 3 && !domUtils.isWhitespace(node)
+                ) {
+                return 0;
+            }
+            node = node.nextSibling;
+        }
+        return 1;
+
+    },
+
+    /**
+     * 删除node节点下首尾两端的空白文本子节点
+     * @method trimWhiteTextNode
+     * @param { Element } node 需要执行删除操作的元素对象
+     * @example
+     * ```javascript
+     *      var node = document.createElement("div");
+     *
+     *      node.appendChild( document.createTextNode( "" ) );
+     *
+     *      node.appendChild( document.createElement("div") );
+     *
+     *      node.appendChild( document.createTextNode( "" ) );
+     *
+     *      //3
+     *      console.log( node.childNodes.length );
+     *
+     *      UE.dom.domUtils.trimWhiteTextNode( node );
+     *
+     *      //1
+     *      console.log( node.childNodes.length );
+     * ```
+     */
+    trimWhiteTextNode:function (node) {
+        function remove(dir) {
+            var child;
+            while ((child = node[dir]) && child.nodeType == 3 && domUtils.isWhitespace(child)) {
+                node.removeChild(child);
+            }
+        }
+        remove('firstChild');
+        remove('lastChild');
+    },
+
+    /**
+     * 合并node节点下相同的子节点
+     * @name mergeChild
+     * @desc
+     * UE.dom.domUtils.mergeChild(node,tagName) //tagName要合并的子节点的标签
+     * @example
+     * <p><span style="font-size:12px;">xx<span style="font-size:12px;">aa</span>xx</span></p>
+     * ==> UE.dom.domUtils.mergeChild(node,'span')
+     * <p><span style="font-size:12px;">xxaaxx</span></p>
+     */
+    mergeChild:function (node, tagName, attrs) {
+        var list = domUtils.getElementsByTagName(node, node.tagName.toLowerCase());
+        for (var i = 0, ci; ci = list[i++];) {
+            if (!ci.parentNode || domUtils.isBookmarkNode(ci)) {
+                continue;
+            }
+            //span单独处理
+            if (ci.tagName.toLowerCase() == 'span') {
+                if (node === ci.parentNode) {
+                    domUtils.trimWhiteTextNode(node);
+                    if (node.childNodes.length == 1) {
+                        node.style.cssText = ci.style.cssText + ";" + node.style.cssText;
+                        domUtils.remove(ci, true);
+                        continue;
+                    }
+                }
+                ci.style.cssText = node.style.cssText + ';' + ci.style.cssText;
+                if (attrs) {
+                    var style = attrs.style;
+                    if (style) {
+                        style = style.split(';');
+                        for (var j = 0, s; s = style[j++];) {
+                            ci.style[utils.cssStyleToDomStyle(s.split(':')[0])] = s.split(':')[1];
+                        }
+                    }
+                }
+                if (domUtils.isSameStyle(ci, node)) {
+                    domUtils.remove(ci, true);
+                }
+                continue;
+            }
+            if (domUtils.isSameElement(node, ci)) {
+                domUtils.remove(ci, true);
+            }
+        }
+    },
+
+    /**
+     * 原生方法getElementsByTagName的封装
+     * @method getElementsByTagName
+     * @param { Node } node 目标节点对象
+     * @param { String } tagName 需要查找的节点的tagName， 多个tagName以空格分割
+     * @return { Array } 符合条件的节点集合
+     */
+    getElementsByTagName:function (node, name,filter) {
+        if(filter && utils.isString(filter)){
+           var className = filter;
+           filter =  function(node){return domUtils.hasClass(node,className)}
+        }
+        name = utils.trim(name).replace(/[ ]{2,}/g,' ').split(' ');
+        var arr = [];
+        for(var n = 0,ni;ni=name[n++];){
+            var list = node.getElementsByTagName(ni);
+            for (var i = 0, ci; ci = list[i++];) {
+                if(!filter || filter(ci))
+                    arr.push(ci);
+            }
+        }
+
+        return arr;
+    },
+    /**
+     * 将节点node提取到父节点上
+     * @method mergeToParent
+     * @param { Element } node 需要提取的元素对象
+     * @example
+     * ```html
+     * <div id="parent">
+     *     <div id="sub">
+     *         <span id="child"></span>
+     *     </div>
+     * </div>
+     *
+     * <script>
+     *
+     *     var child = document.getElementById( "child" );
+     *
+     *     //output: sub
+     *     console.log( child.parentNode.id );
+     *
+     *     UE.dom.domUtils.mergeToParent( child );
+     *
+     *     //output: parent
+     *     console.log( child.parentNode.id );
+     *
+     * </script>
+     * ```
+     */
+    mergeToParent:function (node) {
+        var parent = node.parentNode;
+        while (parent && dtd.$removeEmpty[parent.tagName]) {
+            if (parent.tagName == node.tagName || parent.tagName == 'A') {//针对a标签单独处理
+                domUtils.trimWhiteTextNode(parent);
+                //span需要特殊处理  不处理这样的情况 <span stlye="color:#fff">xxx<span style="color:#ccc">xxx</span>xxx</span>
+                if (parent.tagName == 'SPAN' && !domUtils.isSameStyle(parent, node)
+                    || (parent.tagName == 'A' && node.tagName == 'SPAN')) {
+                    if (parent.childNodes.length > 1 || parent !== node.parentNode) {
+                        node.style.cssText = parent.style.cssText + ";" + node.style.cssText;
+                        parent = parent.parentNode;
+                        continue;
+                    } else {
+                        parent.style.cssText += ";" + node.style.cssText;
+                        //trace:952 a标签要保持下划线
+                        if (parent.tagName == 'A') {
+                            parent.style.textDecoration = 'underline';
+                        }
+                    }
+                }
+                if (parent.tagName != 'A') {
+                    parent === node.parentNode && domUtils.remove(node, true);
+                    break;
+                }
+            }
+            parent = parent.parentNode;
+        }
+    },
+    /**
+     * 合并节点node的左右兄弟节点
+     * @method mergeSibling
+     * @param { Element } node 需要合并的目标节点
+     * @example
+     * ```html
+     * <b>xxxx</b><b id="test">ooo</b><b>xxxx</b>
+     *
+     * <script>
+     *     var demoNode = document.getElementById("test");
+     *     UE.dom.domUtils.mergeSibling( demoNode );
+     *     //output: xxxxoooxxxx
+     *     console.log( demoNode.innerHTML );
+     * </script>
+     * ```
+     */
+
+    /**
+     * 合并节点node的左右兄弟节点， 可以根据给定的条件选择是否忽略合并左节点。
+     * @method mergeSibling
+     * @param { Element } node 需要合并的目标节点
+     * @param { Boolean } ignorePre 是否忽略合并左节点
+     * @example
+     * ```html
+     * <b>xxxx</b><b id="test">ooo</b><b>xxxx</b>
+     *
+     * <script>
+     *     var demoNode = document.getElementById("test");
+     *     UE.dom.domUtils.mergeSibling( demoNode, true );
+     *     //output: oooxxxx
+     *     console.log( demoNode.innerHTML );
+     * </script>
+     * ```
+     */
+
+    /**
+     * 合并节点node的左右兄弟节点，可以根据给定的条件选择是否忽略合并左右节点。
+     * @method mergeSibling
+     * @param { Element } node 需要合并的目标节点
+     * @param { Boolean } ignorePre 是否忽略合并左节点
+     * @param { Boolean } ignoreNext 是否忽略合并右节点
+     * @remind 如果同时忽略左右节点， 则该操作什么也不会做
+     * @example
+     * ```html
+     * <b>xxxx</b><b id="test">ooo</b><b>xxxx</b>
+     *
+     * <script>
+     *     var demoNode = document.getElementById("test");
+     *     UE.dom.domUtils.mergeSibling( demoNode, false, true );
+     *     //output: xxxxooo
+     *     console.log( demoNode.innerHTML );
+     * </script>
+     * ```
+     */
+    mergeSibling:function (node, ignorePre, ignoreNext) {
+        function merge(rtl, start, node) {
+            var next;
+            if ((next = node[rtl]) && !domUtils.isBookmarkNode(next) && next.nodeType == 1 && domUtils.isSameElement(node, next)) {
+                while (next.firstChild) {
+                    if (start == 'firstChild') {
+                        node.insertBefore(next.lastChild, node.firstChild);
+                    } else {
+                        node.appendChild(next.firstChild);
+                    }
+                }
+                domUtils.remove(next);
+            }
+        }
+        !ignorePre && merge('previousSibling', 'firstChild', node);
+        !ignoreNext && merge('nextSibling', 'lastChild', node);
+    },
+
+    /**
+     * 设置节点node及其子节点不会被选中
+     * @method unSelectable
+     * @param { Element } node 需要执行操作的dom元素
+     * @remind 执行该操作后的节点， 将不能被鼠标选中
+     * @example
+     * ```javascript
+     * UE.dom.domUtils.unSelectable( document.body );
+     * ```
+     */
+    unSelectable:ie && browser.ie9below || browser.opera ? function (node) {
+        //for ie9
+        node.onselectstart = function () {
+            return false;
+        };
+        node.onclick = node.onkeyup = node.onkeydown = function () {
+            return false;
+        };
+        node.unselectable = 'on';
+        node.setAttribute("unselectable", "on");
+        for (var i = 0, ci; ci = node.all[i++];) {
+            switch (ci.tagName.toLowerCase()) {
+                case 'iframe' :
+                case 'textarea' :
+                case 'input' :
+                case 'select' :
+                    break;
+                default :
+                    ci.unselectable = 'on';
+                    node.setAttribute("unselectable", "on");
+            }
+        }
+    } : function (node) {
+        node.style.MozUserSelect =
+            node.style.webkitUserSelect =
+                node.style.msUserSelect =
+                    node.style.KhtmlUserSelect = 'none';
+    },
+    /**
+     * 删除节点node上的指定属性名称的属性
+     * @method  removeAttributes
+     * @param { Node } node 需要删除属性的节点对象
+     * @param { String } attrNames 可以是空格隔开的多个属性名称，该操作将会依次删除相应的属性
+     * @example
+     * ```html
+     * <div id="wrap">
+     *      <span style="font-size:14px;" id="test" name="followMe">xxxxx</span>
+     * </div>
+     *
+     * <script>
+     *
+     *     UE.dom.domUtils.removeAttributes( document.getElementById( "test" ), "id name" );
+     *
+     *     //output: <span style="font-size:14px;">xxxxx</span>
+     *     console.log( document.getElementById("wrap").innerHTML );
+     *
+     * </script>
+     * ```
+     */
+
+    /**
+     * 删除节点node上的指定属性名称的属性
+     * @method  removeAttributes
+     * @param { Node } node 需要删除属性的节点对象
+     * @param { Array } attrNames 需要删除的属性名数组
+     * @example
+     * ```html
+     * <div id="wrap">
+     *      <span style="font-size:14px;" id="test" name="followMe">xxxxx</span>
+     * </div>
+     *
+     * <script>
+     *
+     *     UE.dom.domUtils.removeAttributes( document.getElementById( "test" ), ["id", "name"] );
+     *
+     *     //output: <span style="font-size:14px;">xxxxx</span>
+     *     console.log( document.getElementById("wrap").innerHTML );
+     *
+     * </script>
+     * ```
+     */
+    removeAttributes:function (node, attrNames) {
+        attrNames = utils.isArray(attrNames) ? attrNames : utils.trim(attrNames).replace(/[ ]{2,}/g,' ').split(' ');
+        for (var i = 0, ci; ci = attrNames[i++];) {
+            ci = attrFix[ci] || ci;
+            switch (ci) {
+                case 'className':
+                    node[ci] = '';
+                    break;
+                case 'style':
+                    node.style.cssText = '';
+                    var val = node.getAttributeNode('style');
+                    !browser.ie && val && node.removeAttributeNode(val);
+            }
+            node.removeAttribute(ci);
+        }
+    },
+    /**
+     * 在doc下创建一个标签名为tag，属性为attrs的元素
+     * @method createElement
+     * @param { DomDocument } doc 新创建的元素属于该document节点创建
+     * @param { String } tagName 需要创建的元素的标签名
+     * @param { Object } attrs 新创建的元素的属性key-value集合
+     * @return { Element } 新创建的元素对象
+     * @example
+     * ```javascript
+     * var ele = UE.dom.domUtils.createElement( document, 'div', {
+     *     id: 'test'
+     * } );
+     *
+     * //output: DIV
+     * console.log( ele.tagName );
+     *
+     * //output: test
+     * console.log( ele.id );
+     *
+     * ```
+     */
+    createElement:function (doc, tag, attrs) {
+        return domUtils.setAttributes(doc.createElement(tag), attrs)
+    },
+    /**
+     * 为节点node添加属性attrs，attrs为属性键值对
+     * @method setAttributes
+     * @param { Element } node 需要设置属性的元素对象
+     * @param { Object } attrs 需要设置的属性名-值对
+     * @return { Element } 设置属性的元素对象
+     * @example
+     * ```html
+     * <span id="test"></span>
+     *
+     * <script>
+     *
+     *     var testNode = UE.dom.domUtils.setAttributes( document.getElementById( "test" ), {
+     *         id: 'demo'
+     *     } );
+     *
+     *     //output: demo
+     *     console.log( testNode.id );
+     *
+     * </script>
+     *
+     */
+    setAttributes:function (node, attrs) {
+        for (var attr in attrs) {
+            if(attrs.hasOwnProperty(attr)){
+                var value = attrs[attr];
+                switch (attr) {
+                    case 'class':
+                        //ie下要这样赋值，setAttribute不起作用
+                        node.className = value;
+                        break;
+                    case 'style' :
+                        node.style.cssText = node.style.cssText + ";" + value;
+                        break;
+                    case 'innerHTML':
+                        node[attr] = value;
+                        break;
+                    case 'value':
+                        node.value = value;
+                        break;
+                    default:
+                        node.setAttribute(attrFix[attr] || attr, value);
+                }
+            }
+        }
+        return node;
+    },
+
+    /**
+     * 获取元素element经过计算后的样式值
+     * @method getComputedStyle
+     * @param { Element } element 需要获取样式的元素对象
+     * @param { String } styleName 需要获取的样式名
+     * @return { String } 获取到的样式值
+     * @example
+     * ```html
+     * <style type="text/css">
+     *      #test {
+     *          font-size: 15px;
+     *      }
+     * </style>
+     *
+     * <span id="test"></span>
+     *
+     * <script>
+     *     //output: 15px
+     *     console.log( UE.dom.domUtils.getComputedStyle( document.getElementById( "test" ), 'font-size' ) );
+     * </script>
+     * ```
+     */
+    getComputedStyle:function (element, styleName) {
+        //一下的属性单独处理
+        var pros = 'width height top left';
+
+        if(pros.indexOf(styleName) > -1){
+            return element['offset' + styleName.replace(/^\w/,function(s){return s.toUpperCase()})] + 'px';
+        }
+        //忽略文本节点
+        if (element.nodeType == 3) {
+            element = element.parentNode;
+        }
+        //ie下font-size若body下定义了font-size，则从currentStyle里会取到这个font-size. 取不到实际值，故此修改.
+        if (browser.ie && browser.version < 9 && styleName == 'font-size' && !element.style.fontSize &&
+            !dtd.$empty[element.tagName] && !dtd.$nonChild[element.tagName]) {
+            var span = element.ownerDocument.createElement('span');
+            span.style.cssText = 'padding:0;border:0;font-family:simsun;';
+            span.innerHTML = '.';
+            element.appendChild(span);
+            var result = span.offsetHeight;
+            element.removeChild(span);
+            span = null;
+            return result + 'px';
+        }
+        try {
+            var value = domUtils.getStyle(element, styleName) ||
+                (window.getComputedStyle ? domUtils.getWindow(element).getComputedStyle(element, '').getPropertyValue(styleName) :
+                    ( element.currentStyle || element.style )[utils.cssStyleToDomStyle(styleName)]);
+
+        } catch (e) {
+            return "";
+        }
+        return utils.transUnitToPx(utils.fixColor(styleName, value));
+    },
+    /**
+     * 删除元素element指定的className
+     * @method removeClasses
+     * @param { Element } ele 需要删除class的元素节点
+     * @param { String } classNames 需要删除的className， 多个className之间以空格分开
+     * @example
+     * ```html
+     * <span id="test" class="test1 test2 test3">xxx</span>
+     *
+     * <script>
+     *
+     *     var testNode = document.getElementById( "test" );
+     *     UE.dom.domUtils.removeClasses( testNode, "test1 test2" );
+     *
+     *     //output: test3
+     *     console.log( testNode.className );
+     *
+     * </script>
+     * ```
+     */
+
+    /**
+     * 删除元素element指定的className
+     * @method removeClasses
+     * @param { Element } ele 需要删除class的元素节点
+     * @param { Array } classNames 需要删除的className数组
+     * @example
+     * ```html
+     * <span id="test" class="test1 test2 test3">xxx</span>
+     *
+     * <script>
+     *
+     *     var testNode = document.getElementById( "test" );
+     *     UE.dom.domUtils.removeClasses( testNode, ["test1", "test2"] );
+     *
+     *     //output: test3
+     *     console.log( testNode.className );
+     *
+     * </script>
+     * ```
+     */
+    removeClasses:function (elm, classNames) {
+        classNames = utils.isArray(classNames) ? classNames :
+            utils.trim(classNames).replace(/[ ]{2,}/g,' ').split(' ');
+        for(var i = 0,ci,cls = elm.className;ci=classNames[i++];){
+            cls = cls.replace(new RegExp('\\b' + ci + '\\b'),'')
+        }
+        cls = utils.trim(cls).replace(/[ ]{2,}/g,' ');
+        if(cls){
+            elm.className = cls;
+        }else{
+            domUtils.removeAttributes(elm,['class']);
+        }
+    },
+    /**
+     * 给元素element添加className
+     * @method addClass
+     * @param { Node } ele 需要增加className的元素
+     * @param { String } classNames 需要添加的className， 多个className之间以空格分割
+     * @remind 相同的类名不会被重复添加
+     * @example
+     * ```html
+     * <span id="test" class="cls1 cls2"></span>
+     *
+     * <script>
+     *     var testNode = document.getElementById("test");
+     *
+     *     UE.dom.domUtils.addClass( testNode, "cls2 cls3 cls4" );
+     *
+     *     //output: cl1 cls2 cls3 cls4
+     *     console.log( testNode.className );
+     *
+     * <script>
+     * ```
+     */
+
+    /**
+     * 给元素element添加className
+     * @method addClass
+     * @param { Node } ele 需要增加className的元素
+     * @param { Array } classNames 需要添加的className的数组
+     * @remind 相同的类名不会被重复添加
+     * @example
+     * ```html
+     * <span id="test" class="cls1 cls2"></span>
+     *
+     * <script>
+     *     var testNode = document.getElementById("test");
+     *
+     *     UE.dom.domUtils.addClass( testNode, ["cls2", "cls3", "cls4"] );
+     *
+     *     //output: cl1 cls2 cls3 cls4
+     *     console.log( testNode.className );
+     *
+     * <script>
+     * ```
+     */
+    addClass:function (elm, classNames) {
+        if(!elm)return;
+        classNames = utils.trim(classNames).replace(/[ ]{2,}/g,' ').split(' ');
+        for(var i = 0,ci,cls = elm.className;ci=classNames[i++];){
+            if(!new RegExp('\\b' + ci + '\\b').test(cls)){
+                cls += ' ' + ci;
+            }
+        }
+        elm.className = utils.trim(cls);
+    },
+    /**
+     * 判断元素element是否包含给定的样式类名className
+     * @method hasClass
+     * @param { Node } ele 需要检测的元素
+     * @param { String } classNames 需要检测的className， 多个className之间用空格分割
+     * @return { Boolean } 元素是否包含所有给定的className
+     * @example
+     * ```html
+     * <span id="test1" class="cls1 cls2"></span>
+     *
+     * <script>
+     *     var test1 = document.getElementById("test1");
+     *
+     *     //output: false
+     *     console.log( UE.dom.domUtils.hasClass( test1, "cls2 cls1 cls3" ) );
+     *
+     *     //output: true
+     *     console.log( UE.dom.domUtils.hasClass( test1, "cls2 cls1" ) );
+     * </script>
+     * ```
+     */
+
+    /**
+     * 判断元素element是否包含给定的样式类名className
+     * @method hasClass
+     * @param { Node } ele 需要检测的元素
+     * @param { Array } classNames 需要检测的className数组
+     * @return { Boolean } 元素是否包含所有给定的className
+     * @example
+     * ```html
+     * <span id="test1" class="cls1 cls2"></span>
+     *
+     * <script>
+     *     var test1 = document.getElementById("test1");
+     *
+     *     //output: false
+     *     console.log( UE.dom.domUtils.hasClass( test1, [ "cls2", "cls1", "cls3" ] ) );
+     *
+     *     //output: true
+     *     console.log( UE.dom.domUtils.hasClass( test1, [ "cls2", "cls1" ]) );
+     * </script>
+     * ```
+     */
+    hasClass:function (element, className) {
+        if(utils.isRegExp(className)){
+            return className.test(element.className)
+        }
+        className = utils.trim(className).replace(/[ ]{2,}/g,' ').split(' ');
+        for(var i = 0,ci,cls = element.className;ci=className[i++];){
+            if(!new RegExp('\\b' + ci + '\\b','i').test(cls)){
+                return false;
+            }
+        }
+        return i - 1 == className.length;
+    },
+
+    /**
+     * 阻止事件默认行为
+     * @method preventDefault
+     * @param { Event } evt 需要阻止默认行为的事件对象
+     * @example
+     * ```javascript
+     * UE.dom.domUtils.preventDefault( evt );
+     * ```
+     */
+    preventDefault:function (evt) {
+        evt.preventDefault ? evt.preventDefault() : (evt.returnValue = false);
+    },
+    /**
+     * 删除元素element指定的样式
+     * @method removeStyle
+     * @param { Element } element 需要删除样式的元素
+     * @param { String } styleName 需要删除的样式名
+     * @example
+     * ```html
+     * <span id="test" style="color: red; background: blue;"></span>
+     *
+     * <script>
+     *
+     *     var testNode = document.getElementById("test");
+     *
+     *     UE.dom.domUtils.removeStyle( testNode, 'color' );
+     *
+     *     //output: background: blue;
+     *     console.log( testNode.style.cssText );
+     *
+     * </script>
+     * ```
+     */
+    removeStyle:function (element, name) {
+        if(browser.ie ){
+            //针对color先单独处理一下
+            if(name == 'color'){
+                name = '(^|;)' + name;
+            }
+            element.style.cssText = element.style.cssText.replace(new RegExp(name + '[^:]*:[^;]+;?','ig'),'')
+        }else{
+            if (element.style.removeProperty) {
+                element.style.removeProperty (name);
+            }else {
+                element.style.removeAttribute (utils.cssStyleToDomStyle(name));
+            }
+        }
+
+
+        if (!element.style.cssText) {
+            domUtils.removeAttributes(element, ['style']);
+        }
+    },
+    /**
+     * 获取元素element的style属性的指定值
+     * @method getStyle
+     * @param { Element } element 需要获取属性值的元素
+     * @param { String } styleName 需要获取的style的名称
+     * @warning 该方法仅获取元素style属性中所标明的值
+     * @return { String } 该元素包含指定的style属性值
+     * @example
+     * ```html
+     * <div id="test" style="color: red;"></div>
+     *
+     * <script>
+     *
+     *      var testNode = document.getElementById( "test" );
+     *
+     *      //output: red
+     *      console.log( UE.dom.domUtils.getStyle( testNode, "color" ) );
+     *
+     *      //output: ""
+     *      console.log( UE.dom.domUtils.getStyle( testNode, "background" ) );
+     *
+     * </script>
+     * ```
+     */
+    getStyle:function (element, name) {
+        var value = element.style[ utils.cssStyleToDomStyle(name) ];
+        return utils.fixColor(name, value);
+    },
+    /**
+     * 为元素element设置样式属性值
+     * @method setStyle
+     * @param { Element } element 需要设置样式的元素
+     * @param { String } styleName 样式名
+     * @param { String } styleValue 样式值
+     * @example
+     * ```html
+     * <div id="test"></div>
+     *
+     * <script>
+     *
+     *      var testNode = document.getElementById( "test" );
+     *
+     *      //output: ""
+     *      console.log( testNode.style.color );
+     *
+     *      UE.dom.domUtils.setStyle( testNode, 'color', 'red' );
+     *      //output: "red"
+     *      console.log( testNode.style.color );
+     *
+     * </script>
+     * ```
+     */
+    setStyle:function (element, name, value) {
+        element.style[utils.cssStyleToDomStyle(name)] = value;
+        if(!utils.trim(element.style.cssText)){
+            this.removeAttributes(element,'style')
+        }
+    },
+    /**
+     * 为元素element设置多个样式属性值
+     * @method setStyles
+     * @param { Element } element 需要设置样式的元素
+     * @param { Object } styles 样式名值对
+     * @example
+     * ```html
+     * <div id="test"></div>
+     *
+     * <script>
+     *
+     *      var testNode = document.getElementById( "test" );
+     *
+     *      //output: ""
+     *      console.log( testNode.style.color );
+     *
+     *      UE.dom.domUtils.setStyles( testNode, {
+     *          'color': 'red'
+     *      } );
+     *      //output: "red"
+     *      console.log( testNode.style.color );
+     *
+     * </script>
+     * ```
+     */
+    setStyles:function (element, styles) {
+        for (var name in styles) {
+            if (styles.hasOwnProperty(name)) {
+                domUtils.setStyle(element, name, styles[name]);
+            }
+        }
+    },
+    /**
+     * 删除_moz_dirty属性
+     * @private
+     * @method removeDirtyAttr
+     */
+    removeDirtyAttr:function (node) {
+        for (var i = 0, ci, nodes = node.getElementsByTagName('*'); ci = nodes[i++];) {
+            ci.removeAttribute('_moz_dirty');
+        }
+        node.removeAttribute('_moz_dirty');
+    },
+    /**
+     * 获取子节点的数量
+     * @method getChildCount
+     * @param { Element } node 需要检测的元素
+     * @return { Number } 给定的node元素的子节点数量
+     * @example
+     * ```html
+     * <div id="test">
+     *      <span></span>
+     * </div>
+     *
+     * <script>
+     *
+     *     //output: 3
+     *     console.log( UE.dom.domUtils.getChildCount( document.getElementById("test") ) );
+     *
+     * </script>
+     * ```
+     */
+
+    /**
+     * 根据给定的过滤规则， 获取符合条件的子节点的数量
+     * @method getChildCount
+     * @param { Element } node 需要检测的元素
+     * @param { Function } fn 过滤器， 要求对符合条件的子节点返回true， 反之则要求返回false
+     * @return { Number } 符合过滤条件的node元素的子节点数量
+     * @example
+     * ```html
+     * <div id="test">
+     *      <span></span>
+     * </div>
+     *
+     * <script>
+     *
+     *     //output: 1
+     *     console.log( UE.dom.domUtils.getChildCount( document.getElementById("test"), function ( node ) {
+     *
+     *         return node.nodeType === 1;
+     *
+     *     } ) );
+     *
+     * </script>
+     * ```
+     */
+    getChildCount:function (node, fn) {
+        var count = 0, first = node.firstChild;
+        fn = fn || function () {
+            return 1;
+        };
+        while (first) {
+            if (fn(first)) {
+                count++;
+            }
+            first = first.nextSibling;
+        }
+        return count;
+    },
+
+    /**
+     * 判断给定节点是否为空节点
+     * @method isEmptyNode
+     * @param { Node } node 需要检测的节点对象
+     * @return { Boolean } 节点是否为空
+     * @example
+     * ```javascript
+     * UE.dom.domUtils.isEmptyNode( document.body );
+     * ```
+     */
+    isEmptyNode:function (node) {
+        return !node.firstChild || domUtils.getChildCount(node, function (node) {
+            return  !domUtils.isBr(node) && !domUtils.isBookmarkNode(node) && !domUtils.isWhitespace(node)
+        }) == 0
+    },
+    clearSelectedArr:function (nodes) {
+        var node;
+        while (node = nodes.pop()) {
+            domUtils.removeAttributes(node, ['class']);
+        }
+    },
+    /**
+     * 将显示区域滚动到指定节点的位置
+     * @method scrollToView
+     * @param    {Node}   node    节点
+     * @param    {window}   win      window对象
+     * @param    {Number}    offsetTop    距离上方的偏移量
+     */
+    scrollToView:function (node, win, offsetTop) {
+        var getViewPaneSize = function () {
+                var doc = win.document,
+                    mode = doc.compatMode == 'CSS1Compat';
+                return {
+                    width:( mode ? doc.documentElement.clientWidth : doc.body.clientWidth ) || 0,
+                    height:( mode ? doc.documentElement.clientHeight : doc.body.clientHeight ) || 0
+                };
+            },
+            getScrollPosition = function (win) {
+                if ('pageXOffset' in win) {
+                    return {
+                        x:win.pageXOffset || 0,
+                        y:win.pageYOffset || 0
+                    };
+                }
+                else {
+                    var doc = win.document;
+                    return {
+                        x:doc.documentElement.scrollLeft || doc.body.scrollLeft || 0,
+                        y:doc.documentElement.scrollTop || doc.body.scrollTop || 0
+                    };
+                }
+            };
+        var winHeight = getViewPaneSize().height, offset = winHeight * -1 + offsetTop;
+        offset += (node.offsetHeight || 0);
+        var elementPosition = domUtils.getXY(node);
+        offset += elementPosition.y;
+        var currentScroll = getScrollPosition(win).y;
+        // offset += 50;
+        if (offset > currentScroll || offset < currentScroll - winHeight) {
+            win.scrollTo(0, offset + (offset < 0 ? -20 : 20));
+        }
+    },
+    /**
+     * 判断给定节点是否为br
+     * @method isBr
+     * @param { Node } node 需要判断的节点对象
+     * @return { Boolean } 给定的节点是否是br节点
+     */
+    isBr:function (node) {
+        return node.nodeType == 1 && node.tagName == 'BR';
+    },
+    /**
+     * 判断给定的节点是否是一个“填充”节点
+     * @private
+     * @method isFillChar
+     * @param { Node } node 需要判断的节点
+     * @param { Boolean } isInStart 是否从节点内容的开始位置匹配
+     * @returns { Boolean } 节点是否是填充节点
+     */
+    isFillChar:function (node,isInStart) {
+        if(node.nodeType != 3)
+            return false;
+        var text = node.nodeValue;
+        if(isInStart){
+            return new RegExp('^' + domUtils.fillChar).test(text)
+        }
+        return !text.replace(new RegExp(domUtils.fillChar,'g'), '').length
+    },
+    isStartInblock:function (range) {
+        var tmpRange = range.cloneRange(),
+            flag = 0,
+            start = tmpRange.startContainer,
+            tmp;
+        if(start.nodeType == 1 && start.childNodes[tmpRange.startOffset]){
+            start = start.childNodes[tmpRange.startOffset];
+            var pre = start.previousSibling;
+            while(pre && domUtils.isFillChar(pre)){
+                start = pre;
+                pre = pre.previousSibling;
+            }
+        }
+        if(this.isFillChar(start,true) && tmpRange.startOffset == 1){
+            tmpRange.setStartBefore(start);
+            start = tmpRange.startContainer;
+        }
+
+        while (start && domUtils.isFillChar(start)) {
+            tmp = start;
+            start = start.previousSibling
+        }
+        if (tmp) {
+            tmpRange.setStartBefore(tmp);
+            start = tmpRange.startContainer;
+        }
+        if (start.nodeType == 1 && domUtils.isEmptyNode(start) && tmpRange.startOffset == 1) {
+            tmpRange.setStart(start, 0).collapse(true);
+        }
+        while (!tmpRange.startOffset) {
+            start = tmpRange.startContainer;
+            if (domUtils.isBlockElm(start) || domUtils.isBody(start)) {
+                flag = 1;
+                break;
+            }
+            var pre = tmpRange.startContainer.previousSibling,
+                tmpNode;
+            if (!pre) {
+                tmpRange.setStartBefore(tmpRange.startContainer);
+            } else {
+                while (pre && domUtils.isFillChar(pre)) {
+                    tmpNode = pre;
+                    pre = pre.previousSibling;
+                }
+                if (tmpNode) {
+                    tmpRange.setStartBefore(tmpNode);
+                } else {
+                    tmpRange.setStartBefore(tmpRange.startContainer);
+                }
+            }
+        }
+        return flag && !domUtils.isBody(tmpRange.startContainer) ? 1 : 0;
+    },
+
+    /**
+     * 判断给定的元素是否是一个空元素
+     * @method isEmptyBlock
+     * @param { Element } node 需要判断的元素
+     * @return { Boolean } 是否是空元素
+     * @example
+     * ```html
+     * <div id="test"></div>
+     *
+     * <script>
+     *     //output: true
+     *     console.log( UE.dom.domUtils.isEmptyBlock( document.getElementById("test") ) );
+     * </script>
+     * ```
+     */
+
+    /**
+     * 根据指定的判断规则判断给定的元素是否是一个空元素
+     * @method isEmptyBlock
+     * @param { Element } node 需要判断的元素
+     * @param { RegExp } reg 对内容执行判断的正则表达式对象
+     * @return { Boolean } 是否是空元素
+     */
+    isEmptyBlock:function (node,reg) {
+        if(node.nodeType != 1)
+            return 0;
+        reg = reg || new RegExp('[ \xa0\t\r\n' + domUtils.fillChar + ']', 'g');
+
+        if (node[browser.ie ? 'innerText' : 'textContent'].replace(reg, '').length > 0) {
+            return 0;
+        }
+        for (var n in dtd.$isNotEmpty) {
+            if (node.getElementsByTagName(n).length) {
+                return 0;
+            }
+        }
+        return 1;
+    },
+
+    /**
+     * 移动元素使得该元素的位置移动指定的偏移量的距离
+     * @method setViewportOffset
+     * @param { Element } element 需要设置偏移量的元素
+     * @param { Object } offset 偏移量， 形如{ left: 100, top: 50 }的一个键值对， 表示该元素将在
+     *                                  现有的位置上向水平方向偏移offset.left的距离， 在竖直方向上偏移
+     *                                  offset.top的距离
+     * @example
+     * ```html
+     * <div id="test" style="top: 100px; left: 50px; position: absolute;"></div>
+     *
+     * <script>
+     *
+     *     var testNode = document.getElementById("test");
+     *
+     *     UE.dom.domUtils.setViewportOffset(

@@ -1,0 +1,28 @@
+     *     height: 1600
+             * });
+             */
+            option: function( key, val ) {
+                var opts = this.options;
+    
+                // setter
+                if ( arguments.length > 1 ) {
+    
+                    if ( $.isPlainObject( val ) &&
+                            $.isPlainObject( opts[ key ] ) ) {
+                        $.extend( opts[ key ], val );
+                    } else {
+                        opts[ key ] = val;
+                    }
+    
+                } else {    // getter
+                    return key ? opts[ key ] : opts;
+                }
+            },
+    
+            /**
+             * 获取文件统计信息。返回一个包含一下信息的对象。
+             * * `successNum` 上传成功的文件数
+             * * `uploadFailNum` 上传失败的文件数
+             * * `cancelNum` 被删除的文件数
+             * * `invalidNum` 无效的文件数
+             * * `queueNum` �

@@ -1,0 +1,36 @@
+ody>
+</table>
+';
+                        }
+                         ?></textarea>
+                </div>
+            </div>
+          <div class="layui-form-item">
+              <label for="content" class="layui-form-label">
+              </label>
+              <button  class="layui-btn" lay-filter="add" lay-submit="">
+                  添加
+              </button>
+          </div>
+      </form>
+    </div>
+<script type="text/javascript">
+
+    //实例化编辑器
+    //建议使用工厂方法getEditor创建和引用编辑器实例，如果在某个闭包下引用该编辑器，直接调用UE.getEditor('editor')就能拿到相关的实例
+    UE.getEditor('content',{initialFrameWidth:800,initialFrameHeight:400,});
+</script>
+    <script>
+        layui.use(['form','layer'], function(){
+            $ = layui.jquery;
+          var form = layui.form
+          ,layer = layui.layer;
+        
+          //自定义验证规则
+          form.verify({
+            nikename: function(value){
+              if(value.length < 5){
+                return '昵称至少得5个字符啊';
+              }
+            }
+            ,pass: [/(.+){6,12}$/, '密码必须6到12位'

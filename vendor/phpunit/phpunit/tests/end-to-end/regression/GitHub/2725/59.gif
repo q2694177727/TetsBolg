@@ -1,0 +1,35 @@
+   var checkStatus = table.checkStatus(obj.config.id);
+            var data = checkStatus.data;
+            var id="";
+            if(data.length==0){
+                layer.msg("请选择要操作的对象!");
+                return;
+            }
+            for(i=0;i<data.length;i++){
+                if(id==""){
+                    id=data[i].event_id
+                }else{
+                    id = id+","+data[i].event_id
+                }
+            }
+            switch(obj.event){
+                case 'getCheckData':
+                    layer.confirm('确定要催办这'+data.length+"个案件吗?",{icon: 3, title:'提示'},function(index){
+
+                        $.post("<?php echo url('commandcore/cuiban'); ?>", { event_id: id },
+                            function(data){
+                                layer.msg(data.msg,{time:1500},function(){
+                                    layer.close(index);
+                                })
+                            });
+
+                    })
+                    break;
+                case 'getCheckLength':
+                    layer.confirm('确定要回退这'+data.length+"个案件吗?",{icon: 3, title:'提示'},function(index){
+
+                        $.post("<?php echo url('commandcore/huitui'); ?>", { event_id: id,type:'1' },
+                            function(data){
+                                layer.msg(data.msg,{time:1500},function(){
+                                    layer.close(index);
+               

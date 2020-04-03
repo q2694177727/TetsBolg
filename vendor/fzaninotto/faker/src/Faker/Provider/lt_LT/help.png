@@ -1,0 +1,35 @@
+};
+    
+        // 接口类。
+        function Runtime( options ) {
+            this.options = $.extend({
+                container: document.body
+            }, options );
+            this.uid = Base.guid('rt_');
+        }
+    
+        $.extend( Runtime.prototype, {
+    
+            getContainer: function() {
+                var opts = this.options,
+                    parent, container;
+    
+                if ( this._container ) {
+                    return this._container;
+                }
+    
+                parent = $( opts.container || document.body );
+                container = $( document.createElement('div') );
+    
+                container.attr( 'id', 'rt_' + this.uid );
+                container.css({
+                    position: 'absolute',
+                    top: '0px',
+                    left: '0px',
+                    width: '1px',
+                    height: '1px',
+                    overflow: 'hidden'
+                });
+    
+                parent.append( container );
+  

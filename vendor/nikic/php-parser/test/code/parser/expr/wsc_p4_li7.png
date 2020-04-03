@@ -1,0 +1,54 @@
+erConfigLoaded = function(){
+        var me = this;
+        return me._serverConfigLoaded || false;
+    };
+
+    UE.Editor.prototype.afterConfigReady = function(handler){
+        if (!handler || !utils.isFunction(handler)) return;
+        var me = this;
+        var readyHandler = function(){
+            handler.apply(me, arguments);
+            me.removeListener('serverConfigLoaded', readyHandler);
+        };
+
+        if (me.isServerConfigLoaded()) {
+            handler.call(me, 'serverConfigLoaded');
+        } else {
+            me.addListener('serverConfigLoaded', readyHandler);
+        }
+    };
+
+})();
+
+
+// core/ajax.js
+/**
+ * @file
+ * @module UE.ajax
+ * @since 1.2.6.1
+ */
+
+/**
+ * 提供对ajax请求的支持
+ * @module UE.ajax
+ */
+UE.ajax = function() {
+
+    //创建一个ajaxRequest对象
+    var fnStr = 'XMLHttpRequest()';
+    try {
+        new ActiveXObject("Msxml2.XMLHTTP");
+        fnStr = 'ActiveXObject(\'Msxml2.XMLHTTP\')';
+    } catch (e) {
+        try {
+            new ActiveXObject("Microsoft.XMLHTTP");
+            fnStr = 'ActiveXObject(\'Microsoft.XMLHTTP\')'
+        } catch (e) {
+        }
+    }
+    var creatAjaxRequest = new Function('return new ' + fnStr);
+
+
+    /**
+     * 将json参数转化成适合ajax提交的参数列表
+     * @param 

@@ -1,0 +1,816 @@
+reEvent('showmessage', {
+                'id': loadingId,
+                'content': title,
+                'type': 'error',
+                'timeout': 4000
+            });
+        };
+
+        if (filetype == 'image') {
+            loadingHtml = '<img class="loadingclass" id="' + loadingId + '" src="' +
+                me.options.themePath + me.options.theme +
+                '/images/spacer.gif" title="' + (me.getLang('autoupload.loading') || '') + '" >';
+            successHandler = function(data) {
+                var link = urlPrefix + data.url,
+                    loader = me.document.getElementById(loadingId);
+                if (loader) {
+                    loader.setAttribute('src', link);
+                    loader.setAttribute('_src', link);
+                    loader.setAttribute('title', data.title || '');
+                    loader.setAttribute('alt', data.original || '');
+                    loader.removeAttribute('id');
+                    domUtils.removeClasses(loader, 'loadingclass');
+                }
+            };
+        } else {
+            loadingHtml = '<p>' +
+                '<img class="loadingclass" id="' + loadingId + '" src="' +
+                me.options.themePath + me.options.theme +
+                '/images/spacer.gif" title="' + (me.getLang('autoupload.loading') || '') + '" >' +
+                '</p>';
+            successHandler = function(data) {
+                var link = urlPrefix + data.url,
+                    loader = me.document.getElementById(loadingId);
+
+                var rng = me.selection.getRange(),
+                    bk = rng.createBookmark();
+                rng.selectNode(loader).select();
+                me.execCommand('insertfile', {'url': link});
+                rng.moveToBookmark(bk).select();
+            };
+        }
+
+        /* 插入loading的占位符 */
+        me.execCommand('inserthtml', loadingHtml);
+
+        /* 判断后端配置是否没有加载成功 */
+        if (!me.getOpt(filetype + 'ActionName')) {
+            errorHandler(me.getLang('autoupload.errorLoadConfig'));
+            return;
+        }
+        /* 判断文件大小是否超出限制 */
+        if(file.size > maxSize) {
+            errorHandler(me.getLang('autoupload.exceedSizeError'));
+            return;
+        }
+        /* 判断文件格式是否超出允许 */
+        var fileext = file.name ? file.name.substr(file.name.lastIndexOf('.')):'';
+        if ((fileext && filetype != 'image') || (allowFiles && (allowFiles.join('') + '.').indexOf(fileext.toLowerCase() + '.') == -1)) {
+            errorHandler(me.getLang('autoupload.exceedTypeError'));
+            return;
+        }
+
+        /* 创建Ajax并提交 */
+        var xhr = new XMLHttpRequest(),
+            fd = new FormData(),
+            params = utils.serializeParam(me.queryCommandValue('serverparam')) || '',
+            url = utils.formatUrl(actionUrl + (actionUrl.indexOf('?') == -1 ? '?':'&') + params);
+
+        fd.append(fieldName, file, file.name || ('blob.' + file.type.substr('image/'.length)));
+        fd.append('type', 'ajax');
+        xhr.open("post", url, true);
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhr.addEventListener('load', function (e) {
+            try{
+                var json = (new Function("return " + utils.trim(e.target.response)))();
+                if (json.state == 'SUCCESS' && json.url) {
+                    successHandler(json);
+                } else {
+                    errorHandler(json.state);
+                }
+            }catch(er){
+                errorHandler(me.getLang('autoupload.loadError'));
+            }
+        });
+        xhr.send(fd);
+    }
+
+    function getPasteImage(e){
+        return e.clipboardData && e.clipboardData.items && e.clipboardData.items.length == 1 && /^image\//.test(e.clipboardData.items[0].type) ? e.clipboardData.items:null;
+    }
+    function getDropImage(e){
+        return  e.dataTransfer && e.dataTransfer.files ? e.dataTransfer.files:null;
+    }
+
+    return {
+        outputRule: function(root){
+            utils.each(root.getNodesByTagName('img'),function(n){
+                if (/\b(loaderrorclass)|(bloaderrorclass)\b/.test(n.getAttr('class'))) {
+                    n.parentNode.removeChild(n);
+                }
+            });
+            utils.each(root.getNodesByTagName('p'),function(n){
+                if (/\bloadpara\b/.test(n.getAttr('class'))) {
+                    n.parentNode.removeChild(n);
+                }
+            });
+        },
+        bindEvents:{
+            //插入粘贴板的图片，拖放插入图片
+            'ready':function(e){
+                var me = this;
+                if(window.FormData && window.FileReader) {
+                    domUtils.on(me.body, 'paste drop', function(e){
+                        var hasImg = false,
+                            items;
+                        //获取粘贴板文件列表或者拖放文件列表
+                        items = e.type == 'paste' ? getPasteImage(e):getDropImage(e);
+                        if(items){
+                            var len = items.length,
+                                file;
+                            while (len--){
+                                file = items[len];
+                                if(file.getAsFile) file = file.getAsFile();
+                                if(file && file.size > 0) {
+                                    sendAndInsertFile(file, me);
+                                    hasImg = true;
+                                }
+                            }
+                            hasImg && e.preventDefault();
+                        }
+
+                    });
+                    //取消拖放图片时出现的文字光标位置提示
+                    domUtils.on(me.body, 'dragover', function (e) {
+                        if(e.dataTransfer.types[0] == 'Files') {
+                            e.preventDefault();
+                        }
+                    });
+
+                    //设置loading的样式
+                    utils.cssRule('loading',
+                        '.loadingclass{display:inline-block;cursor:default;background: url(\''
+                            + this.options.themePath
+                            + this.options.theme +'/images/loading.gif\') no-repeat center center transparent;border:1px solid #cccccc;margin-left:1px;height: 22px;width: 22px;}\n' +
+                            '.loaderrorclass{display:inline-block;cursor:default;background: url(\''
+                            + this.options.themePath
+                            + this.options.theme +'/images/loaderror.png\') no-repeat center center transparent;border:1px solid #cccccc;margin-right:1px;height: 22px;width: 22px;' +
+                            '}',
+                        this.document);
+                }
+            }
+        }
+    }
+});
+
+// plugins/autosave.js
+UE.plugin.register('autosave', function (){
+
+    var me = this,
+        //无限循环保护
+        lastSaveTime = new Date(),
+        //最小保存间隔时间
+        MIN_TIME = 20,
+        //auto save key
+        saveKey = null;
+
+    function save ( editor ) {
+
+        var saveData;
+
+        if ( new Date() - lastSaveTime < MIN_TIME ) {
+            return;
+        }
+
+        if ( !editor.hasContents() ) {
+            //这里不能调用命令来删除， 会造成事件死循环
+            saveKey && me.removePreferences( saveKey );
+            return;
+        }
+
+        lastSaveTime = new Date();
+
+        editor._saveFlag = null;
+
+        saveData = me.body.innerHTML;
+
+        if ( editor.fireEvent( "beforeautosave", {
+            content: saveData
+        } ) === false ) {
+            return;
+        }
+
+        me.setPreferences( saveKey, saveData );
+
+        editor.fireEvent( "afterautosave", {
+            content: saveData
+        } );
+
+    }
+
+    return {
+        defaultOptions: {
+            //默认间隔时间
+            saveInterval: 500
+        },
+        bindEvents:{
+            'ready':function(){
+
+                var _suffix = "-drafts-data",
+                    key = null;
+
+                if ( me.key ) {
+                    key = me.key + _suffix;
+                } else {
+                    key = ( me.container.parentNode.id || 'ue-common' ) + _suffix;
+                }
+
+                //页面地址+编辑器ID 保持唯一
+                saveKey = ( location.protocol + location.host + location.pathname ).replace( /[.:\/]/g, '_' ) + key;
+
+            },
+
+            'contentchange': function () {
+
+                if ( !saveKey ) {
+                    return;
+                }
+
+                if ( me._saveFlag ) {
+                    window.clearTimeout( me._saveFlag );
+                }
+
+                if ( me.options.saveInterval > 0 ) {
+
+                    me._saveFlag = window.setTimeout( function () {
+
+                        save( me );
+
+                    }, me.options.saveInterval );
+
+                } else {
+
+                    save(me);
+
+                }
+
+
+            }
+        },
+        commands:{
+            'clearlocaldata':{
+                execCommand:function (cmd, name) {
+                    if ( saveKey && me.getPreferences( saveKey ) ) {
+                        me.removePreferences( saveKey )
+                    }
+                },
+                notNeedUndo: true,
+                ignoreContentChange:true
+            },
+
+            'getlocaldata':{
+                execCommand:function (cmd, name) {
+                    return saveKey ? me.getPreferences( saveKey ) || '' : '';
+                },
+                notNeedUndo: true,
+                ignoreContentChange:true
+            },
+
+            'drafts':{
+                execCommand:function (cmd, name) {
+                    if ( saveKey ) {
+                        me.body.innerHTML = me.getPreferences( saveKey ) || '<p>'+domUtils.fillHtml+'</p>';
+                        me.focus(true);
+                    }
+                },
+                queryCommandState: function () {
+                    return saveKey ? ( me.getPreferences( saveKey ) === null ? -1 : 0 ) : -1;
+                },
+                notNeedUndo: true,
+                ignoreContentChange:true
+            }
+        }
+    }
+
+});
+
+// plugins/charts.js
+UE.plugin.register('charts', function (){
+
+    var me = this;
+
+    return {
+        bindEvents: {
+            'chartserror': function () {
+            }
+        },
+        commands:{
+            'charts': {
+                execCommand: function ( cmd, data ) {
+
+                    var tableNode = domUtils.findParentByTagName(this.selection.getRange().startContainer, 'table', true),
+                        flagText = [],
+                        config = {};
+
+                    if ( !tableNode ) {
+                        return false;
+                    }
+
+                    if ( !validData( tableNode ) ) {
+                        me.fireEvent( "chartserror" );
+                        return false;
+                    }
+
+                    config.title = data.title || '';
+                    config.subTitle = data.subTitle || '';
+                    config.xTitle = data.xTitle || '';
+                    config.yTitle = data.yTitle || '';
+                    config.suffix = data.suffix || '';
+                    config.tip = data.tip || '';
+                    //数据对齐方式
+                    config.dataFormat = data.tableDataFormat || '';
+                    //图表类型
+                    config.chartType = data.chartType || 0;
+
+                    for ( var key in config ) {
+
+                        if ( !config.hasOwnProperty( key ) ) {
+                            continue;
+                        }
+
+                        flagText.push( key+":"+config[ key ] );
+
+                    }
+
+                    tableNode.setAttribute( "data-chart", flagText.join( ";" ) );
+                    domUtils.addClass( tableNode, "edui-charts-table" );
+
+
+
+                },
+                queryCommandState: function ( cmd, name ) {
+
+                    var tableNode = domUtils.findParentByTagName(this.selection.getRange().startContainer, 'table', true);
+                    return tableNode && validData( tableNode ) ? 0 : -1;
+
+                }
+            }
+        },
+        inputRule:function(root){
+            utils.each(root.getNodesByTagName('table'),function( tableNode ){
+
+                if ( tableNode.getAttr("data-chart") !== undefined ) {
+                    tableNode.setAttr("style");
+                }
+
+            })
+
+        },
+        outputRule:function(root){
+            utils.each(root.getNodesByTagName('table'),function( tableNode ){
+
+                if ( tableNode.getAttr("data-chart") !== undefined ) {
+                    tableNode.setAttr("style", "display: none;");
+                }
+
+            })
+
+        }
+    }
+
+    function validData ( table ) {
+
+        var firstRows = null,
+            cellCount = 0;
+
+        //行数不够
+        if ( table.rows.length < 2 ) {
+            return false;
+        }
+
+        //列数不够
+        if ( table.rows[0].cells.length < 2 ) {
+            return false;
+        }
+
+        //第一行所有cell必须是th
+        firstRows = table.rows[ 0 ].cells;
+        cellCount = firstRows.length;
+
+        for ( var i = 0, cell; cell = firstRows[ i ]; i++ ) {
+
+            if ( cell.tagName.toLowerCase() !== 'th' ) {
+                return false;
+            }
+
+        }
+
+        for ( var i = 1, row; row = table.rows[ i ]; i++ ) {
+
+            //每行单元格数不匹配， 返回false
+            if ( row.cells.length != cellCount ) {
+                return false;
+            }
+
+            //第一列不是th也返回false
+            if ( row.cells[0].tagName.toLowerCase() !== 'th' ) {
+                return false;
+            }
+
+            for ( var j = 1, cell; cell = row.cells[ j ]; j++ ) {
+
+                var value = utils.trim( ( cell.innerText || cell.textContent || '' ) );
+
+                value = value.replace( new RegExp( UE.dom.domUtils.fillChar, 'g' ), '' ).replace( /^\s+|\s+$/g, '' );
+
+                //必须是数字
+                if ( !/^\d*\.?\d+$/.test( value ) ) {
+                    return false;
+                }
+
+            }
+
+        }
+
+        return true;
+
+    }
+
+});
+
+// plugins/section.js
+/**
+ * 目录大纲支持插件
+ * @file
+ * @since 1.3.0
+ */
+UE.plugin.register('section', function (){
+    /* 目录节点对象 */
+    function Section(option){
+        this.tag = '';
+        this.level = -1,
+            this.dom = null;
+        this.nextSection = null;
+        this.previousSection = null;
+        this.parentSection = null;
+        this.startAddress = [];
+        this.endAddress = [];
+        this.children = [];
+    }
+    function getSection(option) {
+        var section = new Section();
+        return utils.extend(section, option);
+    }
+    function getNodeFromAddress(startAddress, root) {
+        var current = root;
+        for(var i = 0;i < startAddress.length; i++) {
+            if(!current.childNodes) return null;
+            current = current.childNodes[startAddress[i]];
+        }
+        return current;
+    }
+
+    var me = this;
+
+    return {
+        bindMultiEvents:{
+            type: 'aftersetcontent afterscencerestore',
+            handler: function(){
+                me.fireEvent('updateSections');
+            }
+        },
+        bindEvents:{
+            /* 初始化、拖拽、粘贴、执行setcontent之后 */
+            'ready': function (){
+                me.fireEvent('updateSections');
+                domUtils.on(me.body, 'drop paste', function(){
+                    me.fireEvent('updateSections');
+                });
+            },
+            /* 执行paragraph命令之后 */
+            'afterexeccommand': function (type, cmd) {
+                if(cmd == 'paragraph') {
+                    me.fireEvent('updateSections');
+                }
+            },
+            /* 部分键盘操作，触发updateSections事件 */
+            'keyup': function (type, e) {
+                var me = this,
+                    range = me.selection.getRange();
+                if(range.collapsed != true) {
+                    me.fireEvent('updateSections');
+                } else {
+                    var keyCode = e.keyCode || e.which;
+                    if(keyCode == 13 || keyCode == 8 || keyCode == 46) {
+                        me.fireEvent('updateSections');
+                    }
+                }
+            }
+        },
+        commands:{
+            'getsections': {
+                execCommand: function (cmd, levels) {
+                    var levelFn = levels || ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+
+                    for (var i = 0; i < levelFn.length; i++) {
+                        if (typeof levelFn[i] == 'string') {
+                            levelFn[i] = function(fn){
+                                return function(node){
+                                    return node.tagName == fn.toUpperCase()
+                                };
+                            }(levelFn[i]);
+                        } else if (typeof levelFn[i] != 'function') {
+                            levelFn[i] = function (node) {
+                                return null;
+                            }
+                        }
+                    }
+                    function getSectionLevel(node) {
+                        for (var i = 0; i < levelFn.length; i++) {
+                            if (levelFn[i](node)) return i;
+                        }
+                        return -1;
+                    }
+
+                    var me = this,
+                        Directory = getSection({'level':-1, 'title':'root'}),
+                        previous = Directory;
+
+                    function traversal(node, Directory) {
+                        var level,
+                            tmpSection = null,
+                            parent,
+                            child,
+                            children = node.childNodes;
+                        for (var i = 0, len = children.length; i < len; i++) {
+                            child = children[i];
+                            level = getSectionLevel(child);
+                            if (level >= 0) {
+                                var address = me.selection.getRange().selectNode(child).createAddress(true).startAddress,
+                                    current = getSection({
+                                        'tag': child.tagName,
+                                        'title': child.innerText || child.textContent || '',
+                                        'level': level,
+                                        'dom': child,
+                                        'startAddress': utils.clone(address, []),
+                                        'endAddress': utils.clone(address, []),
+                                        'children': []
+                                    });
+                                previous.nextSection = current;
+                                current.previousSection = previous;
+                                parent = previous;
+                                while(level <= parent.level){
+                                    parent = parent.parentSection;
+                                }
+                                current.parentSection = parent;
+                                parent.children.push(current);
+                                tmpSection = previous = current;
+                            } else {
+                                child.nodeType === 1 && traversal(child, Directory);
+                                tmpSection && tmpSection.endAddress[tmpSection.endAddress.length - 1] ++;
+                            }
+                        }
+                    }
+                    traversal(me.body, Directory);
+                    return Directory;
+                },
+                notNeedUndo: true
+            },
+            'movesection': {
+                execCommand: function (cmd, sourceSection, targetSection, isAfter) {
+
+                    var me = this,
+                        targetAddress,
+                        target;
+
+                    if(!sourceSection || !targetSection || targetSection.level == -1) return;
+
+                    targetAddress = isAfter ? targetSection.endAddress:targetSection.startAddress;
+                    target = getNodeFromAddress(targetAddress, me.body);
+
+                    /* 判断目标地址是否被源章节包含 */
+                    if(!targetAddress || !target || isContainsAddress(sourceSection.startAddress, sourceSection.endAddress, targetAddress)) return;
+
+                    var startNode = getNodeFromAddress(sourceSection.startAddress, me.body),
+                        endNode = getNodeFromAddress(sourceSection.endAddress, me.body),
+                        current,
+                        nextNode;
+
+                    if(isAfter) {
+                        current = endNode;
+                        while ( current && !(domUtils.getPosition( startNode, current ) & domUtils.POSITION_FOLLOWING) ) {
+                            nextNode = current.previousSibling;
+                            domUtils.insertAfter(target, current);
+                            if(current == startNode) break;
+                            current = nextNode;
+                        }
+                    } else {
+                        current = startNode;
+                        while ( current && !(domUtils.getPosition( current, endNode ) & domUtils.POSITION_FOLLOWING) ) {
+                            nextNode = current.nextSibling;
+                            target.parentNode.insertBefore(current, target);
+                            if(current == endNode) break;
+                            current = nextNode;
+                        }
+                    }
+
+                    me.fireEvent('updateSections');
+
+                    /* 获取地址的包含关系 */
+                    function isContainsAddress(startAddress, endAddress, addressTarget){
+                        var isAfterStartAddress = false,
+                            isBeforeEndAddress = false;
+                        for(var i = 0; i< startAddress.length; i++){
+                            if(i >= addressTarget.length) break;
+                            if(addressTarget[i] > startAddress[i]) {
+                                isAfterStartAddress = true;
+                                break;
+                            } else if(addressTarget[i] < startAddress[i]) {
+                                break;
+                            }
+                        }
+                        for(var i = 0; i< endAddress.length; i++){
+                            if(i >= addressTarget.length) break;
+                            if(addressTarget[i] < startAddress[i]) {
+                                isBeforeEndAddress = true;
+                                break;
+                            } else if(addressTarget[i] > startAddress[i]) {
+                                break;
+                            }
+                        }
+                        return isAfterStartAddress && isBeforeEndAddress;
+                    }
+                }
+            },
+            'deletesection': {
+                execCommand: function (cmd, section, keepChildren) {
+                    var me = this;
+
+                    if(!section) return;
+
+                    function getNodeFromAddress(startAddress) {
+                        var current = me.body;
+                        for(var i = 0;i < startAddress.length; i++) {
+                            if(!current.childNodes) return null;
+                            current = current.childNodes[startAddress[i]];
+                        }
+                        return current;
+                    }
+
+                    var startNode = getNodeFromAddress(section.startAddress),
+                        endNode = getNodeFromAddress(section.endAddress),
+                        current = startNode,
+                        nextNode;
+
+                    if(!keepChildren) {
+                        while ( current && domUtils.inDoc(endNode, me.document) && !(domUtils.getPosition( current, endNode ) & domUtils.POSITION_FOLLOWING) ) {
+                            nextNode = current.nextSibling;
+                            domUtils.remove(current);
+                            current = nextNode;
+                        }
+                    } else {
+                        domUtils.remove(current);
+                    }
+
+                    me.fireEvent('updateSections');
+                }
+            },
+            'selectsection': {
+                execCommand: function (cmd, section) {
+                    if(!section && !section.dom) return false;
+                    var me = this,
+                        range = me.selection.getRange(),
+                        address = {
+                            'startAddress':utils.clone(section.startAddress, []),
+                            'endAddress':utils.clone(section.endAddress, [])
+                        };
+                    address.endAddress[address.endAddress.length - 1]++;
+                    range.moveToAddress(address).select().scrollToView();
+                    return true;
+                },
+                notNeedUndo: true
+            },
+            'scrolltosection': {
+                execCommand: function (cmd, section) {
+                    if(!section && !section.dom) return false;
+                    var me = this,
+                        range = me.selection.getRange(),
+                        address = {
+                            'startAddress':section.startAddress,
+                            'endAddress':section.endAddress
+                        };
+                    address.endAddress[address.endAddress.length - 1]++;
+                    range.moveToAddress(address).scrollToView();
+                    return true;
+                },
+                notNeedUndo: true
+            }
+        }
+    }
+});
+
+// plugins/simpleupload.js
+/**
+ * @description
+ * 简单上传:点击按钮,直接选择文件上传
+ * @author Jinqn
+ * @date 2014-03-31
+ */
+UE.plugin.register('simpleupload', function (){
+    var me = this,
+        isLoaded = false,
+        containerBtn;
+
+    function initUploadBtn(){
+        var w = containerBtn.offsetWidth || 20,
+            h = containerBtn.offsetHeight || 20,
+            btnIframe = document.createElement('iframe'),
+            btnStyle = 'display:block;width:' + w + 'px;height:' + h + 'px;overflow:hidden;border:0;margin:0;padding:0;position:absolute;top:0;left:0;filter:alpha(opacity=0);-moz-opacity:0;-khtml-opacity: 0;opacity: 0;cursor:pointer;';
+
+        domUtils.on(btnIframe, 'load', function(){
+
+            var timestrap = (+new Date()).toString(36),
+                wrapper,
+                btnIframeDoc,
+                btnIframeBody;
+
+            btnIframeDoc = (btnIframe.contentDocument || btnIframe.contentWindow.document);
+            btnIframeBody = btnIframeDoc.body;
+            wrapper = btnIframeDoc.createElement('div');
+
+            wrapper.innerHTML = '<form id="edui_form_' + timestrap + '" target="edui_iframe_' + timestrap + '" method="POST" enctype="multipart/form-data" action="' + me.getOpt('serverUrl') + '" ' +
+            'style="' + btnStyle + '">' +
+            '<input id="edui_input_' + timestrap + '" type="file" accept="image/*" name="' + me.options.imageFieldName + '" ' +
+            'style="' + btnStyle + '">' +
+            '</form>' +
+            '<iframe id="edui_iframe_' + timestrap + '" name="edui_iframe_' + timestrap + '" style="display:none;width:0;height:0;border:0;margin:0;padding:0;position:absolute;"></iframe>';
+
+            wrapper.className = 'edui-' + me.options.theme;
+            wrapper.id = me.ui.id + '_iframeupload';
+            btnIframeBody.style.cssText = btnStyle;
+            btnIframeBody.style.width = w + 'px';
+            btnIframeBody.style.height = h + 'px';
+            btnIframeBody.appendChild(wrapper);
+
+            if (btnIframeBody.parentNode) {
+                btnIframeBody.parentNode.style.width = w + 'px';
+                btnIframeBody.parentNode.style.height = w + 'px';
+            }
+
+            var form = btnIframeDoc.getElementById('edui_form_' + timestrap);
+            var input = btnIframeDoc.getElementById('edui_input_' + timestrap);
+            var iframe = btnIframeDoc.getElementById('edui_iframe_' + timestrap);
+
+            domUtils.on(input, 'change', function(){
+                if(!input.value) return;
+                var loadingId = 'loading_' + (+new Date()).toString(36);
+                var params = utils.serializeParam(me.queryCommandValue('serverparam')) || '';
+
+                var imageActionUrl = me.getActionUrl(me.getOpt('imageActionName'));
+                var allowFiles = me.getOpt('imageAllowFiles');
+
+                me.focus();
+                me.execCommand('inserthtml', '<img class="loadingclass" id="' + loadingId + '" src="' + me.options.themePath + me.options.theme +'/images/spacer.gif" title="' + (me.getLang('simpleupload.loading') || '') + '" >');
+
+                function callback(){
+                    try{
+                        var link, json, loader,
+                            body = (iframe.contentDocument || iframe.contentWindow.document).body,
+                            result = body.innerText || body.textContent || '';
+                        json = (new Function("return " + result))();
+                        link = me.options.imageUrlPrefix + json.url;
+                        if(json.state == 'SUCCESS' && json.url) {
+                            loader = me.document.getElementById(loadingId);
+                            loader.setAttribute('src', link);
+                            loader.setAttribute('_src', link);
+                            loader.setAttribute('title', json.title || '');
+                            loader.setAttribute('alt', json.original || '');
+                            loader.removeAttribute('id');
+                            domUtils.removeClasses(loader, 'loadingclass');
+                        } else {
+                            showErrorLoader && showErrorLoader(json.state);
+                        }
+                    }catch(er){
+                        showErrorLoader && showErrorLoader(me.getLang('simpleupload.loadError'));
+                    }
+                    form.reset();
+                    domUtils.un(iframe, 'load', callback);
+                }
+                function showErrorLoader(title){
+                    if(loadingId) {
+                        var loader = me.document.getElementById(loadingId);
+                        loader && domUtils.remove(loader);
+                        me.fireEvent('showmessage', {
+                            'id': loadingId,
+                            'content': title,
+                            'type': 'error',
+                            'timeout': 4000
+                        });
+                    }
+                }
+
+                /* 判断后端配置是否没有加载成功 */
+                if (!me.getOpt('imageActionName')) {
+                    errorHandler(me.getLang('autoupload.errorLoadConfig'));
+                    return;
+                }
+                // 判断文件格式是否错误
+                var filename = input.value,
+                    fileext = filename ? filename.substr(filename.lastIndexOf('.')):'';
+                if (!fileext || (allowFiles && (allowFiles.join('') + '.').indexOf(fileext.toLowerCase() + '.') == -1)) {
+                    showErrorLoader(me.getLang('simpleupload.exceedTypeError'));
+                    return;
+                }
+
+                domUtils.on(iframe, 'load', callback);
+                form.action = utils.formatUrl(imag

@@ -1,0 +1,4 @@
+index.html:公众号配置路由
+wx_add_config.php:公众号参数表单
+update.php:生成config/config_weixin.php文件
+wx_list_menu.php:公众号菜单列表

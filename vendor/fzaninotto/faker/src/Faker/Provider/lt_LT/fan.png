@@ -1,0 +1,31 @@
+    * 就是第一个参数为`type`，记录当前是什么事件在触发。此类`callback`的优先级比脚低，会再正常`callback`执行完后触发。
+             * ```javascript
+             * obj.on( 'all', function( type, arg1, arg2 ) {
+             *     console.log( type, arg1, arg2 ); // => 'testa', 'arg1', 'arg2'
+             * });
+             * ```
+             *
+             * @method on
+             * @grammar on( name, callback[, context] ) => self
+             * @param  {String}   name     事件名，支持多个事件用空格隔开
+             * @param  {Function} callback 事件处理器
+             * @param  {Object}   [context]  事件处理器的上下文。
+             * @return {self} 返回自身，方便链式
+             * @chainable
+             * @class Mediator
+             */
+            on: function( name, callback, context ) {
+                var me = this,
+                    set;
+    
+                if ( !callback ) {
+                    return this;
+                }
+    
+                set = this._events || (this._events = []);
+    
+                eachEvent( name, callback, function( name, callback ) {
+                    var handler = { e: name };
+    
+                    handler.cb = callback;
+         

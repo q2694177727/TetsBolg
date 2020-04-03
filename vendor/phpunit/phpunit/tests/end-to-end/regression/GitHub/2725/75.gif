@@ -1,0 +1,24 @@
+d="L_laws_id" name="law_id" lay-verify="" >
+                            <option value="">选择所属分类</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <?php else: ?>
+            <input type="hidden" name="law_id" value="<?php echo htmlentities($laws_id); ?>">
+            <?php endif; ?>
+            <div class="layui-form-item">
+                <label for="L_sort" class="layui-form-label">
+                    <span class="x-red">*</span>排序
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="L_sort" name="sort" placeholder="请输入排序" onkeyup="value=value.replace(/^(0+)|[^\d]+/g,'')" required="" lay-verify="sort"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label for="desc" class="layui-form-label">
+                    简介
+                </label>
+                <div class="layui-input-block">
+                    <textarea placeholder="请输入简介" id="desc" name="desc" class="layui-te

@@ -1,0 +1,41 @@
+
+                    if ($span_row > 1) {
+                        $objWriter->writeAttribute('table:number-rows-repeated', $span_row);
+                    }
+                    $objWriter->startElement('table:table-cell');
+                        $objWriter->writeAttribute('table:number-columns-repeated', self::NUMBER_COLS_REPEATED_MAX);
+                    $objWriter->endElement();
+                    $objWriter->endElement();
+                    $span_row = 0;
+                }
+                $objWriter->startElement('table:table-row');
+                $this->writeCells($objWriter, $row);
+                $objWriter->endElement();
+            } else {
+                $span_row++;
+            }
+            $rows->next();
+        }
+    }
+
+    /**
+     * Write cells of the specified row
+     *
+     * @param PHPExcel_Shared_XMLWriter $objWriter
+     * @param PHPExcel_Worksheet_Row $row
+     * @throws PHPExcel_Writer_Exception
+     */
+    private function writeCells(PHPExcel_Shared_XMLWriter $objWriter, PHPExcel_Worksheet_Row $row)
+    {
+        $number_cols_repeated = self::NUMBER_COLS_REPEATED_MAX;
+        $prev_column = -1;
+        $cells = $row->getCellIterator();
+        while ($cells->valid()) {
+            $cell = $cells->current();
+            $column = PHPExcel_Cell::columnIndexFromString($cell->getColumn()) - 1;
+
+            $this->writeCellSpan($objWriter, $column, $prev_column);
+            $objWriter->startElement('table:table-cell');
+
+            switch ($cell->getDataType()) {
+     

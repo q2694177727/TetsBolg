@@ -1,0 +1,81 @@
+�
+         * @example
+         * ```javascript
+         * editor.getLang('contextMenu.delete'); //如果当前是中文，那返回是的是'删除'
+         * ```
+         */
+        getLang: function (path) {
+            var lang = UE.I18N[this.options.lang];
+            if (!lang) {
+                throw Error("not import language file");
+            }
+            path = (path || "").split(".");
+            for (var i = 0, ci; ci = path[i++];) {
+                lang = lang[ci];
+                if (!lang)break;
+            }
+            return lang;
+        },
+
+        /**
+         * 计算编辑器html内容字符串的长度
+         * @method  getContentLength
+         * @return { Number } 返回计算的长度
+         * @example
+         * ```javascript
+         * //编辑器html内容<p><strong>132</strong></p>
+         * editor.getContentLength() //返回27
+         * ```
+         */
+        /**
+         * 计算编辑器当前纯文本内容的长度
+         * @method  getContentLength
+         * @param { Boolean } ingoneHtml 传入true时，只按照纯文本来计算
+         * @return { Number } 返回计算的长度，内容中有hr/img/iframe标签，长度加1
+         * @example
+         * ```javascript
+         * //编辑器html内容<p><strong>132</strong></p>
+         * editor.getContentLength() //返回3
+         * ```
+         */
+        getContentLength: function (ingoneHtml, tagNames) {
+            var count = this.getContent(false,false,true).length;
+            if (ingoneHtml) {
+                tagNames = (tagNames || []).concat([ 'hr', 'img', 'iframe']);
+                count = this.getContentTxt().replace(/[\t\r\n]+/g, '').length;
+                for (var i = 0, ci; ci = tagNames[i++];) {
+                    count += this.document.getElementsByTagName(ci).length;
+                }
+            }
+            return count;
+        },
+
+        /**
+         * 注册输入过滤规则
+         * @method  addInputRule
+         * @param { Function } rule 要添加的过滤规则
+         * @example
+         * ```javascript
+         * editor.addInputRule(function(root){
+         *   $.each(root.getNodesByTagName('div'),function(i,node){
+         *       node.tagName="p";
+         *   });
+         * });
+         * ```
+         */
+        addInputRule: function (rule) {
+            this.inputRules.push(rule);
+        },
+
+        /**
+         * 执行注册的过滤规则
+         * @method  filterInputRule
+         * @param { UE.uNode } root 要过滤的uNode节点
+         * @remind 执行editor.setContent方法和执行'inserthtml'命令后，会运行该过滤函数
+         * @example
+         * ```javascript
+         * editor.filterInputRule(editor.body);
+         * ```
+         * @see UE.Editor:addInputRule
+         */
+        filterInputRule: function (root) {

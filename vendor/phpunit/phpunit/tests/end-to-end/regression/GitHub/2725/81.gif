@@ -1,0 +1,28 @@
+是 left,right,center,justify 去掉这个属性表示不执行排版
+        //    imageBlockLine: 'center',       //图片的浮动方式，独占一行剧中,左右浮动，默认: center,left,right,none 去掉这个属性表示不执行排版
+        //    pasteFilter: false,             //根据规则过滤没事粘贴进来的内容
+        //    clearFontSize: false,           //去掉所有的内嵌字号，使用编辑器默认的字号
+        //    clearFontFamily: false,         //去掉所有的内嵌字体，使用编辑器默认的字体
+        //    removeEmptyNode: false,         // 去掉空节点
+        //    //可以去掉的标签
+        //    removeTagNames: {标签名字:1},
+        //    indent: false,                  // 行首缩进
+        //    indentValue : '2em',            //行首缩进的大小
+        //    bdc2sb: false,
+        //    tobdc: false
+        //}
+
+        //tableDragable
+        //表格是否可以拖拽
+        //,tableDragable: true
+
+        //,disabledTableInTable:true  //禁止表格嵌套
+
+        //sourceEditor
+        //源码的查看方式,codemirror 是代码高亮，textarea是文本框,默认是codemirror
+        //注意默认codemirror只能在ie8+和非ie中使用
+        //,sourceEditor:"codemirror"
+        //如果sourceEditor是codemirror，还用配置一下两个参数
+        //codeMirrorJsUrl js加载的路径，默认是 URL + "third-party/codemirror/codemirror.js"
+        //,codeMirrorJsUrl:URL + "third-party/codemirror/codemirror.js"
+        //codeMirrorCssUrl cs

@@ -1,0 +1,18 @@
+ 'referer' => 'http://soxun.com/soxun/link/add.html',
+  'content-type' => 'application/x-www-form-urlencoded; charset=UTF-8',
+  'user-agent' => 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+  'x-requested-with' => 'XMLHttpRequest',
+  'origin' => 'http://soxun.com',
+  'accept' => '*/*',
+  'content-length' => '41',
+  'connection' => 'close',
+  'host' => 'soxun.com',
+)
+[ info ] [ PARAM ] array (
+  'l_title' => '123123',
+  'l_url' => '#',
+  'sort' => '50',
+  'status' => '1',
+)
+[ info ] [ DB ] INIT mysql
+[ sql ] [ DB ] CONNECT:[ UseTime:0.054003s ] mysql:host=

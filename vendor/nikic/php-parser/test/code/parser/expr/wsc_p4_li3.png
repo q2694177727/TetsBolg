@@ -1,0 +1,46 @@
+e,area,base,col,hr,img,embed,input,link,meta,param
+         * @return { Boolean } 检查有内容返回true，否则返回false
+         * @example
+         * ```javascript
+         * editor.hasContents()
+         * ```
+         */
+
+        /**
+         * 检查编辑区域中是否有内容，若包含参数tags中的节点类型，直接返回true
+         * @method  hasContents
+         * @param { Array } tags 传入数组判断时用到的节点类型
+         * @return { Boolean } 若文档中包含tags数组里对应的tag，返回true，否则返回false
+         * @example
+         * ```javascript
+         * editor.hasContents(['span']);
+         * ```
+         */
+        hasContents: function (tags) {
+            if (tags) {
+                for (var i = 0, ci; ci = tags[i++];) {
+                    if (this.document.getElementsByTagName(ci).length > 0) {
+                        return true;
+                    }
+                }
+            }
+            if (!domUtils.isEmptyBlock(this.body)) {
+                return true
+            }
+            //随时添加,定义的特殊标签如果存在，不能认为是空
+            tags = ['div'];
+            for (i = 0; ci = tags[i++];) {
+                var nodes = domUtils.getElementsByTagName(this.document, ci);
+                for (var n = 0, cn; cn = nodes[n++];) {
+                    if (domUtils.isCustomeNode(cn)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        },
+
+        /**
+         * 重置编辑器，可用来做多个tab使用同一个编辑器实例
+         * @method  reset
+         * @remind 此方法会清空编辑器内容，清空�

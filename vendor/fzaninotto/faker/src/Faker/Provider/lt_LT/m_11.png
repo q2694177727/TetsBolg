@@ -1,0 +1,50 @@
+/*基础UI构建
+*/
+/* common layer */
+.edui-default .edui-box {
+    border: none;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+.edui-default a.edui-box {
+    display: block;
+    text-decoration: none;
+    color: black;
+}
+
+.edui-default a.edui-box:hover {
+    text-decoration: none;
+}
+
+.edui-default a.edui-box:active {
+    text-decoration: none;
+}
+
+.edui-default table.edui-box {
+    border-collapse: collapse;
+}
+
+.edui-default ul.edui-box {
+    list-style-type: none;
+}
+
+div.edui-box {
+    position: relative;
+    display: -moz-inline-box !important;
+    display: inline-block !important;
+    vertical-align: top;
+}
+
+.edui-default .edui-clearfix {
+    zoom: 1
+}
+
+.edui-default .edui-clearfix:after {
+    content: '\20';
+    display: block;
+    clear: both;
+}
+
+ * html div.edui-box

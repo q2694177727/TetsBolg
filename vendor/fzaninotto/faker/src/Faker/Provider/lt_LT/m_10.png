@@ -1,0 +1,20 @@
+��以接收到两个参数。
+             * * 第一个为error，如果生成缩略图有错误，此error将为真。
+             * * 第二个为ret, 缩略图的Data URL值。
+             *
+             * **注意**
+             * Date URL在IE6/7中不支持，所以不用调用此方法了，直接显示一张暂不支持预览图片好了。
+             *
+             *
+             * @method makeThumb
+             * @grammar makeThumb( file, callback ) => undefined
+             * @grammar makeThumb( file, callback, width, height ) => undefined
+             * @for Uploader
+             * @example
+             *
+             * uploader.on( 'fileQueued', function( file ) {
+             *     var $li = ...;
+             *
+             *     uploader.makeThumb( file, function( error, ret ) {
+             *         if ( error ) {
+             *         

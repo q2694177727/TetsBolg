@@ -35,7 +35,7 @@ class IndexController extends BaseController
             $limit   =   15;
         }
 
-       $data   =   Article::where("article_name","LIKE",$search)->orWhere("article_easy","LIKE",$search)->offset(($page-1)*$limit)->limit($limit)->get();
+       $data   =   Article::where("article_name","LIKE",$search)->orWhere("article_easy","LIKE",$search)->offset(($page-1)*$limit)->orderByDesc("created_at")->limit($limit)->get();
 
        return  view("index.index",["data"=>$data,'page'=>$page,"totalPage"=>$totalPage,"limit"=>$limit]);
     }

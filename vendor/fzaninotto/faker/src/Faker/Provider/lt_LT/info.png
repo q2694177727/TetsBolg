@@ -1,0 +1,24 @@
+ 
+            // 允许runtime没有初始化之前，注册一些方法在初始化后执行。
+            this.runtimeReady = function( cb ) {
+                return deferred.done( cb );
+            };
+    
+            this.connectRuntime = function( opts, cb ) {
+    
+                // already connected.
+                if ( runtime ) {
+                    throw new Error('already connected!');
+                }
+    
+                deferred.done( cb );
+    
+                if ( typeof opts === 'string' && cache.get( opts ) ) {
+                    runtime = cache.get( opts );
+                }
+    
+                // 像filePicker只能独立存在，不能公用。
+                runtime = runtime || cache.get( null, standalone );
+    
+                // 需要创建
+                
